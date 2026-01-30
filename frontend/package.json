@@ -1,0 +1,13 @@
+{
+  "name": "flowsight-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FlowSight - AI Workflow Intelligence Frontend",
+  "scripts": {
+    "dev": "echo 'Frontend not yet implemented - see README for architecture'",
+    "build": "echo 'Frontend not yet implemented'",
+    "start": "echo 'Frontend not yet implemented'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

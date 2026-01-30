@@ -1,0 +1,266 @@
+openapi: 3.0.3
+info:
+  title: FlowSight Mock Tool
+  description: |
+    Provides mock project events and workflow graphs for the FlowSight AI Workflow Intelligence system.
+
+    This API is designed to be imported into IBM watsonx Orchestrate as an OpenAPI tool for the
+    ingestion agent to use.
+
+    ## Endpoints
+
+    - **GET /api/v1/mock/events** - Fetch raw events from various source systems (Git, GitHub, Jira, CI)
+    - **GET /api/v1/mock/workflow** - Fetch a prebuilt workflow graph for fast demos
+
+    ## Usage with watsonx Orchestrate
+
+    1. Import this OpenAPI spec as a tool in watsonx Orchestrate
+    2. Attach the tool to the ingestion_agent
+    3. The agent will use `get_mock_events` to fetch raw events and normalize them into a workflow graph
+  version: 0.1.0
+  contact:
+    name: FlowSight Team
+
+servers:
+  - url: https://YOUR-CODE-ENGINE-URL.us-south.codeengine.appdomain.cloud
+    description: IBM Cloud Code Engine (update this URL after deployment)
+
+paths:
+  /api/v1/mock/events:
+    get:
+      operationId: get_mock_events
+      summary: Get mock project events
+      description: |
+        Returns mixed raw events (Git commits, PRs, CI runs, Jira issues) that can be
+        used to build a workflow graph.
+
+        Use this endpoint when you need to demonstrate the ingestion agent's
+        normalization capabilities. The returned events simulate real-world delivery
+        pipeline data from multiple tools.
+      tags:
+        - Mock Data
+      responses:
+        '200':
+          description: Successfully retrieved mock events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawEventsPayload'
+              example:
+                raw_events:
+                  - source: git
+                    type: commit
+                    id: a1b2c3d
+                    timestamp: "2026-01-30T14:00:00Z"
+                    branch: main
+                    author: dev1
+                  - source: github
+                    type: pull_request
+                    id: "42"
+                    timestamp: "2026-01-30T14:30:00Z"
+                    status: open
+                    author: dev1
+                  - source: ci
+                    type: workflow_run
+                    id: "77"
+                    timestamp: "2026-01-30T15:00:00Z"
+                    conclusion: failure
+                  - source: jira
+                    type: issue
+                    id: "101"
+                    key: PROJ-101
+                    timestamp: "2026-01-30T14:10:00Z"
+                    status: In Review
+                    assignee: user_1
+
+  /api/v1/mock/workflow:
+    get:
+      operationId: get_mock_workflow
+      summary: Get prebuilt workflow graph
+      description: |
+        Returns a ready-made workflow graph for fast demos.
+
+        Use this endpoint when you want to skip the normalization step and directly
+        test the analysis, bottleneck detection, or recommendation agents.
+
+        The returned graph includes:
+        - Nodes representing commits, PRs, CI runs, and issues
+        - Edges showing relationships (triggers, depends_on, blocks)
+      tags:
+        - Mock Data
+      responses:
+        '200':
+          description: Successfully retrieved workflow graph
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphEnvelope'
+              example:
+                workflow_graph:
+                  nodes:
+                    - id: COMMIT_a1b2c3
+                      type: commit
+                      status: committed
+                      created_at: "2026-01-30T14:00:00Z"
+                    - id: PR_42
+                      type: pull_request
+                      status: open
+                      created_at: "2026-01-30T14:30:00Z"
+                    - id: CI_77
+                      type: ci_run
+                      status: failure
+                      created_at: "2026-01-30T15:00:00Z"
+                    - id: ISSUE_PROJ-101
+                      type: issue
+                      status: In Review
+                      created_at: "2026-01-30T14:10:00Z"
+                  edges:
+                    - from: COMMIT_a1b2c3
+                      to: PR_42
+                      type: triggers
+                    - from: PR_42
+                      to: CI_77
+                      type: triggers
+                    - from: ISSUE_PROJ-101
+                      to: PR_42
+                      type: depends_on
+
+  /healthz:
+    get:
+      operationId: health_check
+      summary: Health check
+      description: Check if the service is healthy and responding.
+      tags:
+        - System
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  service:
+                    type: string
+                    example: flowsight-mock-tool
+
+components:
+  schemas:
+    RawEvent:
+      type: object
+      required:
+        - source
+        - type
+        - id
+        - timestamp
+      properties:
+        source:
+          type: string
+          enum: [git, github, jira, ci, slack]
+          description: Source system of the event
+        type:
+          type: string
+          description: Type of event (commit, pull_request, workflow_run, issue)
+        id:
+          type: string
+          description: Unique identifier within the source system
+        timestamp:
+          type: string
+          format: date-time
+          description: When the event occurred
+        branch:
+          type: string
+          description: Git branch (for commits and PRs)
+        status:
+          type: string
+          description: Current status of the artifact
+        author:
+          type: string
+          description: Who created the artifact
+        assignee:
+          type: string
+          description: Who is assigned (for issues)
+        conclusion:
+          type: string
+          description: CI run conclusion (success, failure, cancelled)
+        key:
+          type: string
+          description: Issue key (for Jira issues, e.g., PROJ-101)
+
+    RawEventsPayload:
+      type: object
+      required:
+        - raw_events
+      properties:
+        raw_events:
+          type: array
+          items:
+            $ref: '#/components/schemas/RawEvent'
+          description: List of raw events from various source systems
+
+    Node:
+      type: object
+      required:
+        - id
+        - type
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Unique node identifier (e.g., COMMIT_a1b2c3, PR_42)
+        type:
+          type: string
+          enum: [commit, pull_request, ci_run, issue, deployment]
+          description: Type of delivery artifact
+        status:
+          type: string
+          description: Current status of the artifact
+        created_at:
+          type: string
+          format: date-time
+          description: When the artifact was created
+        metadata:
+          type: object
+          description: Additional metadata
+
+    Edge:
+      type: object
+      required:
+        - from
+        - to
+        - type
+      properties:
+        from:
+          type: string
+          description: Source node ID
+        to:
+          type: string
+          description: Target node ID
+        type:
+          type: string
+          enum: [triggers, depends_on, blocks]
+          description: Relationship type
+
+    WorkflowGraph:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Node'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Edge'
+
+    GraphEnvelope:
+      type: object
+      required:
+        - workflow_graph
+      properties:
+        workflow_graph:
+          $ref: '#/components/schemas/WorkflowGraph'
