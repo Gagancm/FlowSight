@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { ReactFlowProvider } from 'reactflow';
 import { ToolsSidebar } from '../components/connections/ToolsSidebar';
+import { ConnectionCanvas } from '../components/connections/ConnectionCanvas';
 
 // SVG Icons for action buttons
 const PlusIcon = () => (
@@ -68,24 +70,37 @@ const ZoomOutIcon = () => (
 
 export function ConnectionsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+
+  const handleZoomIn = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.zoomIn();
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.zoomOut();
+    }
+  };
+
+  const handleFitView = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.fitView({ padding: 0.2, duration: 200 });
+    }
+  };
 
   return (
     <div className="absolute inset-0 flex">
       {/* Main Canvas Area */}
       <div className="flex-1 relative">
-        {/* Canvas content area - will be React Flow canvas */}
-        <div className="absolute inset-0 bg-[var(--color-bg-primary)]">
-          {/* Placeholder text */}
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-[var(--color-text-muted)] text-sm">
-                Canvas will be here
-              </p>
-              <p className="text-[var(--color-text-muted)] text-xs mt-2">
-                Click the + button to add tools →
-              </p>
-            </div>
-          </div>
+        {/* React Flow Canvas */}
+        <div className="absolute inset-0">
+          <ReactFlowProvider>
+            <ConnectionCanvas 
+              onInit={setReactFlowInstance}
+            />
+          </ReactFlowProvider>
         </div>
         
         {/* Right side action buttons - moves left when sidebar is open */}
@@ -109,13 +124,22 @@ export function ConnectionsPage() {
 
         {/* Bottom left canvas controls */}
         <div className="absolute bottom-4 left-4 flex gap-2 z-10">
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button 
+            onClick={handleFitView}
+            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+          >
             <MoveIcon />
           </button>
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button 
+            onClick={handleZoomIn}
+            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+          >
             <ZoomInIcon />
           </button>
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button 
+            onClick={handleZoomOut}
+            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+          >
             <ZoomOutIcon />
           </button>
         </div>
@@ -123,17 +147,19 @@ export function ConnectionsPage() {
 
       {/* Right Sidebar with Tools - Slides in from right */}
       <div className={`
-        fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-20
+        fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-      `}>
-        <ToolsSidebar />
+      `}
+      style={{ zIndex: 25 }}
+      >
+        <ToolsSidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
 
-      {/* Overlay when sidebar is open */}
+      {/* Overlay when sidebar is open - but allow pointer events to pass through to canvas */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-10 transition-opacity duration-300"
-          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-black/50 transition-opacity duration-300 pointer-events-none"
+          style={{ zIndex: 15 }}
         />
       )}
     </div>

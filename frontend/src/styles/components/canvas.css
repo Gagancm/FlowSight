@@ -1,0 +1,235 @@
+/**
+ * React Flow Canvas - n8n-style theming
+ */
+
+/* Override React Flow default styles */
+.react-flow {
+  background-color: var(--color-bg-primary);
+}
+
+/* ===== TOOL NODE STYLING ===== */
+.tool-node {
+  position: relative;
+  width: 120px;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0;
+  font-family: var(--font-sans);
+  cursor: grab;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tool-node:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+}
+
+.tool-node.selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.tool-node.dragging {
+  cursor: grabbing;
+  opacity: 0.9;
+  transition: none; /* Remove all transitions while dragging */
+}
+
+.tool-node-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  gap: 8px;
+}
+
+/* Status indicator */
+.tool-node-status {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Tool icon */
+.tool-node-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: var(--color-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.tool-node:hover .tool-node-icon {
+  color: var(--color-accent);
+}
+
+/* Tool name */
+.tool-node-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+/* Connection handles */
+.tool-node-handle {
+  width: 12px;
+  height: 12px;
+  background: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.tool-node-handle:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== REACT FLOW DEFAULT OVERRIDES ===== */
+
+/* Node styling */
+.react-flow__node {
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0;
+  font-family: var(--font-sans);
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.react-flow__node:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+  transform: translateY(-2px);
+}
+
+.react-flow__node.selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.react-flow__node.dragging {
+  cursor: grabbing;
+  opacity: 0.8;
+}
+
+/* Edge/Connection line styling */
+.react-flow__edge-path {
+  stroke: var(--color-border);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--color-accent);
+  stroke-width: 3;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke: var(--color-accent);
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* Connection handles (dots on nodes) */
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  background: var(--color-border);
+  border: 2px solid var(--color-bg-secondary);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.react-flow__handle:hover {
+  background: var(--color-accent);
+  width: 14px;
+  height: 14px;
+}
+
+.react-flow__handle-left {
+  left: -6px;
+}
+
+.react-flow__handle-right {
+  right: -6px;
+}
+
+/* Connection line while dragging */
+.react-flow__connection-path {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+/* Controls (hidden in our case) */
+.react-flow__controls {
+  display: none;
+}
+
+/* MiniMap styling */
+.react-flow__minimap {
+  background-color: var(--color-bg-tertiary) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 8px;
+}
+
+.react-flow__minimap-node {
+  fill: var(--color-bg-secondary);
+  stroke: var(--color-border);
+}
+
+/* Selection box */
+.react-flow__selection {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid var(--color-accent);
+}
+
+/* Zoom pane (background) */
+.react-flow__pane {
+  cursor: grab;
+}
+
+.react-flow__pane.dragging {
+  cursor: grabbing;
+}
+
+/* Attribution (React Flow watermark) */
+.react-flow__attribution {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.react-flow__attribution a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.react-flow__attribution a:hover {
+  color: var(--color-accent);
+}
