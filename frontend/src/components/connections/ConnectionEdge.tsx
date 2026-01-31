@@ -1,8 +1,8 @@
 import { memo } from 'react';
-import { EdgeProps, getBezierPath, EdgeMarker, MarkerType } from 'reactflow';
+import { EdgeProps, getBezierPath, useReactFlow } from 'reactflow';
 
 interface ConnectionEdgeData {
-  status?: 'active' | 'inactive' | 'error' | 'syncing';
+  status?: 'active' | 'connected' | 'inactive' | 'error' | 'syncing';
   lastSync?: string;
 }
 
@@ -17,6 +17,7 @@ function ConnectionEdgeComponent({
   data,
   selected,
 }: EdgeProps<ConnectionEdgeData>) {
+  const { deleteElements } = useReactFlow();
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -28,11 +29,13 @@ function ConnectionEdgeComponent({
 
   const status = data?.status || 'inactive';
 
-  // Get edge color based on status
+  // Get edge color based on status: active=blue (data flow), connected=yellow/orange (idle), inactive=grey
   const getEdgeColor = () => {
     switch (status) {
       case 'active':
         return 'var(--color-accent)';
+      case 'connected':
+        return 'var(--color-warning)';
       case 'error':
         return 'var(--color-critical)';
       case 'syncing':
@@ -46,16 +49,12 @@ function ConnectionEdgeComponent({
   const edgeColor = getEdgeColor();
   const isAnimated = status === 'active' || status === 'syncing';
 
-  // Create marker (arrow) for the edge
-  const markerEnd: EdgeMarker = {
-    type: MarkerType.ArrowClosed,
-    width: 20,
-    height: 20,
-    color: edgeColor,
+  const handleDoubleClick = () => {
+    deleteElements({ edges: [{ id }] });
   };
 
   return (
-    <>
+    <g onDoubleClick={handleDoubleClick} style={{ cursor: 'pointer' }}>
       {/* Glow effect for active/syncing connections */}
       {isAnimated && (
         <path
@@ -71,6 +70,15 @@ function ConnectionEdgeComponent({
         />
       )}
 
+      {/* Invisible wider path for easier double-click target */}
+      <path
+        d={edgePath}
+        strokeWidth={20}
+        stroke="transparent"
+        fill="none"
+        strokeLinecap="round"
+      />
+
       {/* Main edge path */}
       <path
         id={id}
@@ -81,6 +89,7 @@ function ConnectionEdgeComponent({
         fill="none"
         strokeLinecap="round"
         markerEnd={`url(#${id}-arrow)`}
+        pointerEvents="none"
       />
 
       {/* Define arrow marker */}
@@ -113,7 +122,7 @@ function ConnectionEdgeComponent({
 
       {/* Optional: Status label in the middle */}
       {selected && status === 'syncing' && (
-        <g transform={`translate(${labelX}, ${labelY})`}>
+        <g transform={`translate(${labelX}, ${labelY})`} pointerEvents="none">
           <rect
             x={-25}
             y={-10}
@@ -136,7 +145,7 @@ function ConnectionEdgeComponent({
           </text>
         </g>
       )}
-    </>
+    </g>
   );
 }
 

@@ -7,27 +7,52 @@
   background-color: var(--color-bg-primary);
 }
 
-/* ===== TOOL NODE STYLING ===== */
+/* ===== TOOL NODE STYLING (Neumorphic theme - matches neu-tool-card) ===== */
 .tool-node {
   position: relative;
-  width: 120px;
-  background: var(--color-bg-secondary);
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
+  background: #222222;
+  border: none;
+  outline: 1px solid #2A2C30;
+  border-radius: 16px;
   padding: 0;
   font-family: var(--font-sans);
   cursor: grab;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    4px 4px 12px rgba(16, 17, 19, 0.6),
+    -2px -2px 8px rgba(36, 37, 41, 0.15),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .tool-node:hover {
-  border-color: var(--color-accent);
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+  background: rgba(40, 40, 40, 0.7);
+  box-shadow:
+    3px 3px 12px rgba(16, 17, 19, 0.4),
+    -1px -1px 8px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+  outline-color: var(--color-border-light);
 }
 
-.tool-node.selected {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+.react-flow__node.selected .tool-node {
+  outline: 1px solid var(--color-brand-orange);
+  box-shadow:
+    4px 4px 12px rgba(16, 17, 19, 0.6),
+    -2px -2px 8px rgba(36, 37, 41, 0.15),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset,
+    0 0 0 2px var(--color-brand-orange-glow);
+}
+
+.react-flow__node.selected .tool-node:hover {
+  background: rgba(40, 40, 40, 0.7);
+  box-shadow:
+    3px 3px 12px rgba(16, 17, 19, 0.4),
+    -1px -1px 8px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset,
+    0 0 0 2px var(--color-brand-orange-glow);
 }
 
 .tool-node.dragging {
@@ -36,15 +61,63 @@
   transition: none; /* Remove all transitions while dragging */
 }
 
-.tool-node-content {
-  display: flex;
+/* Square: icon on top, text below (6 letters or less) */
+.tool-node--square {
+  width: 120px;
+}
+
+.tool-node--square .tool-node-content {
   flex-direction: column;
   align-items: center;
   padding: 16px 12px;
   gap: 8px;
 }
 
-/* Status indicator */
+.tool-node--square .tool-node-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.tool-node--square .tool-node-name {
+  text-align: center;
+}
+
+/* Rectangle: icon on left, text on right (more than 6 letters) */
+.tool-node--rectangle {
+  min-width: 140px;
+  max-width: 200px;
+}
+
+.tool-node--rectangle .tool-node-content {
+  flex-direction: row;
+  align-items: center;
+  padding: 16px 20px;
+  gap: 12px;
+}
+
+.tool-node--rectangle .tool-node-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.tool-node--rectangle .tool-node-name {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tool-node-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Delete button - inside box, top-left corner, visible only when selected + hovered */
+.tool-node-delete-btn {
+  top: 8px;
+  left: 8px;
+}
+
+/* Status indicator - inside the box, top-right corner */
+/* 3 states: grey=disconnected, yellow blinking=connected no data, green=data transferring */
 .tool-node-status {
   position: absolute;
   top: 8px;
@@ -55,54 +128,101 @@
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
+.tool-node-status--disconnected {
+  background-color: var(--color-text-muted);
+}
+
+.tool-node-status--connected {
+  background-color: var(--color-warning);
+  animation: tool-node-status-pulse 1.5s ease-in-out infinite;
+}
+
+.tool-node-status--active {
+  background-color: var(--color-success);
+}
+
+@keyframes tool-node-status-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 184, 77, 0.3);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3), 0 0 12px rgba(255, 184, 77, 0.6);
+  }
+}
+
 /* Tool icon */
 .tool-node-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  color: var(--color-text-secondary);
-  transition: color 0.2s ease;
+  flex-shrink: 0;
+  color: #8B8D93;
+  transition: color 0.2s ease, filter 0.2s ease;
 }
 
-.tool-node:hover .tool-node-icon {
-  color: var(--color-accent);
+.tool-node:hover .tool-node-icon,
+.react-flow__node.selected .tool-node .tool-node-icon {
+  color: var(--color-brand-orange);
+  filter: drop-shadow(0 0 8px var(--color-brand-orange-glow));
+}
+
+.react-flow__node.selected .tool-node:hover .tool-node-icon {
+  color: var(--color-brand-orange);
+  filter: drop-shadow(0 0 10px var(--color-brand-orange-glow));
 }
 
 /* Tool name */
 .tool-node-name {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-text-primary);
-  text-align: center;
-  word-break: break-word;
   line-height: 1.2;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
-/* Connection handles */
+.tool-node:hover .tool-node-name,
+.react-flow__node.selected .tool-node .tool-node-name {
+  color: var(--color-brand-orange);
+  text-shadow: 0 0 8px var(--color-brand-orange-glow), 0 0 16px var(--color-brand-orange-glow);
+}
+
+.react-flow__node.selected .tool-node:hover .tool-node-name {
+  color: var(--color-brand-orange);
+  text-shadow: 0 0 10px var(--color-brand-orange-glow), 0 0 20px var(--color-brand-orange-glow);
+}
+
+/* Connection handles - neumorphic style */
 .tool-node-handle {
-  width: 12px;
-  height: 12px;
-  background: var(--color-bg-tertiary);
-  border: 2px solid var(--color-border);
+  width: 10px;
+  height: 10px;
+  background: #25262A;
+  border: none;
+  outline: 1px solid #2A2C30;
   border-radius: 50%;
+  box-shadow:
+    2px 2px 6px rgba(0, 0, 0, 0.4),
+    -1px -1px 3px rgba(50, 50, 50, 0.2) inset;
   transition: all 0.2s ease;
 }
 
 .tool-node-handle:hover {
   background: var(--color-accent);
-  border-color: var(--color-accent);
-  width: 16px;
-  height: 16px;
+  outline-color: var(--color-accent);
+  width: 12px;
+  height: 12px;
+  box-shadow:
+    2px 2px 8px rgba(59, 130, 246, 0.3),
+    -1px -1px 3px rgba(50, 50, 50, 0.2) inset;
 }
 
 /* ===== REACT FLOW DEFAULT OVERRIDES ===== */
 
-/* Node styling */
+/* Node styling - match neumorphic theme */
 .react-flow__node {
-  background: var(--color-bg-secondary);
-  border: 2px solid var(--color-border);
+  background: transparent;
+  border: none;
   border-radius: 12px;
   padding: 0;
   font-family: var(--font-sans);
@@ -111,24 +231,17 @@
 }
 
 .react-flow__node:hover {
-  border-color: var(--color-accent);
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
-  transform: translateY(-2px);
-}
-
-.react-flow__node.selected {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  transform: none;
 }
 
 .react-flow__node.dragging {
   cursor: grabbing;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
-/* Edge/Connection line styling */
+/* Edge/Connection line - theme colors */
 .react-flow__edge-path {
-  stroke: var(--color-border);
+  stroke: var(--color-border-light);
   stroke-width: 2;
   stroke-linecap: round;
 }
@@ -136,7 +249,7 @@
 .react-flow__edge.selected .react-flow__edge-path,
 .react-flow__edge:hover .react-flow__edge-path {
   stroke: var(--color-accent);
-  stroke-width: 3;
+  stroke-width: 2.5;
 }
 
 .react-flow__edge.animated .react-flow__edge-path {
@@ -160,20 +273,28 @@
   }
 }
 
-/* Connection handles (dots on nodes) */
+/* Connection handles - match tool-node-handle theme */
 .react-flow__handle {
   width: 10px;
   height: 10px;
-  background: var(--color-border);
-  border: 2px solid var(--color-bg-secondary);
+  background: #25262A;
+  border: none;
+  outline: 1px solid #2A2C30;
   border-radius: 50%;
+  box-shadow:
+    2px 2px 6px rgba(0, 0, 0, 0.4),
+    -1px -1px 3px rgba(50, 50, 50, 0.2) inset;
   transition: all 0.2s ease;
 }
 
 .react-flow__handle:hover {
   background: var(--color-accent);
-  width: 14px;
-  height: 14px;
+  outline-color: var(--color-accent);
+  width: 12px;
+  height: 12px;
+  box-shadow:
+    2px 2px 8px rgba(59, 130, 246, 0.3),
+    -1px -1px 3px rgba(50, 50, 50, 0.2) inset;
 }
 
 .react-flow__handle-left {
@@ -182,6 +303,14 @@
 
 .react-flow__handle-right {
   right: -6px;
+}
+
+.react-flow__handle-top {
+  top: -6px;
+}
+
+.react-flow__handle-bottom {
+  bottom: -6px;
 }
 
 /* Connection line while dragging */
@@ -209,10 +338,11 @@
   stroke: var(--color-border);
 }
 
-/* Selection box */
+/* Selection box - theme accent */
 .react-flow__selection {
-  background: rgba(59, 130, 246, 0.1);
+  background: var(--color-accent-bg);
   border: 1px solid var(--color-accent);
+  border-radius: 8px;
 }
 
 /* Zoom pane (background) */

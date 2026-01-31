@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChatMessage } from './ChatMessage';
 import { useAIQuery } from '../../hooks/useAIQuery';
 import { cn } from '../../utils/helpers';
@@ -40,31 +41,41 @@ export function ChatInterface() {
   /* Claude-like layout: full-height chat with input pinned to bottom */
   if (hasMessages) {
     return (
-      <div
+      <motion.div
         className="flex flex-col h-full min-h-0"
         style={{ fontFamily: 'var(--font-sans)' }}
+        initial={false}
+        animate={{ opacity: 1 }}
       >
         {/* Messages area - scrollable, fills space */}
         <div className="flex-1 min-h-0 overflow-y-auto chat-messages-container flex justify-center">
-          <div className="w-full max-w-3xl px-6 py-8" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
-            {messages.map((msg) => (
-              <ChatMessage key={msg.id} message={msg} />
-            ))}
+          <div className="w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-8" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
+            <AnimatePresence initial={false}>
+              {messages.map((msg, i) => (
+                <ChatMessage key={msg.id} message={msg} index={i} />
+              ))}
             {loading && (
-              <div className="flex justify-start py-3" aria-label="AI is thinking">
+              <motion.div
+                className="flex justify-start py-3"
+                aria-label="AI is thinking"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              >
                 <div className="neu-diamond-outer neu-diamond-outer--loading flex-shrink-0" aria-hidden>
                   <div className="neu-diamond" />
                   <div className="neu-diamond neu-diamond-inner" />
                 </div>
-              </div>
+              </motion.div>
             )}
             <div ref={messagesEndRef} />
+            </AnimatePresence>
           </div>
         </div>
 
         {/* Input area - fixed at bottom, sidebar-style panel */}
-        <div className="flex-shrink-0 flex justify-center pb-8 pt-4 chat-input-wrapper">
-          <div className="neu-chat-panel neu-chat-panel--sidebar-style w-full max-w-3xl px-6" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
+        <div className="flex-shrink-0 flex justify-center pb-4 sm:pb-8 pt-4 chat-input-wrapper">
+          <div className="neu-chat-panel neu-chat-panel--sidebar-style w-full max-w-3xl px-4 sm:px-6" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
             <div className="px-5 pt-5 pb-4">
               <textarea
                 value={input}
@@ -105,33 +116,50 @@ export function ChatInterface() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   /* Initial state: centered greeting and quick actions */
   return (
-    <div
+    <motion.div
       className="flex h-full min-h-0 overflow-y-auto justify-center items-center"
       style={{ fontFamily: 'var(--font-sans)' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="flex flex-col items-center justify-center w-full max-w-3xl px-6 py-8" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
-        {/* Soft diamond shape with orange border + inner squircle (rotates on hover) */}
-        <div className="neu-diamond-outer flex-shrink-0 mb-6" aria-hidden>
+      <div className="flex flex-col items-center justify-center w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-8" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
+        {/* Soft diamond shape with orange border + inner squircle */}
+        <motion.div
+          className="neu-diamond-outer flex-shrink-0 mb-6"
+          aria-hidden
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        >
           <div className="neu-diamond" />
           <div className="neu-diamond neu-diamond-inner" />
-        </div>
+        </motion.div>
 
         {/* Greeting */}
-        <h2
-          className="text-center text-[var(--color-text-primary)] font-semibold mb-8"
+        <motion.h2
+          className="text-center text-[var(--color-text-primary)] font-semibold mb-6 sm:mb-8"
           style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--font-weight-semibold)' }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
         >
           Hi, let&apos;s explore your workflow
-        </h2>
+        </motion.h2>
 
         {/* Main chat card - starts conversation */}
-        <div className="neu-chat-panel w-full">
+        <motion.div
+          className="neu-chat-panel w-full"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.3 }}
+        >
           <div className="px-5 pt-5 pb-4">
             <textarea
               value={input}
@@ -170,11 +198,11 @@ export function ChatInterface() {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Quick action cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mt-8">
-          {QUICK_ACTIONS.map((action) => {
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full mt-6 sm:mt-8">
+          {QUICK_ACTIONS.map((action, i) => {
             const Icon =
               action.icon === 'branch'
                 ? () => (
@@ -201,7 +229,7 @@ export function ChatInterface() {
                       </svg>
                     );
             return (
-              <button
+              <motion.button
                 key={action.id}
                 type="button"
                 onClick={() => sendQuery(action.label)}
@@ -210,14 +238,19 @@ export function ChatInterface() {
                   action.highlighted && 'neu-quick-action--highlighted'
                 )}
                 style={{ fontSize: '0.875rem' }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 + i * 0.06, duration: 0.25 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <Icon />
                 <span className="min-w-0">{action.label}</span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

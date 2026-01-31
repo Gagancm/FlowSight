@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // SVG Icons for action buttons (Flow page - same set as Connections)
 const ChevronDownIcon = () => (
@@ -84,75 +85,91 @@ export function FlowPage() {
   const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Github Graph';
 
   return (
-    <div className="absolute inset-0 flex" style={{ fontFamily: 'var(--font-sans)' }}>
-      {/* Main content area - same structure as Connections */}
-      <div className="flex-1 relative overflow-hidden min-h-0">
-        {/* Graph content - scrollable, with top padding so branch list starts well below dropdown */}
-        <div className="absolute inset-0 theme-scrollbar overflow-auto pt-24 pl-4 pr-4 pb-4">
+    <motion.div
+      className="absolute inset-0 flex flex-col sm:flex-row"
+      style={{ fontFamily: 'var(--font-sans)' }}
+      initial={false}
+      animate={{ opacity: 1 }}
+    >
+      <div className="flex-1 relative overflow-hidden min-h-0 min-w-0">
+        {/* Graph content - scrollable, responsive padding */}
+        <div className="absolute inset-0 theme-scrollbar overflow-auto pt-20 sm:pt-24 pl-4 pr-4 pb-4 pl-14 lg:pl-4">
           <BranchGraph />
         </div>
 
-        {/* Top-left: graph type dropdown - above content so branch list starts below it */}
-        <div className="absolute top-4 left-4 z-10" ref={dropdownRef}>
-          <button
+        {/* Top-left: graph type dropdown */}
+        <div className="absolute top-4 left-4 z-10 pl-14 lg:pl-0" ref={dropdownRef}>
+          <motion.button
             type="button"
             onClick={() => setDropdownOpen((o) => !o)}
-            className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[160px]"
+            className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <span>{currentLabel}</span>
             <ChevronDownIcon />
-          </button>
-          {dropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]">
-              {GRAPH_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => {
-                    setSelectedGraph(opt.value);
-                    setDropdownOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors rounded-md ${
-                    selectedGraph === opt.value
-                      ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
-                      : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          )}
+          </motion.button>
+          <AnimatePresence>
+            {dropdownOpen && (
+              <motion.div
+                className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                {GRAPH_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedGraph(opt.value);
+                      setDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors rounded-md ${
+                      selectedGraph === opt.value
+                        ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                        : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Top-right: action buttons - same position and style as Connections */}
+        {/* Top-right: action buttons */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Download">
+          <motion.button type="button" className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center" title="Download" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <DownloadIcon />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
             title="AI Insights"
             onClick={() => { window.location.hash = 'ai-insights'; }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <AIIcon />
-          </button>
+          </motion.button>
         </div>
 
-        {/* Bottom-left: canvas controls - same position and style as Connections */}
-        <div className="absolute bottom-4 left-4 flex gap-2 z-10">
-          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Fit view">
+        {/* Bottom-left: canvas controls */}
+        <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
+          <motion.button type="button" className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center" title="Fit view" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <MoveIcon />
-          </button>
-          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Zoom in">
+          </motion.button>
+          <motion.button type="button" className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center" title="Zoom in" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <ZoomInIcon />
-          </button>
-          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Zoom out">
+          </motion.button>
+          <motion.button type="button" className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center" title="Zoom out" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <ZoomOutIcon />
-          </button>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

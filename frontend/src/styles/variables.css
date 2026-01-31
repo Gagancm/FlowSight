@@ -46,7 +46,11 @@
   --color-border-light: #35373C;
   --color-divider: #2A2C30;
 
-  /* Accent & Interactive */
+  /* Brand / Logo (amber-orange from diamond) */
+  --color-brand-orange: #AC7E4B;
+  --color-brand-orange-glow: rgba(172, 126, 75, 0.6);
+
+  /* Theme accent & Interactive - primary blue used for step indicators, buttons, links, highlights */
   --color-accent: #3b82f6;
   --color-accent-hover: #2563eb;
   --color-accent-bg: rgba(59, 130, 246, 0.1);
@@ -89,8 +93,16 @@
   --sidebar-width: 240px;
   /* Offset to center AI chat in full viewport (half of sidebar + margins) */
   --ai-chat-center-offset: calc(-1 * (19px + var(--sidebar-width) + 20px) / 2);
-  --sidebar-collapsed-width: 64px;
+  --sidebar-collapsed-width: 88px;
   --navbar-height: 64px;
+
+  /* Responsive breakpoints (match Tailwind) */
+  --bp-xs: 375px;
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1536px;
   --bottom-panel-height: 180px;
   --max-content-width: 1440px;
   --card-border-radius: 16px;
@@ -124,4 +136,11 @@
   --line-parent: 2px solid var(--color-border);
   --line-blocking: 3px dashed var(--color-critical);
   --line-conflict: 2px dashed var(--color-warning);
+}
+
+/* Responsive: center AI chat in viewport on mobile (no sidebar offset) */
+@media (max-width: 1023px) {
+  :root {
+    --ai-chat-center-offset: 0;
+  }
 }
