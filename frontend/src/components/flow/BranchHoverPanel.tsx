@@ -2,6 +2,7 @@ import { Avatar } from '../shared/Avatar';
 import { Button } from '../shared/Button';
 import { StatusIndicator } from '../shared/StatusIndicator';
 import type { BranchDetail } from '../../types/flow';
+import { useEffect, useState } from 'react';
 
 interface BranchHoverPanelProps {
   branch: BranchDetail | null;
@@ -11,6 +12,18 @@ interface BranchHoverPanelProps {
 }
 
 export function BranchHoverPanel({ branch, position, onClose, isPinned }: BranchHoverPanelProps) {
+  const [animate, setAnimate] = useState(false);
+
+  // Trigger animation when panel appears (branch changes)
+  useEffect(() => {
+    if (branch) {
+      setAnimate(true);
+      // Reset after animation completes
+      const timer = setTimeout(() => setAnimate(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [branch?.id]); // Re-trigger when branch changes
+
   if (!branch) return null;
 
   const { bottleneck, recommendation } = branch;
@@ -56,7 +69,7 @@ export function BranchHoverPanel({ branch, position, onClose, isPinned }: Branch
       )}
       
       <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
-        <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />
+        <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} animate={animate} />
         {branch.name}
       </h3>
       <section className="mb-4">

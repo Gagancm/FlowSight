@@ -21,12 +21,73 @@ import { useFlowData } from '../../hooks/useFlowData';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { Branch } from '../../types/flow';
 
+const DEMO_VIDEO_SRC = '/demo-flow.mp4'; // Placeholder for flow demo video
+
+// Empty state component for when no project is selected
+function EmptyStateDemo() {
+  const [videoError, setVideoError] = useState(false);
+
+  return (
+    <div className="connections-empty-state" aria-hidden>
+      <div className="connections-empty-state-card flow-dropdown-panel rounded-2xl p-6 max-w-[520px] w-full shadow-xl">
+        <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">
+          Select a project to view flow
+        </h3>
+        <p className="text-sm text-[var(--color-text-secondary)] mb-4">
+          Choose a project from the dropdown to visualize branch workflows and dependencies
+        </p>
+
+        <div className="connections-empty-state-video-wrap rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]">
+          {!videoError ? (
+            <video
+              className="connections-empty-state-video"
+              src={DEMO_VIDEO_SRC}
+              controls
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              onError={() => setVideoError(true)}
+            >
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <div className="connections-empty-state-video-placeholder">
+              <p className="text-sm text-[var(--color-text-muted)]">
+                Add your demo video as <code className="connections-empty-state-code">public/demo-flow.mp4</code>
+              </p>
+              <p className="text-xs text-[var(--color-text-muted)]">or use the steps below</p>
+            </div>
+          )}
+        </div>
+
+        <ol className="connections-empty-state-steps list-none p-0 m-0">
+          <li className="flex items-start gap-3 mb-2.5 last:mb-0 text-sm text-[var(--color-text-secondary)]">
+            <span className="connections-empty-state-step-num">1</span>
+            <span>Select a project from the dropdown (top left)</span>
+          </li>
+          <li className="flex items-start gap-3 mb-2.5 last:mb-0 text-sm text-[var(--color-text-secondary)]">
+            <span className="connections-empty-state-step-num">2</span>
+            <span>View branch workflows and dependencies in the selected layout</span>
+          </li>
+          <li className="flex items-start gap-3 mb-2.5 last:mb-0 text-sm text-[var(--color-text-secondary)]">
+            <span className="connections-empty-state-step-num">3</span>
+            <span>Hover over branches to see details and AI recommendations</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  );
+}
+
 interface BranchFlowCanvasProps {
   onInit?: (instance: ReactFlowInstance) => void;
   onHover?: (branch: Branch | null) => void;
   onHoverPosition?: (position: { x: number; y: number } | null) => void;
   onNodeClick?: (branch: Branch, position: { x: number; y: number }) => void;
   viewType?: 'github' | 'pr' | 'timeline' | 'list';
+  projectName?: string | null; // Add projectName prop to check if project is selected
+  onViewportChange?: () => void; // Callback for viewport changes
 }
 
 // Convert branches to React Flow nodes with hierarchical positioning (Github Graph - default)
@@ -252,13 +313,17 @@ function branchesToEdges(branches: Branch[], viewType?: string): Edge[] {
   return edges;
 }
 
-export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick, viewType = 'github' }: BranchFlowCanvasProps) {
+export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick, viewType = 'github', projectName, onViewportChange }: BranchFlowCanvasProps) {
   const { branches } = useFlowData();
   const { theme } = useTheme();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
+  // Show empty nodes/edges if no project is selected
+  const shouldShowEmpty = !projectName;
+
   // Convert branches to nodes and edges based on view type
   const initialNodes = useMemo(() => {
+    if (shouldShowEmpty) return []; // Return empty array if no project
     switch (viewType) {
       case 'pr':
         return branchesToNodesPR(branches);
@@ -270,15 +335,22 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
       default:
         return branchesToNodesGithub(branches);
     }
-  }, [branches, viewType]);
+  }, [branches, viewType, shouldShowEmpty]);
   
-  const initialEdges = useMemo(() => branchesToEdges(branches, viewType), [branches, viewType]);
+  const initialEdges = useMemo(() => shouldShowEmpty ? [] : branchesToEdges(branches, viewType), [branches, viewType, shouldShowEmpty]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Update nodes and edges when viewType changes
+  // Update nodes and edges when viewType or projectName changes
   useEffect(() => {
+    if (shouldShowEmpty) {
+      // Clear nodes and edges if no project selected
+      setNodes([]);
+      setEdges([]);
+      return;
+    }
+
     const newNodes = (() => {
       switch (viewType) {
         case 'pr':
@@ -303,7 +375,7 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
         reactFlowInstance.fitView({ padding, duration: 300 });
       }
     }, 100);
-  }, [viewType, branches, reactFlowInstance, setNodes, setEdges]);
+  }, [viewType, branches, reactFlowInstance, setNodes, setEdges, shouldShowEmpty]);
 
   // Register custom node types
   const nodeTypes: NodeTypes = useMemo(() => ({
@@ -381,6 +453,7 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
         onNodeMouseEnter={onNodeMouseEnter}
         onNodeMouseLeave={onNodeMouseLeave}
         onNodeClick={handleNodeClick}
+        onMove={onViewportChange}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         nodesDraggable={viewType !== 'list'}
@@ -409,6 +482,9 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
           className="hidden"
         />
       </ReactFlow>
+
+      {/* Empty state when no project is selected */}
+      {shouldShowEmpty && <EmptyStateDemo />}
     </div>
   );
 }

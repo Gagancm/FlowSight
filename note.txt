@@ -1,9 +1,0 @@
-  # Run from backend/ directory                                                                                         
-  python3 app/pipeline/run_pipeline.py owner/repo                                                                       
-                                                                                                                        
-  # Examples                                                                                                            
-  python3 app/pipeline/run_pipeline.py facebook/react                                                                   
-  python3 app/pipeline/run_pipeline.py SachinShet73/sql-data-warehouse-project                                          
-                                                                                                                        
-  # With Astra DB upload                                                                                                
-  python3 app/pipeline/run_pipeline.py owner/repo --upload-to-astra 
