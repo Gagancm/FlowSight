@@ -88,8 +88,11 @@ export function ConnectionsPage() {
           </div>
         </div>
         
-        {/* Right side action buttons */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+        {/* Right side action buttons - moves left when sidebar is open */}
+        <div className={`
+          absolute top-4 flex flex-col gap-2 z-30 transition-all duration-300
+          ${isSidebarOpen ? 'right-[336px]' : 'right-4'}
+        `}>
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
