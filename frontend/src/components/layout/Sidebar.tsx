@@ -57,6 +57,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           const IconComponent = tab.icon;
           return (
             <button
+              type="button"
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(

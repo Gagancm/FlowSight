@@ -6,6 +6,10 @@ export interface Branch {
   parent?: string;
   author: string;
   status: BranchStatus;
+  /** Branch this merges into (e.g. nwl-branch) */
+  mergeInto?: string;
+  /** Branch this was pulled from (e.g. main, nwl-branch) */
+  pulledFrom?: string;
   jiraTicket?: string;
   jiraTitle?: string;
   prId?: number;
