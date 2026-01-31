@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { StatusIndicator } from '../shared/StatusIndicator';
 import type { Branch } from '../../types/flow';
@@ -30,6 +30,22 @@ interface ListNodeProps {
 
 function ListNodeComponent({ data }: ListNodeProps) {
   const { branch } = data;
+  const [isHovered, setIsHovered] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
+
+  // Trigger animation on mount (page load)
+  useEffect(() => {
+    setAnimationKey(prev => prev + 1);
+  }, []);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    setAnimationKey(prev => prev + 1); // Force re-trigger animation
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
 
   return (
     <>
@@ -52,8 +68,15 @@ function ListNodeComponent({ data }: ListNodeProps) {
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-primary)]'
         )}
         style={{ minWidth: '600px', marginLeft: '6px' }} // Reduced margin
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />
+        <StatusIndicator 
+          key={animationKey} 
+          status={branch.status} 
+          pulse={branch.status === 'critical'} 
+          animate={true} 
+        />
         <span className="text-sm font-medium text-[var(--color-text-primary)] truncate">
           {branch.name}
         </span>
