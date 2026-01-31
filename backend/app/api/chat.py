@@ -82,10 +82,92 @@ Is there anything specific you'd like me to analyze? I can look into:
 }
 
 
-def get_stub_response(message: str) -> str:
-    """Get appropriate stub response based on message content."""
-    message_lower = message.lower()
+class ConnectionsContext(BaseModel):
+    """Connections context imported from a project when user opens AI from Connections page."""
 
+    project_id: str = Field(default="", alias="projectId")
+    project_name: str = Field(default="", alias="projectName")
+    tools: list[dict] = Field(default_factory=list, description="List of {id, name} for tools")
+    edges: list[dict] = Field(
+        default_factory=list,
+        description="List of {sourceLabel, targetLabel} for connections between tools",
+    )
+
+    model_config = {"populate_by_name": True}
+
+
+def format_connections_context(context: ConnectionsContext | None) -> str:
+    """Format connections context for inclusion in the prompt."""
+    if not context or (not context.tools and not context.edges):
+        return ""
+    parts = [f"Project: {context.project_name or 'Untitled'}"]
+    if context.tools:
+        names = [t.get("name", t.get("id", "")) for t in context.tools if isinstance(t, dict)]
+        if names:
+            parts.append(f"Tools: {', '.join(names)}")
+    if context.edges:
+        conns = []
+        for e in context.edges:
+            if isinstance(e, dict):
+                s = e.get("sourceLabel", "")
+                t = e.get("targetLabel", "")
+                if s and t:
+                    conns.append(f"{s} → {t}")
+        if conns:
+            parts.append("Connections: " + "; ".join(conns))
+    return "\n".join(parts)
+
+
+def get_stub_response(message: str, context: ConnectionsContext | None = None) -> str:
+    """Get appropriate stub response based on message content and optional connections context."""
+    message_lower = message.lower()
+    
+    # If context exists and has tools, customize response based on the actual tools
+    if context and context.tools:
+        tool_names = [t.get("name", "") for t in context.tools if isinstance(t, dict) and t.get("name")]
+        n_tools = len(tool_names)
+        n_edges = len(context.edges)
+        
+        # Create a context-aware response
+        if tool_names:
+            tools_list = ", ".join(tool_names[:5])  # Show first 5 tools
+            if n_tools > 5:
+                tools_list += f", and {n_tools - 5} more"
+            
+            context_intro = (
+                f"Based on your **{context.project_name or 'Untitled'}** project "
+                f"with {n_tools} tool{'s' if n_tools != 1 else ''} ({tools_list})"
+            )
+            
+            if n_edges > 0:
+                # Show sample connections
+                sample_conns = []
+                for e in context.edges[:3]:  # Show first 3 connections
+                    if isinstance(e, dict):
+                        s = e.get("sourceLabel", "")
+                        t = e.get("targetLabel", "")
+                        if s and t:
+                            sample_conns.append(f"{s} → {t}")
+                if sample_conns:
+                    context_intro += f" and {n_edges} connection{'s' if n_edges != 1 else ''} ({'; '.join(sample_conns)})"
+                    if n_edges > 3:
+                        context_intro += f", +{n_edges - 3} more"
+            
+            context_intro += ":\n\n"
+            
+            # Select base response
+            if any(word in message_lower for word in ["block", "blocking", "stuck", "waiting"]):
+                base = STUB_RESPONSES["blocking"]
+            elif any(word in message_lower for word in ["workflow", "status", "pipeline", "overview"]):
+                base = STUB_RESPONSES["workflow"]
+            elif any(word in message_lower for word in ["bottleneck", "slow", "delay", "optimize"]):
+                base = STUB_RESPONSES["bottleneck"]
+            else:
+                base = STUB_RESPONSES["default"]
+            
+            return context_intro + base
+    
+    # No context or empty context - return base response
     if any(word in message_lower for word in ["block", "blocking", "stuck", "waiting"]):
         return STUB_RESPONSES["blocking"]
     elif any(word in message_lower for word in ["workflow", "status", "pipeline", "overview"]):
@@ -111,6 +193,10 @@ class ChatRequest(BaseModel):
     stream: bool = Field(
         default=False,
         description="Whether to stream the response"
+    )
+    context: ConnectionsContext | None = Field(
+        default=None,
+        description="Optional connections context (project, tools, edges) so the agent can answer based on that project",
     )
 
 
@@ -166,7 +252,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
     # Stub mode - return mock responses for frontend testing
     if settings.stub_mode:
-        stub_content = get_stub_response(request.message)
+        stub_content = get_stub_response(request.message, request.context)
         return ChatResponse(
             message=ChatMessage(role="assistant", content=stub_content),
             conversation_id=request.conversation_id or str(uuid.uuid4()),

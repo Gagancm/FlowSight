@@ -6,6 +6,8 @@ import { toPng, toSvg } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { ToolsSidebar } from '../components/connections/ToolsSidebar';
 import { ConnectionCanvas, type ConnectionProject } from '../components/connections/ConnectionCanvas';
+import { saveConnectionsContextForAI } from '../utils/aiContext';
+import type { AIConnectionsContext } from '../utils/aiContext';
 import '../styles/components/connections.css';
 import '../styles/components/flow.css';
 
@@ -416,6 +418,35 @@ export function ConnectionsPage() {
     }
   }, [getFlowElement, currentProject?.name]);
 
+  /** Build connections context from current project and save it, then go to AI Insights. */
+  const handleAIClick = useCallback(() => {
+    const nodes = reactFlowInstance ? reactFlowInstance.getNodes() : currentProject?.nodes ?? [];
+    const edges = reactFlowInstance ? reactFlowInstance.getEdges() : currentProject?.edges ?? [];
+    const projectName = currentProject?.name ?? 'Untitled';
+    const projectId = currentProject?.id ?? '';
+
+    const idToName = new Map<string, string>();
+    const tools: { id: string; name: string }[] = [];
+    for (const node of nodes) {
+      const name = (node.data?.name as string) || (node.data?.tool as string) || node.id;
+      idToName.set(node.id, name);
+      tools.push({ id: node.id, name });
+    }
+    const edgesWithLabels = edges.map((e) => ({
+      sourceLabel: idToName.get(e.source) ?? e.source,
+      targetLabel: idToName.get(e.target) ?? e.target,
+    }));
+
+    const context: AIConnectionsContext = {
+      projectId,
+      projectName,
+      tools,
+      edges: edgesWithLabels,
+    };
+    saveConnectionsContextForAI(context);
+    window.location.hash = 'ai-insights';
+  }, [reactFlowInstance, currentProject]);
+
   return (
     <motion.div
       className="absolute inset-0 flex flex-col sm:flex-row"
@@ -623,10 +654,12 @@ export function ConnectionsPage() {
             </motion.button>
           </div>
           <motion.button
-            onClick={() => (window.location.hash = 'ai-insights')}
+            onClick={handleAIClick}
             className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            title="Open AI Insights with this project's connections"
+            aria-label="Open AI Insights with project context"
           >
             <AIIcon />
           </motion.button>
