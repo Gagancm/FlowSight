@@ -97,8 +97,8 @@ const ZoomOutIcon = () => (
 );
 
 const GRAPH_OPTIONS = [
-  { value: 'list', label: 'List View' },
-  { value: 'github', label: 'Github Graph' },
+  { value: 'list', label: 'Github Graph' },
+  { value: 'github', label: 'Branch Timeline' },
   { value: 'pr', label: 'PR Graph' },
   { value: 'timeline', label: 'Timeline' },
 ] as const;
@@ -161,7 +161,7 @@ export function FlowPage() {
     };
   }, []);
 
-  const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'List View';
+  const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Github Graph';
 
   const handleZoomIn = () => {
     if (reactFlowInstance) {
