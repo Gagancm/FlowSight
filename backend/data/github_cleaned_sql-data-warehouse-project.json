@@ -1,0 +1,400 @@
+{
+  "repository": {
+    "name": "sql-data-warehouse-project",
+    "org": "SachinShet73",
+    "url": "https://github.com/SachinShet73/sql-data-warehouse-project"
+  },
+  "commits": [
+    {
+      "sha": "da89b9c17329",
+      "message": "Delete tests/pl",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:56:08Z",
+      "branch": "main"
+    },
+    {
+      "sha": "8c7f87f47c7d",
+      "message": "Add files via upload",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:55:47Z",
+      "branch": "main"
+    },
+    {
+      "sha": "6a909cf5150d",
+      "message": "Create pl",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:55:23Z",
+      "branch": "main"
+    },
+    {
+      "sha": "3dc3c9f29f85",
+      "message": "Delete tests/placeholder",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:54:54Z",
+      "branch": "main"
+    },
+    {
+      "sha": "fd581b7addc3",
+      "message": "Add files via upload",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:50:55Z",
+      "branch": "main"
+    },
+    {
+      "sha": "c97682b3b3ff",
+      "message": "Update README.md",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:50:35Z",
+      "branch": "main"
+    },
+    {
+      "sha": "4eb9cf204753",
+      "message": "Create ddl_gold.sql",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:38:09Z",
+      "branch": "main"
+    },
+    {
+      "sha": "84965dab1c95",
+      "message": "Delete scripts/placeholder",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:37:18Z",
+      "branch": "main"
+    },
+    {
+      "sha": "9050822b55f8",
+      "message": "Update README.md",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:34:03Z",
+      "branch": "main"
+    },
+    {
+      "sha": "edf107c8fbc0",
+      "message": "Update README.md",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:32:44Z",
+      "branch": "main"
+    },
+    {
+      "sha": "ced4b2192091",
+      "message": "Update README.md",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:32:15Z",
+      "branch": "main"
+    },
+    {
+      "sha": "ad22b6e77d2c",
+      "message": "Update README.md",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:31:12Z",
+      "branch": "main"
+    },
+    {
+      "sha": "7455b6489f8e",
+      "message": "Add files via upload",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:29:26Z",
+      "branch": "main"
+    },
+    {
+      "sha": "9abcfba37091",
+      "message": "Update README.md",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:12:39Z",
+      "branch": "main"
+    },
+    {
+      "sha": "ad18ca4b5e11",
+      "message": "Update README.md",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-21T16:11:46Z",
+      "branch": "main"
+    },
+    {
+      "sha": "8bb38a4aebb2",
+      "message": "Add files via upload",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-17T20:39:27Z",
+      "branch": "main"
+    },
+    {
+      "sha": "4b69e4ea4437",
+      "message": "Delete docs/placeholder",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-17T20:36:56Z",
+      "branch": "main"
+    },
+    {
+      "sha": "5c62d7cabe6e",
+      "message": "Create data_catalogue.md",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-17T20:32:05Z",
+      "branch": "main"
+    },
+    {
+      "sha": "5126b971edab",
+      "message": "Delete datasets/placeholder",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-17T20:25:40Z",
+      "branch": "main"
+    },
+    {
+      "sha": "2ed03e4fca2e",
+      "message": "Create PX_CAT_G1V2.csv",
+      "author": "Sachin Shet",
+      "timestamp": "2025-08-17T20:25:07Z",
+      "branch": "main"
+    }
+  ],
+  "pull_requests": [],
+  "ci_runs": [],
+  "deployments": [],
+  "metadata": {
+    "generated_at": "2026-01-30T20:21:24.238604",
+    "total_commits": 20,
+    "total_prs": 0,
+    "open_prs": 0
+  },
+  "raw_events": [
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "da89b9c17329",
+      "timestamp": "2025-08-21T16:56:08Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "8c7f87f47c7d",
+      "timestamp": "2025-08-21T16:55:47Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "6a909cf5150d",
+      "timestamp": "2025-08-21T16:55:23Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "3dc3c9f29f85",
+      "timestamp": "2025-08-21T16:54:54Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "fd581b7addc3",
+      "timestamp": "2025-08-21T16:50:55Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "c97682b3b3ff",
+      "timestamp": "2025-08-21T16:50:35Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "4eb9cf204753",
+      "timestamp": "2025-08-21T16:38:09Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "84965dab1c95",
+      "timestamp": "2025-08-21T16:37:18Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "9050822b55f8",
+      "timestamp": "2025-08-21T16:34:03Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "edf107c8fbc0",
+      "timestamp": "2025-08-21T16:32:44Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "ced4b2192091",
+      "timestamp": "2025-08-21T16:32:15Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "ad22b6e77d2c",
+      "timestamp": "2025-08-21T16:31:12Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "7455b6489f8e",
+      "timestamp": "2025-08-21T16:29:26Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "9abcfba37091",
+      "timestamp": "2025-08-21T16:12:39Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "ad18ca4b5e11",
+      "timestamp": "2025-08-21T16:11:46Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "8bb38a4aebb2",
+      "timestamp": "2025-08-17T20:39:27Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "4b69e4ea4437",
+      "timestamp": "2025-08-17T20:36:56Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "5c62d7cabe6e",
+      "timestamp": "2025-08-17T20:32:05Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "5126b971edab",
+      "timestamp": "2025-08-17T20:25:40Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    },
+    {
+      "source": "git",
+      "type": "commit",
+      "id": "2ed03e4fca2e",
+      "timestamp": "2025-08-17T20:25:07Z",
+      "branch": "main",
+      "status": "committed",
+      "author": "Sachin Shet",
+      "assignee": null,
+      "conclusion": null,
+      "key": null
+    }
+  ]
+}
