@@ -56,6 +56,7 @@
     1px 1px 2px rgba(16, 17, 19, 0.25) inset;
   color: var(--color-text-primary);
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  padding: 8px 16px; /* Reduced padding for shorter cards */
 }
 
 .flow-branch-card:hover {
@@ -145,3 +146,154 @@
     -1px -1px 2px rgba(16, 17, 19, 0.50),
     1px 1px 2px rgba(36, 37, 41, 0.30);
 }
+
+/* === FLOW CANVAS NODES === */
+.flow-canvas.react-flow {
+  background-color: transparent;
+}
+
+.flow-canvas .react-flow__background {
+  background-color: transparent;
+}
+
+/* Flow Node - Branch card in canvas */
+.flow-node {
+  position: relative;
+  width: 280px;
+  background: #222222;
+  border: none;
+  outline: 1px solid #2A2C30;
+  border-radius: 16px;
+  padding: 0;
+  font-family: var(--font-sans);
+  cursor: grab;
+  box-shadow:
+    4px 4px 12px rgba(16, 17, 19, 0.6),
+    -2px -2px 8px rgba(36, 37, 41, 0.15),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.flow-node:hover {
+  background: rgba(40, 40, 40, 0.7);
+  box-shadow:
+    3px 3px 12px rgba(16, 17, 19, 0.4),
+    -1px -1px 8px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+  transform: translateY(-2px);
+}
+
+.flow-node.selected {
+  outline: 2px solid var(--color-accent);
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.3),
+    3px 3px 12px rgba(16, 17, 19, 0.4);
+}
+
+.flow-node.dragging {
+  cursor: grabbing;
+  opacity: 0.9;
+  transition: none;
+}
+
+.flow-node-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.flow-node-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flow-node-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-node-author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flow-node-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.flow-node-blocking {
+  margin-top: 4px;
+}
+
+/* Flow Node Connection Handles */
+.flow-node-handle {
+  width: 12px;
+  height: 12px;
+  background: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.flow-node-handle:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  width: 16px;
+  height: 16px;
+}
+
+/* === GIT GRAPH EDGES (List View) === */
+.react-flow__edge.git-graph-edge .react-flow__edge-path {
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.react-flow__edge.git-graph-edge.selected .react-flow__edge-path {
+  stroke-width: 3;
+}
+
+/* Force rendering order - dots above lines */
+.git-graph-edge-group {
+  isolation: isolate;
+}
+
+.git-graph-line {
+  z-index: 1;
+}
+
+.git-graph-dot-bg {
+  z-index: 10;
+}
+
+.git-graph-dot {
+  z-index: 11;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Override React Flow edge layering */
+.react-flow__edges {
+  z-index: 1 !important;
+}
+
+.react-flow__edge {
+  z-index: 1 !important;
+}
+
+/* Force dots to render on top by using paint-order */
+.git-graph-dot {
+  paint-order: stroke fill markers;
+}
+
