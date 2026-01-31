@@ -1,0 +1,922 @@
+{
+  "scenario": {
+    "title": "Review Bottleneck Puts Sprint at Risk",
+    "description": "Tech Lead Bob is handling a critical production incident (PAY-108), causing PR reviews to back up. David's PR-145 has been waiting 52 hours, blocking 2 downstream stories and putting Sprint 10 at risk.",
+    "team": [
+      {
+        "name": "Alice Chen",
+        "role": "Senior Engineer",
+        "github": "alice-chen",
+        "email": "alice.chen@company.com",
+        "slack_id": "U01ALICE"
+      },
+      {
+        "name": "Bob Martinez",
+        "role": "Tech Lead",
+        "github": "bob-martinez",
+        "email": "bob.martinez@company.com",
+        "slack_id": "U02BOB"
+      },
+      {
+        "name": "Carol Johnson",
+        "role": "Product Manager",
+        "github": "carol-johnson",
+        "email": "carol.johnson@company.com",
+        "slack_id": "U03CAROL"
+      },
+      {
+        "name": "David Kim",
+        "role": "Junior Engineer",
+        "github": "david-kim",
+        "email": "david.kim@company.com",
+        "slack_id": "U04DAVID"
+      },
+      {
+        "name": "Eva Singh",
+        "role": "DevOps Engineer",
+        "github": "eva-singh",
+        "email": "eva.singh@company.com",
+        "slack_id": "U05EVA"
+      }
+    ],
+    "sprint": "Sprint 10",
+    "days_remaining": 3,
+    "velocity_at_risk": true
+  },
+  "data_sources": {
+    "github": {
+      "repository": {
+        "name": "order-management-service",
+        "org": "acme-payments",
+        "url": "https://github.com/acme-payments/order-management-service"
+      },
+      "commits": [
+        {
+          "sha": "a1b2c3d4e5f6",
+          "message": "feat(webhooks): add Stripe webhook handler for payment events",
+          "author": "alice-chen",
+          "timestamp": "2025-01-17T14:00:00Z",
+          "branch": "feature/webhook-handlers"
+        },
+        {
+          "sha": "f6e5d4c3b2a1",
+          "message": "test(webhooks): add integration tests for webhook validation",
+          "author": "alice-chen",
+          "timestamp": "2025-01-17T17:00:00Z",
+          "branch": "feature/webhook-handlers"
+        },
+        {
+          "sha": "9a8b7c6d5e4f",
+          "message": "feat(retry): implement exponential backoff for payment API calls",
+          "author": "david-kim",
+          "timestamp": "2025-01-26T07:00:00Z",
+          "branch": "feature/retry-logic"
+        },
+        {
+          "sha": "3d4e5f6a7b8c",
+          "message": "fix(payments): prevent duplicate charge processing",
+          "author": "bob-martinez",
+          "timestamp": "2025-01-28T07:00:00Z",
+          "branch": "hotfix/duplicate-charges"
+        },
+        {
+          "sha": "7c8d9e0f1a2b",
+          "message": "refactor(retry): extract retry config to constants",
+          "author": "david-kim",
+          "timestamp": "2025-01-26T09:00:00Z",
+          "branch": "feature/retry-logic"
+        },
+        {
+          "sha": "2b3c4d5e6f7a",
+          "message": "feat(dashboard): add payment metrics dashboard skeleton",
+          "author": "david-kim",
+          "timestamp": "2025-01-28T10:00:00Z",
+          "branch": "feature/payment-dashboard"
+        }
+      ],
+      "pull_requests": [
+        {
+          "number": 142,
+          "title": "feat: Add Stripe webhook handlers",
+          "author": "alice-chen",
+          "state": "merged",
+          "created_at": "2025-01-17T18:00:00Z",
+          "merged_at": "2025-01-21T14:00:00Z",
+          "base_branch": "main",
+          "head_branch": "feature/webhook-handlers",
+          "linked_issues": [
+            "PAY-101"
+          ],
+          "commits": [
+            "a1b2c3d4e5f6",
+            "f6e5d4c3b2a1"
+          ],
+          "reviews": [
+            {
+              "reviewer": "bob-martinez",
+              "state": "APPROVED",
+              "submitted_at": "2025-01-21T13:00:00Z"
+            },
+            {
+              "reviewer": "eva-singh",
+              "state": "APPROVED",
+              "submitted_at": "2025-01-21T13:00:00Z"
+            }
+          ],
+          "review_time_hours": 91,
+          "files_changed": 8,
+          "additions": 342,
+          "deletions": 12
+        },
+        {
+          "number": 145,
+          "title": "feat: Implement exponential backoff retry logic for payment API",
+          "author": "david-kim",
+          "state": "open",
+          "created_at": "2025-01-26T10:00:00Z",
+          "base_branch": "main",
+          "head_branch": "feature/retry-logic",
+          "linked_issues": [
+            "PAY-102"
+          ],
+          "commits": [
+            "9a8b7c6d5e4f",
+            "7c8d9e0f1a2b"
+          ],
+          "reviews": [],
+          "review_time_hours": 52,
+          "files_changed": 5,
+          "additions": 187,
+          "deletions": 23,
+          "labels": [
+            "enhancement",
+            "needs-review"
+          ],
+          "requested_reviewers": [
+            "bob-martinez",
+            "alice-chen"
+          ],
+          "ci_status": "passing",
+          "checks": [
+            {
+              "name": "CI/Tests",
+              "status": "success"
+            },
+            {
+              "name": "Lint",
+              "status": "success"
+            },
+            {
+              "name": "Security Scan",
+              "status": "success"
+            }
+          ]
+        },
+        {
+          "number": 148,
+          "title": "fix: Prevent duplicate charge processing in race conditions",
+          "author": "bob-martinez",
+          "state": "open",
+          "created_at": "2025-01-28T08:00:00Z",
+          "base_branch": "main",
+          "head_branch": "hotfix/duplicate-charges",
+          "linked_issues": [
+            "PAY-108"
+          ],
+          "commits": [
+            "3d4e5f6a7b8c"
+          ],
+          "reviews": [
+            {
+              "reviewer": "alice-chen",
+              "state": "APPROVED",
+              "submitted_at": "2025-01-28T10:00:00Z"
+            }
+          ],
+          "review_time_hours": 6,
+          "files_changed": 3,
+          "additions": 45,
+          "deletions": 8,
+          "labels": [
+            "bug",
+            "critical",
+            "hotfix"
+          ],
+          "requested_reviewers": [
+            "eva-singh"
+          ],
+          "ci_status": "passing",
+          "checks": [
+            {
+              "name": "CI/Tests",
+              "status": "success"
+            },
+            {
+              "name": "Lint",
+              "status": "success"
+            }
+          ]
+        },
+        {
+          "number": 150,
+          "title": "feat: Payment metrics dashboard",
+          "author": "david-kim",
+          "state": "draft",
+          "created_at": "2025-01-28T11:00:00Z",
+          "base_branch": "main",
+          "head_branch": "feature/payment-dashboard",
+          "linked_issues": [
+            "PAY-104"
+          ],
+          "commits": [
+            "2b3c4d5e6f7a"
+          ],
+          "reviews": [],
+          "review_time_hours": 3,
+          "files_changed": 6,
+          "additions": 124,
+          "deletions": 0,
+          "labels": [
+            "enhancement",
+            "wip"
+          ],
+          "ci_status": "pending"
+        }
+      ],
+      "ci_runs": [
+        {
+          "id": "run-1001",
+          "workflow": "CI Pipeline",
+          "trigger": "pull_request",
+          "pr_number": 142,
+          "status": "success",
+          "started_at": "2025-01-21T13:00:00Z",
+          "completed_at": "2025-01-21T13:30:00Z",
+          "duration_minutes": 30
+        },
+        {
+          "id": "run-1002",
+          "workflow": "CI Pipeline",
+          "trigger": "pull_request",
+          "pr_number": 145,
+          "status": "success",
+          "started_at": "2025-01-26T10:00:00Z",
+          "completed_at": "2025-01-26T10:30:00Z",
+          "duration_minutes": 28
+        },
+        {
+          "id": "run-1003",
+          "workflow": "CI Pipeline",
+          "trigger": "pull_request",
+          "pr_number": 148,
+          "status": "success",
+          "started_at": "2025-01-28T08:00:00Z",
+          "completed_at": "2025-01-28T08:18:00Z",
+          "duration_minutes": 18
+        },
+        {
+          "id": "run-1004",
+          "workflow": "CI Pipeline",
+          "trigger": "pull_request",
+          "pr_number": 150,
+          "status": "in_progress",
+          "started_at": "2025-01-28T11:00:00Z",
+          "duration_minutes": null
+        }
+      ],
+      "deployments": [
+        {
+          "id": "deploy-501",
+          "environment": "production",
+          "ref": "a1b2c3d4e5f6",
+          "pr_number": 142,
+          "status": "success",
+          "deployed_by": "eva-singh",
+          "deployed_at": "2025-01-21T15:00:00Z",
+          "duration_minutes": 12
+        },
+        {
+          "id": "deploy-502",
+          "environment": "staging",
+          "ref": "3d4e5f6a7b8c",
+          "pr_number": 148,
+          "status": "pending",
+          "deployed_by": "bob-martinez",
+          "created_at": "2025-01-28T11:00:00Z",
+          "pending_approvers": [
+            "eva-singh"
+          ]
+        },
+        {
+          "id": "deploy-503",
+          "environment": "staging",
+          "ref": "9a8b7c6d5e4f",
+          "pr_number": 145,
+          "status": "blocked",
+          "created_at": "2025-01-26T12:00:00Z",
+          "blocked_reason": "PR not approved"
+        }
+      ],
+      "metadata": {
+        "generated_at": "2026-01-30T18:55:52.878851",
+        "total_commits": 6,
+        "total_prs": 4,
+        "open_prs": 2
+      }
+    },
+    "jira": {
+      "project": {
+        "key": "PAY",
+        "name": "Payment Services"
+      },
+      "sprint": {
+        "name": "Sprint 10",
+        "goal": "Complete Payment Gateway v2 reliability features",
+        "start_date": "2025-01-17T14:00:00Z",
+        "end_date": "2025-01-31T14:00:00Z",
+        "duration_days": 14,
+        "status": "active",
+        "velocity": {
+          "committed": 31,
+          "completed": 9,
+          "remaining": 22,
+          "completion_percent": 29
+        },
+        "issues": [
+          "PAY-101",
+          "PAY-102",
+          "PAY-103",
+          "PAY-104",
+          "PAY-105",
+          "PAY-106",
+          "PAY-108"
+        ],
+        "team_capacity": {
+          "total_days": 70,
+          "allocated_days": 55,
+          "utilization_percent": 79
+        }
+      },
+      "issues": [
+        {
+          "key": "PAY-100",
+          "type": "Epic",
+          "summary": "Payment Gateway v2 - Reliability Improvements",
+          "status": "In Progress",
+          "priority": "High",
+          "assignee": "bob.martinez@company.com",
+          "reporter": "carol.johnson@company.com",
+          "created": "2024-12-29T14:00:00Z",
+          "updated": "2025-01-28T12:00:00Z",
+          "story_points": null,
+          "labels": [
+            "epic",
+            "payment-gateway"
+          ],
+          "epic_link": null
+        },
+        {
+          "key": "PAY-101",
+          "type": "Story",
+          "summary": "Implement webhook handlers for payment events",
+          "status": "Done",
+          "priority": "High",
+          "assignee": "alice.chen@company.com",
+          "reporter": "carol.johnson@company.com",
+          "created": "2025-01-16T02:00:00Z",
+          "updated": "2025-01-21T15:00:00Z",
+          "story_points": 8,
+          "labels": [
+            "webhooks",
+            "integration"
+          ],
+          "epic_link": "PAY-100",
+          "linked_pr": "PR-142",
+          "sprint": "Sprint 10",
+          "time_in_status": {
+            "To_Do": 36,
+            "In_Progress": 96,
+            "Code_Review": 6,
+            "Done": 168
+          }
+        },
+        {
+          "key": "PAY-102",
+          "type": "Story",
+          "summary": "Add exponential backoff retry logic for payment API calls",
+          "status": "In Review",
+          "priority": "High",
+          "assignee": "david.kim@company.com",
+          "reporter": "carol.johnson@company.com",
+          "created": "2025-01-23T14:00:00Z",
+          "updated": "2025-01-28T13:00:00Z",
+          "story_points": 5,
+          "labels": [
+            "reliability",
+            "api"
+          ],
+          "epic_link": "PAY-100",
+          "linked_pr": "PR-145",
+          "sprint": "Sprint 10",
+          "time_in_status": {
+            "To_Do": 24,
+            "In_Progress": 44,
+            "In_Review": 52
+          },
+          "blocks": [
+            "PAY-103",
+            "PAY-105"
+          ]
+        },
+        {
+          "key": "PAY-103",
+          "type": "Story",
+          "summary": "Send email notifications on payment retry failures",
+          "status": "Blocked",
+          "priority": "Medium",
+          "assignee": "alice.chen@company.com",
+          "reporter": "carol.johnson@company.com",
+          "created": "2025-01-24T14:00:00Z",
+          "updated": "2025-01-28T06:00:00Z",
+          "story_points": 3,
+          "labels": [
+            "notifications",
+            "email"
+          ],
+          "epic_link": "PAY-100",
+          "sprint": "Sprint 10",
+          "blocked_by": [
+            "PAY-102"
+          ],
+          "time_in_status": {
+            "To_Do": 48,
+            "Blocked": 48
+          }
+        },
+        {
+          "key": "PAY-104",
+          "type": "Story",
+          "summary": "Create payment metrics dashboard for operations team",
+          "status": "In Progress",
+          "priority": "Medium",
+          "assignee": "david.kim@company.com",
+          "reporter": "carol.johnson@company.com",
+          "created": "2025-01-25T14:00:00Z",
+          "updated": "2025-01-28T11:00:00Z",
+          "story_points": 8,
+          "labels": [
+            "dashboard",
+            "observability"
+          ],
+          "epic_link": "PAY-100",
+          "linked_pr": "PR-150",
+          "sprint": "Sprint 10",
+          "progress_percent": 40,
+          "time_in_status": {
+            "To_Do": 24,
+            "In_Progress": 48
+          }
+        },
+        {
+          "key": "PAY-105",
+          "type": "Story",
+          "summary": "Load testing for payment retry scenarios",
+          "status": "To Do",
+          "priority": "Medium",
+          "assignee": "eva.singh@company.com",
+          "reporter": "carol.johnson@company.com",
+          "created": "2025-01-26T14:00:00Z",
+          "updated": "2025-01-28T02:00:00Z",
+          "story_points": 5,
+          "labels": [
+            "testing",
+            "performance"
+          ],
+          "epic_link": "PAY-100",
+          "sprint": "Sprint 10",
+          "blocked_by": [
+            "PAY-102"
+          ],
+          "time_in_status": {
+            "To_Do": 48
+          }
+        },
+        {
+          "key": "PAY-106",
+          "type": "Sub-task",
+          "summary": "Add unit tests for retry logic",
+          "status": "Done",
+          "priority": "High",
+          "assignee": "david.kim@company.com",
+          "reporter": "david.kim@company.com",
+          "created": "2025-01-26T08:00:00Z",
+          "updated": "2025-01-26T10:00:00Z",
+          "story_points": 2,
+          "parent": "PAY-102",
+          "sprint": "Sprint 10",
+          "time_in_status": {
+            "To_Do": 1,
+            "In_Progress": 1,
+            "Done": 52
+          }
+        },
+        {
+          "key": "PAY-108",
+          "type": "Bug",
+          "summary": "Race condition causing duplicate charges in high-traffic scenarios",
+          "status": "In Progress",
+          "priority": "Critical",
+          "assignee": "bob.martinez@company.com",
+          "reporter": "eva.singh@company.com",
+          "created": "2025-01-28T02:00:00Z",
+          "updated": "2025-01-28T13:00:00Z",
+          "story_points": 3,
+          "labels": [
+            "bug",
+            "production",
+            "critical"
+          ],
+          "linked_pr": "PR-148",
+          "sprint": "Sprint 10",
+          "time_in_status": {
+            "To_Do": 1,
+            "In_Progress": 11
+          },
+          "severity": "Critical",
+          "customer_impact": "High - affecting production payments"
+        }
+      ],
+      "metadata": {
+        "generated_at": "2026-01-30T18:55:52.878910",
+        "total_issues": 8,
+        "blocked_issues": 1,
+        "in_review_issues": 1
+      }
+    },
+    "slack": {
+      "workspace": "acme-engineering",
+      "channels": [
+        {
+          "id": "C01PAYMENT",
+          "name": "#payment-team",
+          "purpose": "Payment team coordination and updates"
+        },
+        {
+          "id": "C02ALERTS",
+          "name": "#payment-alerts",
+          "purpose": "Production alerts for payment services"
+        },
+        {
+          "id": "C03STANDUP",
+          "name": "#engineering-standup",
+          "purpose": "Daily standup summaries"
+        }
+      ],
+      "messages": [
+        {
+          "channel": "#payment-team",
+          "user": "U04DAVID",
+          "username": "David Kim",
+          "text": "Hey team, PR-145 is ready for review! Added exponential backoff for payment API retries with comprehensive tests. cc <@U02BOB> <@U01ALICE>",
+          "timestamp": "2025-01-26T10:00:00Z",
+          "thread_ts": null,
+          "reactions": [
+            {
+              "name": "eyes",
+              "users": [
+                "U01ALICE"
+              ]
+            }
+          ],
+          "mentions": [
+            "PR-145",
+            "PAY-102"
+          ]
+        },
+        {
+          "channel": "#payment-team",
+          "user": "U04DAVID",
+          "username": "David Kim",
+          "text": "Quick bump on PR-145 - has been waiting 24hrs now. PAY-102 is blocking PAY-103 and PAY-105. <@U02BOB> when you get a chance?",
+          "timestamp": "2025-01-27T10:00:00Z",
+          "thread_ts": "2025-01-26T10:00:00Z",
+          "mentions": [
+            "PR-145",
+            "PAY-102",
+            "PAY-103",
+            "PAY-105"
+          ]
+        },
+        {
+          "channel": "#payment-team",
+          "user": "U02BOB",
+          "username": "Bob Martinez",
+          "text": "Sorry team, deep in the PAY-108 incident - duplicate charges are affecting prod. Will get to reviews ASAP.",
+          "timestamp": "2025-01-27T11:00:00Z",
+          "thread_ts": "2025-01-26T10:00:00Z",
+          "reactions": [
+            {
+              "name": "+1",
+              "users": [
+                "U04DAVID",
+                "U01ALICE"
+              ]
+            }
+          ],
+          "mentions": [
+            "PAY-108"
+          ]
+        },
+        {
+          "channel": "#payment-team",
+          "user": "U04DAVID",
+          "username": "David Kim",
+          "text": "No worries! PR-145 now at 48 hours though - getting worried about sprint deadline. Can <@U01ALICE> help with review?",
+          "timestamp": "2025-01-28T10:00:00Z",
+          "thread_ts": "2025-01-26T10:00:00Z",
+          "mentions": [
+            "PR-145"
+          ]
+        },
+        {
+          "channel": "#payment-team",
+          "user": "U01ALICE",
+          "username": "Alice Chen",
+          "text": "I can take a look but I'm not super familiar with the retry logic architecture. <@U02BOB> should really be the main reviewer here.",
+          "timestamp": "2025-01-28T10:30:00Z",
+          "thread_ts": "2025-01-26T10:00:00Z"
+        },
+        {
+          "channel": "#payment-alerts",
+          "user": "alert-bot",
+          "username": "AlertBot",
+          "text": "\ud83d\udea8 CRITICAL: Duplicate charge detected in production\n\u2022 Order ID: ORD-9847362\n\u2022 Amount: $234.99\n\u2022 Customer charged twice\n\u2022 Created PAY-108",
+          "timestamp": "2025-01-28T02:00:00Z",
+          "thread_ts": null,
+          "mentions": [
+            "PAY-108"
+          ],
+          "alert_type": "critical"
+        },
+        {
+          "channel": "#payment-alerts",
+          "user": "U02BOB",
+          "username": "Bob Martinez",
+          "text": "On it - root cause identified as race condition in payment processor. PR-148 incoming.",
+          "timestamp": "2025-01-28T07:00:00Z",
+          "thread_ts": "2025-01-28T02:00:00Z",
+          "mentions": [
+            "PR-148"
+          ]
+        },
+        {
+          "channel": "#payment-alerts",
+          "user": "U05EVA",
+          "username": "Eva Singh",
+          "text": "PR-148 approved from my side. Ready for deployment once DevOps signs off.",
+          "timestamp": "2025-01-28T10:00:00Z",
+          "thread_ts": "2025-01-28T02:00:00Z",
+          "mentions": [
+            "PR-148"
+          ]
+        },
+        {
+          "channel": "#engineering-standup",
+          "user": "standup-bot",
+          "username": "StandupBot",
+          "text": "\ud83d\udccb Daily Standup Summary - Sprint 10 Day 9\n\n\u2705 Done:\n\u2022 Alice: Webhook handlers merged (PAY-101)\n\n\ud83d\udea7 In Progress:\n\u2022 David: Retry logic in review (PAY-102, PR-145) - BLOCKED 52hrs\n\u2022 David: Dashboard at 40% (PAY-104)\n\u2022 Bob: Fixing critical bug (PAY-108)\n\n\ud83d\udeab Blockers:\n\u2022 PAY-102 blocking PAY-103, PAY-105\n\u2022 Review bottleneck - Bob handling incident",
+          "timestamp": "2025-01-28T13:30:00Z",
+          "thread_ts": null,
+          "mentions": [
+            "PAY-101",
+            "PAY-102",
+            "PAY-103",
+            "PAY-104",
+            "PAY-105",
+            "PAY-108",
+            "PR-145"
+          ]
+        },
+        {
+          "channel": "#engineering-standup",
+          "user": "U03CAROL",
+          "username": "Carol Johnson",
+          "text": "Sprint velocity at risk - only 29% complete with 3 days left. PAY-102 is the critical path.",
+          "timestamp": "2025-01-28T13:42:00Z",
+          "thread_ts": "2025-01-28T13:30:00Z",
+          "mentions": [
+            "PAY-102"
+          ]
+        },
+        {
+          "channel": "#engineering-standup",
+          "user": "U05EVA",
+          "username": "Eva Singh",
+          "text": "PAY-105 (load testing) can't start until PAY-102 is merged. We need that this sprint.",
+          "timestamp": "2025-01-28T13:48:00Z",
+          "thread_ts": "2025-01-28T13:30:00Z",
+          "mentions": [
+            "PAY-105",
+            "PAY-102"
+          ]
+        },
+        {
+          "channel": "#engineering-standup",
+          "user": "standup-bot",
+          "username": "StandupBot",
+          "text": "\ud83d\udccb Daily Standup Summary - Sprint 10 Day 8\n\n\u2705 Done:\n\u2022 Alice: Webhook handlers merged (PAY-101)\n\n\ud83d\udea7 In Progress:\n\u2022 David: Retry logic PR ready (PAY-102, PR-145)\n\u2022 David: Starting dashboard work (PAY-104)\n\n\ud83d\udeab Blockers:\n\u2022 Waiting on PR-145 review",
+          "timestamp": "2025-01-27T13:30:00Z",
+          "thread_ts": null,
+          "mentions": [
+            "PAY-101",
+            "PAY-102",
+            "PAY-104",
+            "PR-145"
+          ]
+        }
+      ],
+      "direct_messages": [
+        {
+          "from": "U03CAROL",
+          "from_name": "Carol Johnson",
+          "to": "U02BOB",
+          "to_name": "Bob Martinez",
+          "text": "Hey Bob, I know you're swamped with PAY-108, but PR-145 has been waiting 2+ days now and it's blocking 2 other stories. Can we get Alice to review or should we escalate?",
+          "timestamp": "2025-01-28T12:00:00Z",
+          "thread_ts": null
+        },
+        {
+          "from": "U02BOB",
+          "from_name": "Bob Martinez",
+          "to": "U03CAROL",
+          "to_name": "Carol Johnson",
+          "text": "I'll try to squeeze it in today. The duplicate charge bug was critical - had to prioritize. Alice isn't familiar enough with the retry architecture to be the primary reviewer.",
+          "timestamp": "2025-01-28T12:30:00Z",
+          "thread_ts": "2025-01-28T12:00:00Z"
+        }
+      ],
+      "metadata": {
+        "generated_at": "2026-01-30T18:55:52.878984",
+        "total_messages": 12,
+        "total_dms": 2
+      }
+    },
+    "teams": {
+      "organization": "Acme Payments",
+      "team": "Payment Engineering",
+      "meetings": [
+        {
+          "id": "meet-001",
+          "title": "Sprint 10 - Daily Standup",
+          "type": "standup",
+          "start_time": "2025-01-27T14:00:00Z",
+          "end_time": "2025-01-27T14:15:00Z",
+          "duration_minutes": 15,
+          "organizer": "carol.johnson@company.com",
+          "attendees": [
+            "alice.chen@company.com",
+            "bob.martinez@company.com",
+            "carol.johnson@company.com",
+            "david.kim@company.com",
+            "eva.singh@company.com"
+          ],
+          "notes": "\n## Sprint 10 - Daily Standup (Day 8)\n\n### Alice Chen\n- \u2705 Yesterday: Webhook handlers merged to main\n- \ud83d\udccb Today: Available for reviews, starting PAY-103\n- \ud83d\udeab Blockers: PAY-103 blocked by PAY-102\n\n### Bob Martinez\n- \u2705 Yesterday: Architecture review for retry logic\n- \ud83d\udccb Today: Will review PR-145 (David's retry logic)\n- \ud83d\udeab Blockers: None\n\n### Carol Johnson (PM)\n- Sprint velocity: 29% complete, 3 days remaining\n- At-risk: PAY-102, PAY-103, PAY-105\n- Action: Monitor PR-145 review\n\n### David Kim\n- \u2705 Yesterday: Completed PR-145, all tests passing\n- \ud83d\udccb Today: Waiting on review, starting PAY-104 (dashboard)\n- \ud83d\udeab Blockers: PR-145 in review for 28 hours\n\n### Eva Singh\n- \u2705 Yesterday: Deployment automation updates\n- \ud83d\udccb Today: PAY-105 planning (blocked)\n- \ud83d\udeab Blockers: Can't start PAY-105 until PAY-102 merged\n            ",
+          "action_items": [
+            {
+              "description": "Review PR-145 (retry logic)",
+              "assignee": "bob.martinez@company.com",
+              "due_date": "2025-01-27T15:00:00Z",
+              "status": "overdue",
+              "referenced_items": [
+                "PR-145",
+                "PAY-102"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "meet-002",
+          "title": "Sprint 10 - Daily Standup",
+          "type": "standup",
+          "start_time": "2025-01-28T13:30:00Z",
+          "end_time": "2025-01-28T13:45:00Z",
+          "duration_minutes": 15,
+          "organizer": "carol.johnson@company.com",
+          "attendees": [
+            "alice.chen@company.com",
+            "bob.martinez@company.com",
+            "carol.johnson@company.com",
+            "david.kim@company.com",
+            "eva.singh@company.com"
+          ],
+          "notes": "\n## Sprint 10 - Daily Standup (Day 9)\n\n### Alice Chen\n- \u2705 Yesterday: Started reviewing PAY-103 design\n- \ud83d\udccb Today: Can help with PR-145 review if needed\n- \ud83d\udeab Blockers: Still waiting on PAY-102\n\n### Bob Martinez\n- \u2705 Yesterday: Fixed PAY-108 critical bug, PR-148 created\n- \ud83d\udccb Today: Deploy hotfix, then review PR-145\n- \ud83d\udeab Blockers: None\n- \u26a0\ufe0f Note: PAY-108 took priority - production incident\n\n### Carol Johnson (PM)\n- Sprint velocity: Still 29%, critical path at risk\n- PR-145 now at 52 hours in review\n- 2 stories blocked by PAY-102\n- Sprint ends in 3 days - escalation may be needed\n\n### David Kim\n- \u2705 Yesterday: Dashboard work, 40% complete\n- \ud83d\udccb Today: Continue dashboard, follow up on PR-145\n- \ud83d\udeab Blockers: PR-145 blocked for 52 hours\n\n### Eva Singh\n- \u2705 Yesterday: Approved PR-148 (hotfix)\n- \ud83d\udccb Today: Deploy PR-148, still can't start PAY-105\n- \ud83d\udeab Blockers: PAY-105 blocked by PAY-102\n            ",
+          "action_items": [
+            {
+              "description": "Deploy PR-148 hotfix to production",
+              "assignee": "eva.singh@company.com",
+              "due_date": "2025-01-28T16:00:00Z",
+              "status": "in_progress",
+              "referenced_items": [
+                "PR-148",
+                "PAY-108"
+              ]
+            },
+            {
+              "description": "Review and merge PR-145 (URGENT)",
+              "assignee": "bob.martinez@company.com",
+              "due_date": "2025-01-28T18:00:00Z",
+              "status": "in_progress",
+              "priority": "critical",
+              "referenced_items": [
+                "PR-145",
+                "PAY-102"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "meet-003",
+          "title": "PAY-108 Incident Review",
+          "type": "incident_review",
+          "start_time": "2025-01-28T09:00:00Z",
+          "end_time": "2025-01-28T10:00:00Z",
+          "duration_minutes": 60,
+          "organizer": "bob.martinez@company.com",
+          "attendees": [
+            "alice.chen@company.com",
+            "bob.martinez@company.com",
+            "eva.singh@company.com"
+          ],
+          "notes": "\n## Incident Review: PAY-108 - Duplicate Charges\n\n### Timeline\n- 12 hours ago: First duplicate charge detected\n- 11 hours ago: Bob started investigation\n- 7 hours ago: Root cause identified - race condition\n- 6 hours ago: PR-148 created with fix\n- 4 hours ago: PR-148 approved by Alice\n\n### Root Cause\nRace condition in payment processor when handling high-traffic scenarios.\nTwo concurrent requests for same order ID can both pass validation.\n\n### Impact\n- 3 customers affected\n- $1,247 in duplicate charges (refunded)\n- No data integrity issues\n\n### Fix\nPR-148 implements distributed lock using Redis to prevent concurrent processing.\n\n### Action Items\n- Deploy PR-148 to production (Eva - today)\n- Add monitoring for duplicate transaction patterns (Eva - next sprint)\n- Load testing for race conditions (PAY-105 - this sprint)\n\n### Notes\nThis incident pulled Bob away from PR reviews for 12+ hours.\nPR-145 (retry logic) has been waiting 52 hours as a result.\n            ",
+          "action_items": [
+            {
+              "description": "Deploy PR-148 with distributed lock fix",
+              "assignee": "eva.singh@company.com",
+              "due_date": "2025-01-28T14:00:00Z",
+              "status": "in_progress",
+              "referenced_items": [
+                "PR-148"
+              ]
+            },
+            {
+              "description": "Add duplicate transaction monitoring",
+              "assignee": "eva.singh@company.com",
+              "due_date": "2025-02-04T14:00:00Z",
+              "status": "todo"
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "generated_at": "2026-01-30T18:55:52.879022",
+        "total_meetings": 3
+      }
+    }
+  },
+  "bottlenecks": [
+    {
+      "type": "pr_review_delay",
+      "severity": "high",
+      "entity": "PR-145",
+      "wait_time_hours": 52,
+      "impact": "Blocking 2 downstream stories (PAY-103, PAY-105)",
+      "root_cause": "Tech Lead handling production incident"
+    },
+    {
+      "type": "blocked_issue",
+      "severity": "high",
+      "entity": "PAY-103",
+      "blocked_by": "PAY-102",
+      "wait_time_hours": 48
+    },
+    {
+      "type": "blocked_issue",
+      "severity": "medium",
+      "entity": "PAY-105",
+      "blocked_by": "PAY-102",
+      "wait_time_hours": 48
+    },
+    {
+      "type": "deployment_pending",
+      "severity": "medium",
+      "entity": "deploy-502",
+      "waiting_for": "DevOps approval"
+    },
+    {
+      "type": "sprint_velocity_risk",
+      "severity": "high",
+      "completion_percent": 29,
+      "days_remaining": 3,
+      "at_risk_stories": [
+        "PAY-102",
+        "PAY-103",
+        "PAY-105"
+      ]
+    }
+  ],
+  "metadata": {
+    "generated_at": "2026-01-30T18:55:52.879030",
+    "base_timestamp": "2025-01-28T14:00:00",
+    "total_team_members": 5
+  }
+}

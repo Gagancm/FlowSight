@@ -10,7 +10,6 @@ import ReactFlow, {
   NodeTypes,
   EdgeTypes,
   ReactFlowInstance,
-  Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { FlowNode } from './FlowNode';
