@@ -178,6 +178,17 @@ export function FlowPage() {
     setHoverNodePosition(null);
   }, [selectedGraph, currentProjectName, onHover]);
 
+  // Auto-switch view when project changes
+  useEffect(() => {
+    if (currentProjectName && currentProjectName !== 'None') {
+      // Project selected - auto switch to Github Graph
+      setSelectedGraph('list');
+    } else {
+      // No project selected - reset to Select View
+      setSelectedGraph('none');
+    }
+  }, [currentProjectName]);
+
   // Clear hover panel when component unmounts (navigating away)
   useEffect(() => {
     return () => {
@@ -446,7 +457,7 @@ export function FlowPage() {
             <motion.button
               type="button"
               onClick={() => setDropdownOpen((o) => !o)}
-              className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
+              className="flow-dropdown-trigger flex items-center justify-between gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
