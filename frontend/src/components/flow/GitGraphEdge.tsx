@@ -35,45 +35,23 @@ function GitGraphEdgeComponent({
 
   const edgeColor = getEdgeColor();
 
-  // Create VS Code Git Graph style path with rounded corners
-  // For list view: lines run vertically along the left side with rounded corners
+  // Create simple path: vertical line on left + horizontal line to dot
   const createGitGraphPath = () => {
-    const radius = 8; // Corner radius
-
-    // Both source and target are on the left side of nodes
-    // Draw a vertical line with rounded corners if there's horizontal offset
-    const horizontalOffset = targetX - sourceX;
-    const verticalDistance = targetY - sourceY;
-
-    if (Math.abs(horizontalOffset) < 5) {
-      // Straight vertical line (same column)
+    // For list view: straight vertical line + horizontal connection to dot
+    const verticalX = Math.min(sourceX, targetX); // Use leftmost X for vertical line
+    
+    if (Math.abs(targetX - sourceX) < 5) {
+      // Same column - just vertical line
       return `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
     }
 
-    // For indented children: vertical down, then curve right, then vertical down
-    const midY = sourceY + (verticalDistance / 2);
-    
-    if (horizontalOffset > 0) {
-      // Child is indented to the right
-      return `
-        M ${sourceX} ${sourceY}
-        L ${sourceX} ${midY - radius}
-        Q ${sourceX} ${midY} ${sourceX + radius} ${midY}
-        L ${targetX - radius} ${midY}
-        Q ${targetX} ${midY} ${targetX} ${midY + radius}
-        L ${targetX} ${targetY}
-      `.trim();
-    } else {
-      // Child is to the left (shouldn't happen in list view but handle it)
-      return `
-        M ${sourceX} ${sourceY}
-        L ${sourceX} ${midY - radius}
-        Q ${sourceX} ${midY} ${sourceX - radius} ${midY}
-        L ${targetX + radius} ${midY}
-        Q ${targetX} ${midY} ${targetX} ${midY + radius}
-        L ${targetX} ${targetY}
-      `.trim();
-    }
+    // Path: start at source → horizontal to vertical line → down vertical → horizontal to target
+    return `
+      M ${sourceX} ${sourceY}
+      L ${verticalX} ${sourceY}
+      L ${verticalX} ${targetY}
+      L ${targetX} ${targetY}
+    `.trim();
   };
 
   const edgePath = createGitGraphPath();
@@ -92,18 +70,18 @@ function GitGraphEdgeComponent({
         strokeLinejoin="round"
       />
 
-      {/* Larger background circles to better mask crossing lines */}
+      {/* Much larger background circles to mask ALL crossing lines */}
       <circle
         cx={sourceX}
         cy={sourceY}
-        r={9}
+        r={12}
         fill="var(--color-bg-primary)"
         className="git-graph-dot-bg"
       />
       <circle
         cx={targetX}
         cy={targetY}
-        r={9}
+        r={12}
         fill="var(--color-bg-primary)"
         className="git-graph-dot-bg"
       />

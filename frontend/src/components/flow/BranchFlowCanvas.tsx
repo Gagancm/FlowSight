@@ -3,6 +3,7 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
+  Panel,
   Node,
   Edge,
   useNodesState,
