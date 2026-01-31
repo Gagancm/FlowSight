@@ -60,6 +60,7 @@ export function useAIQuery() {
         timestamp: formatTime(new Date()),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+      setLoading(false);
     } catch (error) {
       const errorMessage: AIMessage = {
         id: generateId(),
@@ -68,7 +69,6 @@ export function useAIQuery() {
         timestamp: formatTime(new Date()),
       };
       setMessages((prev) => [...prev, errorMessage]);
-    } finally {
       setLoading(false);
     }
   }, [conversationId]);

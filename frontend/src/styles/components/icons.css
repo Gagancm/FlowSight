@@ -1,0 +1,118 @@
+/**
+ * Animated SVG icon keyframes and utilities
+ * Used by Sidebar and AI Insights page
+ */
+
+/* === Keyframes === */
+
+@keyframes icon-pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+@keyframes icon-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px currentColor); opacity: 1; }
+  50% { filter: drop-shadow(0 0 6px currentColor); opacity: 0.9; }
+}
+
+@keyframes icon-dash-offset {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes icon-rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes icon-bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes icon-scale-in {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes icon-link-pulse {
+  0%, 100% { stroke-opacity: 1; }
+  50% { stroke-opacity: 0.5; }
+}
+
+@keyframes icon-sparkle {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes icon-send-arrow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes icon-attach-swing {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+/* === Sidebar tab icons (when selected or on hover) === */
+
+.sidebar-tab .animated-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-tab--selected .icon-ai-center,
+.sidebar-tab:hover .icon-ai-center {
+  animation: icon-pulse-soft 2.2s ease-in-out infinite;
+}
+
+.sidebar-tab--selected .icon-connections-path,
+.sidebar-tab:hover .icon-connections-path {
+  animation: icon-link-pulse 1.8s ease-in-out infinite;
+}
+
+.sidebar-tab--selected .icon-flow-path,
+.sidebar-tab:hover .icon-flow-path {
+  animation: icon-link-pulse 2s ease-in-out infinite;
+}
+
+/* === AI Insights page: quick action icons === */
+
+.neu-quick-action .animated-quick-icon {
+  transition: transform 0.25s ease;
+}
+
+.neu-quick-action:hover .animated-quick-icon {
+  animation: icon-scale-in 0.4s ease forwards;
+}
+
+.neu-quick-action:hover .icon-branch-line {
+  animation: icon-pulse-soft 1.5s ease-in-out infinite;
+}
+
+.neu-quick-action:hover .icon-chart-bar {
+  animation: icon-bounce-subtle 1.2s ease-in-out infinite;
+}
+
+/* === Send button arrow (AI Insights) === */
+
+.neu-btn-send:hover:not(:disabled) .icon-send-arrow,
+.neu-btn-send:focus-visible .icon-send-arrow {
+  transform-origin: 12px 12px;
+  animation: icon-send-arrow 0.8s ease-in-out infinite;
+}
+
+/* === Attach file icon (AI Insights) === */
+
+.neu-attach-link:hover .icon-attach-path {
+  animation: icon-attach-swing 0.6s ease-in-out infinite;
+}
+
+/* === Shared: icon container for consistent sizing === */
+
+.animated-icon-svg {
+  display: block;
+  flex-shrink: 0;
+}

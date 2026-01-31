@@ -28,13 +28,18 @@
   display: none;
 }
 
-/* Sidebar closer - circular button centered on right edge, matches sidebar-tab neumorphic style */
-.sidebar-closer {
-  position: absolute;
-  top: 50%;
-  right: -18px;
+/* Wrapper: fixed position + top:50vh so vertical never shifts; inner .sidebar-closer handles scale without touching transform */
+.sidebar-closer-wrapper {
+  position: fixed;
+  top: 50vh;
+  right: auto;
   transform: translateY(-50%);
   z-index: var(--z-sticky);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar closer - circular button, matches sidebar-tab neumorphic style */
+.sidebar-closer {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,9 +49,9 @@
   border-radius: 50%;
   border: 1px solid #35373C;
   background: #222222;
+  transition: background, border-color, box-shadow var(--transition-fast);
   color: var(--color-text-primary);
   cursor: pointer;
-  transition: background, border-color, box-shadow var(--transition-fast);
   box-shadow:
     4px 4px 12px rgba(16, 17, 19, 0.6),
     -2px -2px 8px rgba(36, 37, 41, 0.15),
@@ -76,10 +81,6 @@
 
 .sidebar {
   position: relative;
-}
-
-.sidebar--collapsed .sidebar-closer {
-  right: -18px;
 }
 
 /* Collapsed state: tabs are square (56x56) to define sidebar width */
@@ -165,12 +166,22 @@
     inset 1px 1px 3px rgba(0, 0, 0, 0.4),
     inset -1px -1px 2px rgba(35, 35, 35, 0.2),
     0 0 5px rgba(172, 126, 75, 0.1);
+  /* Continuous rotation like chat loading logo (keyframes from ai-insights.css) */
+  animation: neu-diamond-inner-spin 8s linear infinite;
+}
+
+/* On hover: stop rotation and show default static state */
+.sidebar-logo-container:hover .neu-diamond-outer--sidebar .neu-diamond-inner,
+.neu-diamond-outer--sidebar:hover .neu-diamond-inner {
+  animation: none;
+  transform: rotate(45deg);
 }
 
 .sidebar {
   width: 100%;
   flex: 1;
   min-height: 0;
+  height: 100%;
   overflow: visible;
   background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
   box-shadow:
