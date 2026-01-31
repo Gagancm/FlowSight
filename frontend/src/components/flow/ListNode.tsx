@@ -33,13 +33,13 @@ function ListNodeComponent({ data }: ListNodeProps) {
 
   return (
     <>
-      {/* Handles positioned on the left side */}
+      {/* Handles positioned left with minimal padding */}
       <Handle
         type="target"
         position={Position.Left}
         style={{ 
           opacity: 0,
-          left: '-8px', // Position at left edge
+          left: '-14px', // Closer to card
           top: '50%',
         }}
       />
@@ -51,7 +51,7 @@ function ListNodeComponent({ data }: ListNodeProps) {
           'flow-branch-card flex items-center gap-3',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-primary)]'
         )}
-        style={{ minWidth: '600px' }} // Ensure full width
+        style={{ minWidth: '600px', marginLeft: '6px' }} // Reduced margin
       >
         <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />
         <span className="text-sm font-medium text-[var(--color-text-primary)] truncate">
@@ -93,7 +93,7 @@ function ListNodeComponent({ data }: ListNodeProps) {
         position={Position.Left}
         style={{ 
           opacity: 0,
-          left: '-8px', // Position at left edge
+          left: '-14px', // Closer to card
           top: '50%',
         }}
       />

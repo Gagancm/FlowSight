@@ -265,36 +265,58 @@
   stroke-width: 3;
 }
 
-/* Force rendering order - dots above lines */
+/* Force proper z-index layering */
+.git-graph-line {
+  z-index: 1 !important;
+}
+
+.git-graph-dot-bg {
+  z-index: 100 !important;
+}
+
+.git-graph-dot {
+  z-index: 101 !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Make edge groups respect z-index */
 .git-graph-edge-group {
   isolation: isolate;
 }
 
-.git-graph-line {
-  z-index: 1;
+.git-graph-edge-group * {
+  transform: translateZ(0); /* Force GPU acceleration and separate layers */
 }
 
-.git-graph-dot-bg {
-  z-index: 10;
+
+/* === Branch status legend (bottom-right, matches neu-btn-icon style) === */
+.flow-legend {
+  pointer-events: none;
+  min-width: 0;
 }
 
-.git-graph-dot {
-  z-index: 11;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+.flow-legend-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Override React Flow edge layering */
-.react-flow__edges {
-  z-index: 1 !important;
+.flow-legend-dot--critical {
+  background-color: var(--color-critical);
 }
 
-.react-flow__edge {
-  z-index: 1 !important;
+.flow-legend-dot--warning {
+  background-color: var(--color-warning);
 }
 
-/* Force dots to render on top by using paint-order */
-.git-graph-dot {
-  paint-order: stroke fill markers;
+.flow-legend-dot--success {
+  background-color: var(--color-success);
+}
+
+.flow-legend-dot--neutral {
+  background-color: var(--color-neutral);
 }
 
 /* === Light theme overrides === */
