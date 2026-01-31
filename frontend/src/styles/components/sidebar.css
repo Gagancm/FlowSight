@@ -28,13 +28,18 @@
   display: none;
 }
 
-/* Sidebar closer - circular button centered on right edge, matches sidebar-tab neumorphic style */
-.sidebar-closer {
-  position: absolute;
-  top: 50%;
-  right: -18px;
+/* Wrapper: fixed position + top:50vh so vertical never shifts; inner .sidebar-closer handles scale without touching transform */
+.sidebar-closer-wrapper {
+  position: fixed;
+  top: 50vh;
+  right: auto;
   transform: translateY(-50%);
   z-index: var(--z-sticky);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar closer - circular button, matches sidebar-tab neumorphic style */
+.sidebar-closer {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,9 +49,9 @@
   border-radius: 50%;
   border: 1px solid #35373C;
   background: #222222;
+  transition: background, border-color, box-shadow var(--transition-fast);
   color: var(--color-text-primary);
   cursor: pointer;
-  transition: background, border-color, box-shadow var(--transition-fast);
   box-shadow:
     4px 4px 12px rgba(16, 17, 19, 0.6),
     -2px -2px 8px rgba(36, 37, 41, 0.15),
@@ -69,17 +74,8 @@
   outline-offset: 2px;
 }
 
-.sidebar-closer-icon {
-  display: block;
-  flex-shrink: 0;
-}
-
 .sidebar {
   position: relative;
-}
-
-.sidebar--collapsed .sidebar-closer {
-  right: -18px;
 }
 
 /* Collapsed state: tabs are square (56x56) to define sidebar width */
@@ -107,9 +103,20 @@
   width: 100%;
   min-width: 0;
   padding: 16px 16px 0 16px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
   transition:
     padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     padding-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-logo-container:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /* Collapsed: full width, center logo same way as nav icons (justify-content: center) */
@@ -133,6 +140,11 @@
   letter-spacing: 0.5px;
 }
 
+/* Light theme: softer logo text (grey, not black) to match white theme */
+[data-theme="light"] .sidebar-title {
+  color: var(--color-text-secondary);
+}
+
 /* Smaller diamond logo for sidebar */
 .neu-diamond-outer--sidebar {
   width: 32px;
@@ -147,11 +159,11 @@
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  border: 1px solid rgba(172, 126, 75, 0.6);
+  border: 1.5px solid rgba(196, 145, 90, 0.6);
   box-shadow:
     inset 2px 2px 5px rgba(0, 0, 0, 0.45),
     inset -1px -1px 3px rgba(35, 35, 35, 0.2),
-    0 0 8px rgba(172, 126, 75, 0.12);
+    0 0 8px rgba(196, 145, 90, 0.12);
 }
 
 .neu-diamond-outer--sidebar .neu-diamond-inner {
@@ -160,17 +172,27 @@
   margin-left: -9px;
   margin-top: -9px;
   border-radius: 5px;
-  border: 1px solid rgba(172, 126, 75, 0.5);
+  border: 1.5px solid rgba(196, 145, 90, 0.5);
   box-shadow:
     inset 1px 1px 3px rgba(0, 0, 0, 0.4),
     inset -1px -1px 2px rgba(35, 35, 35, 0.2),
-    0 0 5px rgba(172, 126, 75, 0.1);
+    0 0 5px rgba(196, 145, 90, 0.1);
+  /* Continuous rotation like chat loading logo (keyframes from ai-insights.css) */
+  animation: neu-diamond-inner-spin 8s linear infinite;
+}
+
+/* On hover: stop rotation and show default static state */
+.sidebar-logo-container:hover .neu-diamond-outer--sidebar .neu-diamond-inner,
+.neu-diamond-outer--sidebar:hover .neu-diamond-inner {
+  animation: none;
+  transform: rotate(45deg);
 }
 
 .sidebar {
   width: 100%;
   flex: 1;
   min-height: 0;
+  height: 100%;
   overflow: visible;
   background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
   box-shadow:
@@ -211,4 +233,88 @@
     -1px -1px 8px rgba(36, 37, 41, 0.1),
     -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
     1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+}
+
+/* === Light theme overrides (hardcoded sidebar colors) === */
+[data-theme="light"] .sidebar-closer {
+  border-color: var(--color-border-light);
+  background: var(--color-bg-elevated);
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.8),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .sidebar-closer:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
+  box-shadow:
+    3px 3px 12px rgba(0, 0, 0, 0.05),
+    -1px -1px 8px rgba(255, 255, 255, 0.6),
+    -1px -1px 1px rgba(0, 0, 0, 0.03) inset,
+    1px 1px 1px rgba(0, 0, 0, 0.03) inset;
+}
+
+[data-theme="light"] .sidebar {
+  background: linear-gradient(136deg, #FFFFFF 0%, #F5F5F5 49%, #FAFAFA 100%);
+  box-shadow:
+    5px 5px 13px rgba(0, 0, 0, 0.06) inset,
+    -5px -5px 10px rgba(255, 255, 255, 0.9) inset,
+    5px -5px 10px rgba(0, 0, 0, 0.03) inset,
+    -5px 5px 10px rgba(0, 0, 0, 0.03) inset,
+    -1px -1px 2px rgba(0, 0, 0, 0.06),
+    1px 1px 2px rgba(0, 0, 0, 0.04);
+  outline: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .sidebar-tab--selected {
+  background: var(--color-bg-elevated);
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.7),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .sidebar-tab:not(.sidebar-tab--selected):hover {
+  background: var(--color-bg-hover);
+  box-shadow:
+    3px 3px 12px rgba(0, 0, 0, 0.04),
+    -1px -1px 8px rgba(255, 255, 255, 0.5),
+    -1px -1px 1px rgba(0, 0, 0, 0.03) inset,
+    1px 1px 1px rgba(0, 0, 0, 0.03) inset;
+}
+
+/* Sidebar logo – light theme: same soft imprint + orange + breathing as chat logo */
+[data-theme="light"] .sidebar-logo-container .neu-diamond-outer--sidebar {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06));
+}
+
+[data-theme="light"] .neu-diamond-outer--sidebar .neu-diamond {
+  background: #ffffff;
+  border: 1.5px solid rgba(196, 145, 90, 0.7);
+  animation-name: neu-diamond-breathe-light;
+  box-shadow:
+    inset 4px 4px 12px rgba(0, 0, 0, 0.06),
+    inset -2px -2px 8px rgba(255, 255, 255, 0.9),
+    0 0 8px rgba(196, 145, 90, 0.12);
+}
+
+[data-theme="light"] .neu-diamond-outer--sidebar .neu-diamond-inner {
+  background: #ffffff;
+  border: 1.5px solid rgba(196, 145, 90, 0.6);
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.1),
+    inset -1px -1px 3px rgba(255, 255, 255, 0.88),
+    0 0 5px rgba(196, 145, 90, 0.15);
+  /* Same as dark: inner always rotating */
+  animation: neu-diamond-inner-spin 8s linear infinite;
+}
+
+/* Light theme: hover stops rotation (same as dark) */
+[data-theme="light"] .sidebar-logo-container:hover .neu-diamond-outer--sidebar .neu-diamond-inner,
+[data-theme="light"] .neu-diamond-outer--sidebar:hover .neu-diamond-inner {
+  animation: none;
+  transform: rotate(45deg);
 }

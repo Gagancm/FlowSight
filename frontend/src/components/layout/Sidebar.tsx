@@ -1,7 +1,14 @@
+import { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/helpers';
+import {
+  AnimatedConnectionsIcon,
+  AnimatedFlowIcon,
+  AnimatedAIInsightsIcon,
+} from '../shared/AnimatedIcons';
 import '../../styles/components/sidebar.css';
 import '../../styles/components/ai-insights.css';
+import '../../styles/components/icons.css';
 
 export type Tab = 'connections' | 'flow' | 'ai-insights';
 
@@ -10,55 +17,20 @@ interface SidebarProps {
   onTabChange: (tab: Tab) => void;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  /** Immediate theme toggle (no animation). */
+  onThemeToggle?: () => void;
+  /** Theme toggle with logo-origin for animated overlay. When provided, used instead of onThemeToggle. */
+  onThemeToggleClick?: (rect: DOMRect) => void;
   isMobile?: boolean;
   onMobileMenuClose?: () => void;
   onOpenMobileMenu?: () => void;
   mobileMenuOpen?: boolean;
 }
 
-// SVG Icons (20x20 to match action button icons)
-const ConnectionsIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-  </svg>
-);
-
-const FlowIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="6" y1="3" x2="6" y2="15" />
-    <circle cx="18" cy="6" r="3" />
-    <circle cx="6" cy="18" r="3" />
-    <path d="M18 9a9 9 0 0 1-9 9" />
-  </svg>
-);
-
-const AIInsightsIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2v4" />
-    <path d="M12 18v4" />
-    <path d="M2 12h4" />
-    <path d="M18 12h4" />
-    <path d="M5.64 5.64l2.83 2.83" />
-    <path d="M15.54 15.54l2.83 2.83" />
-    <path d="M5.64 18.36l2.83-2.83" />
-    <path d="M15.54 8.46l2.83-2.83" />
-    <circle cx="12" cy="12" r="2.5" />
-  </svg>
-);
-
-const HamburgerIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="sidebar-closer-icon">
-    <line x1="5" y1="7" x2="19" y2="7" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <line x1="5" y1="17" x2="19" y2="17" />
-  </svg>
-);
-
 const TABS = [
-  { id: 'connections' as const, label: 'CONNECTIONS', icon: ConnectionsIcon },
-  { id: 'flow' as const, label: 'FLOW', icon: FlowIcon },
-  { id: 'ai-insights' as const, label: 'AI INSIGHTS', icon: AIInsightsIcon },
+  { id: 'connections' as const, label: 'CONNECTIONS', icon: AnimatedConnectionsIcon },
+  { id: 'flow' as const, label: 'FLOW', icon: AnimatedFlowIcon },
+  { id: 'ai-insights' as const, label: 'AI INSIGHTS', icon: AnimatedAIInsightsIcon },
 ];
 
 const tabVariants = {
@@ -74,15 +46,18 @@ export function Sidebar({
   activeTab,
   onTabChange,
   collapsed,
-  onToggleCollapse,
-  isMobile,
-  onMobileMenuClose,
+  onThemeToggle,
+  onThemeToggleClick,
 }: SidebarProps) {
-  const handleCloserClick = () => {
-    if (isMobile && onMobileMenuClose) {
-      onMobileMenuClose();
+  const diamondRef = useRef<HTMLDivElement>(null);
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (onThemeToggleClick) {
+      // Use diamond logo rect so the transition expands from the diamond, not the "F" in Flowsight
+      const rect = diamondRef.current?.getBoundingClientRect() ?? e.currentTarget.getBoundingClientRect();
+      onThemeToggleClick(rect);
     } else {
-      onToggleCollapse?.();
+      onThemeToggle?.();
     }
   };
 
@@ -93,29 +68,21 @@ export function Sidebar({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
     >
-      {/* Sidebar closer / mobile close - circular button (outside sidebar-content so it isn't clipped) */}
-      {(onToggleCollapse || (isMobile && onMobileMenuClose)) && (
+      {/* Inner content clipped during width transition; collapse button is in AppLayout wrapper */}
+      <div className="sidebar-content flex flex-1 flex-col min-h-0 overflow-hidden">
+        {/* Logo and Title – click toggles light/dark theme (animated from logo when onThemeToggleClick provided) */}
         <motion.button
           type="button"
-          onClick={handleCloserClick}
-          className="sidebar-closer"
-          aria-label={isMobile ? 'Close menu' : collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.15 }}
-        >
-          <HamburgerIcon />
-        </motion.button>
-      )}
-      {/* Inner content clipped during width transition; button stays visible */}
-      <div className="sidebar-content flex flex-1 flex-col min-h-0 overflow-hidden">
-        {/* Logo and Title */}
-        <motion.div
           className={cn('sidebar-logo-container', collapsed && 'sidebar-logo-container--collapsed')}
           initial={false}
           animate={{ opacity: 1 }}
+          onClick={handleLogoClick}
+          aria-label="Toggle light or dark theme"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.15 }}
         >
-          <div className="neu-diamond-outer neu-diamond-outer--sidebar" aria-hidden>
+          <div ref={diamondRef} className="neu-diamond-outer neu-diamond-outer--sidebar" aria-hidden>
             <div className="neu-diamond" />
             <div className="neu-diamond neu-diamond-inner" />
           </div>
@@ -131,7 +98,7 @@ export function Sidebar({
               </motion.span>
             )}
           </AnimatePresence>
-        </motion.div>
+        </motion.button>
         <nav className={cn('flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4', collapsed && 'sidebar-nav--collapsed')}>
         {TABS.map((tab, i) => {
           const IconComponent = tab.icon;

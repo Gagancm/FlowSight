@@ -18,6 +18,7 @@ import 'reactflow/dist/style.css';
 import { ToolNode } from './ToolNode';
 import { ConnectionEdge } from './ConnectionEdge';
 import { Toast } from '../shared/Toast';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface ConnectionProject {
   id: string;
@@ -120,7 +121,7 @@ function EmptyStateDemo() {
           Watch how to open the Add sidebar and drag tools onto the canvas
         </p>
 
-        <div className="connections-empty-state-video-wrap rounded-xl bg-[#1a1a1a] border border-[var(--color-border)]">
+        <div className="connections-empty-state-video-wrap rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]">
           {!videoError ? (
             <video
               className="connections-empty-state-video"
@@ -172,6 +173,7 @@ export function ConnectionCanvas({
   onEdgesChange,
   onInit,
 }: ConnectionCanvasProps) {
+  const { theme } = useTheme();
   const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChangeInternal] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -412,8 +414,9 @@ export function ConnectionCanvas({
   }, []);
 
   return (
-    <div 
-      className="w-full h-full" 
+    <div
+      id="connections-flow-export"
+      className="w-full h-full"
       ref={reactFlowWrapper}
       onDrop={onDrop}
       onDragOver={onDragOver}
@@ -437,12 +440,12 @@ export function ConnectionCanvas({
         proOptions={{ hideAttribution: true }}
         className="react-flow-canvas connections-canvas"
       >
-        {/* n8n-style dot grid background */}
+        {/* Theme-aware dot grid background */}
         <Background
           variant={BackgroundVariant.Dots}
           gap={20}
           size={1.5}
-          color="rgba(139, 141, 147, 0.25)"
+          color={theme === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(139, 141, 147, 0.25)'}
           className="react-flow-background"
         />
 

@@ -3,6 +3,7 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
+  Panel,
   Node,
   Edge,
   useNodesState,
@@ -16,18 +17,20 @@ import { FlowNode } from './FlowNode';
 import { ListNode } from './ListNode';
 import { ConnectionEdge } from '../connections/ConnectionEdge';
 import { GitGraphEdge } from './GitGraphEdge';
-import { GitGraphDotsOverlay } from './GitGraphDotsOverlay';
 import { useFlowData } from '../../hooks/useFlowData';
+import { useTheme } from '../../contexts/ThemeContext';
 import type { Branch } from '../../types/flow';
 
 interface BranchFlowCanvasProps {
   onInit?: (instance: ReactFlowInstance) => void;
   onHover?: (branch: Branch | null) => void;
+  onHoverPosition?: (position: { x: number; y: number } | null) => void;
+  onNodeClick?: (branch: Branch, position: { x: number; y: number }) => void;
   viewType?: 'github' | 'pr' | 'timeline' | 'list';
 }
 
 // Convert branches to React Flow nodes with hierarchical positioning (Github Graph - default)
-function branchesToNodesGithub(branches: Branch[], onHover?: (branch: Branch | null) => void): Node[] {
+function branchesToNodesGithub(branches: Branch[]): Node[] {
   const nodes: Node[] = [];
   const levelMap = new Map<string, number>();
   
@@ -83,7 +86,6 @@ function branchesToNodesGithub(branches: Branch[], onHover?: (branch: Branch | n
         position: { x, y },
         data: {
           branch,
-          onHover,
         },
       });
     });
@@ -93,7 +95,7 @@ function branchesToNodesGithub(branches: Branch[], onHover?: (branch: Branch | n
 }
 
 // Convert branches to React Flow nodes - PR Graph (horizontal timeline)
-function branchesToNodesPR(branches: Branch[], onHover?: (branch: Branch | null) => void): Node[] {
+function branchesToNodesPR(branches: Branch[]): Node[] {
   const nodes: Node[] = [];
   
   // Filter only PRs and related branches
@@ -109,7 +111,6 @@ function branchesToNodesPR(branches: Branch[], onHover?: (branch: Branch | null)
       position: { x: START_X + index * HORIZONTAL_SPACING, y: START_Y },
       data: {
         branch,
-        onHover,
       },
     });
   });
@@ -118,7 +119,7 @@ function branchesToNodesPR(branches: Branch[], onHover?: (branch: Branch | null)
 }
 
 // Convert branches to React Flow nodes - List View (vertical list like BranchGraph)
-function branchesToNodesList(branches: Branch[], onHover?: (branch: Branch | null) => void): Node[] {
+function branchesToNodesList(branches: Branch[]): Node[] {
   const nodes: Node[] = [];
   
   // Build ordered list of (branch, depth) for tree display
@@ -164,7 +165,6 @@ function branchesToNodesList(branches: Branch[], onHover?: (branch: Branch | nul
       },
       data: {
         branch,
-        onHover,
       },
     });
 
@@ -175,7 +175,7 @@ function branchesToNodesList(branches: Branch[], onHover?: (branch: Branch | nul
 }
 
 // Convert branches to React Flow nodes - Timeline (horizontal by creation time)
-function branchesToNodesTimeline(branches: Branch[], onHover?: (branch: Branch | null) => void): Node[] {
+function branchesToNodesTimeline(branches: Branch[]): Node[] {
   const nodes: Node[] = [];
   
   // Sort by creation time (using daysWaiting as proxy - older = higher)
@@ -200,7 +200,6 @@ function branchesToNodesTimeline(branches: Branch[], onHover?: (branch: Branch |
       },
       data: {
         branch,
-        onHover,
       },
     });
   });
@@ -253,24 +252,25 @@ function branchesToEdges(branches: Branch[], viewType?: string): Edge[] {
   return edges;
 }
 
-export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: BranchFlowCanvasProps) {
+export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick, viewType = 'github' }: BranchFlowCanvasProps) {
   const { branches } = useFlowData();
+  const { theme } = useTheme();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   // Convert branches to nodes and edges based on view type
   const initialNodes = useMemo(() => {
     switch (viewType) {
       case 'pr':
-        return branchesToNodesPR(branches, onHover);
+        return branchesToNodesPR(branches);
       case 'timeline':
-        return branchesToNodesTimeline(branches, onHover);
+        return branchesToNodesTimeline(branches);
       case 'list':
-        return branchesToNodesList(branches, onHover);
+        return branchesToNodesList(branches);
       case 'github':
       default:
-        return branchesToNodesGithub(branches, onHover);
+        return branchesToNodesGithub(branches);
     }
-  }, [branches, onHover, viewType]);
+  }, [branches, viewType]);
   
   const initialEdges = useMemo(() => branchesToEdges(branches, viewType), [branches, viewType]);
 
@@ -282,14 +282,14 @@ export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: Branc
     const newNodes = (() => {
       switch (viewType) {
         case 'pr':
-          return branchesToNodesPR(branches, onHover);
+          return branchesToNodesPR(branches);
         case 'timeline':
-          return branchesToNodesTimeline(branches, onHover);
+          return branchesToNodesTimeline(branches);
         case 'list':
-          return branchesToNodesList(branches, onHover);
+          return branchesToNodesList(branches);
         case 'github':
         default:
-          return branchesToNodesGithub(branches, onHover);
+          return branchesToNodesGithub(branches);
       }
     })();
     
@@ -303,7 +303,7 @@ export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: Branc
         reactFlowInstance.fitView({ padding, duration: 300 });
       }
     }, 100);
-  }, [viewType, branches, onHover, reactFlowInstance, setNodes, setEdges]);
+  }, [viewType, branches, reactFlowInstance, setNodes, setEdges]);
 
   // Register custom node types
   const nodeTypes: NodeTypes = useMemo(() => ({
@@ -330,23 +330,44 @@ export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: Branc
     [onInit]
   );
 
-  // Handle node mouse enter - use React Flow's event system
+  // Handle node mouse enter
   const onNodeMouseEnter = useCallback(
     (_event: React.MouseEvent, node: Node) => {
       const branch = node.data.branch as Branch;
-      console.log('Node mouse enter:', branch.name);
       onHover?.(branch);
+      
+      if (reactFlowInstance && onHoverPosition) {
+        const { x, y, zoom } = reactFlowInstance.getViewport();
+        const screenX = node.position.x * zoom + x;
+        const screenY = node.position.y * zoom + y;
+        onHoverPosition({ x: screenX, y: screenY });
+      }
     },
-    [onHover]
+    [onHover, onHoverPosition, reactFlowInstance]
   );
 
   // Handle node mouse leave
   const onNodeMouseLeave = useCallback(
     () => {
-      console.log('Node mouse leave');
       onHover?.(null);
+      onHoverPosition?.(null);
     },
-    [onHover]
+    [onHover, onHoverPosition]
+  );
+
+  // Handle node click to pin the hover panel
+  const handleNodeClick = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      const branch = node.data.branch as Branch;
+      
+      if (reactFlowInstance && onNodeClick) {
+        const { x, y, zoom } = reactFlowInstance.getViewport();
+        const screenX = node.position.x * zoom + x;
+        const screenY = node.position.y * zoom + y;
+        onNodeClick(branch, { x: screenX, y: screenY });
+      }
+    },
+    [onNodeClick, reactFlowInstance]
   );
 
   return (
@@ -359,23 +380,24 @@ export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: Branc
         onInit={handleInit}
         onNodeMouseEnter={onNodeMouseEnter}
         onNodeMouseLeave={onNodeMouseLeave}
+        onNodeClick={handleNodeClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        nodesDraggable={viewType !== 'list'} // Disable drag in list view
-        nodesConnectable={viewType !== 'list'} // Disable connections in list view
-        elementsSelectable={viewType !== 'list'} // Disable selection in list view
+        nodesDraggable={viewType !== 'list'}
+        nodesConnectable={viewType !== 'list'}
+        elementsSelectable={viewType !== 'list'}
         deleteKeyCode="Delete"
         fitView
-        fitViewOptions={{ padding: 0.6, minZoom: 0.3, maxZoom: 2 }} // Even more padding = more zoom out
+        fitViewOptions={{ padding: 0.6, minZoom: 0.3, maxZoom: 2 }}
         proOptions={{ hideAttribution: true }}
         className="react-flow-canvas flow-canvas"
       >
-        {/* n8n-style dot grid background */}
+        {/* Theme-aware dot grid background */}
         <Background
           variant={BackgroundVariant.Dots}
           gap={20}
           size={1.5}
-          color="rgba(255, 255, 255, 0.15)"
+          color={theme === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)'}
           className="react-flow-background"
         />
 
@@ -387,11 +409,6 @@ export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: Branc
           className="hidden"
         />
       </ReactFlow>
-      
-      {/* Render dots overlay on top for list view */}
-      {viewType === 'list' && (
-        <GitGraphDotsOverlay nodes={nodes} edges={edges} />
-      )}
     </div>
   );
 }
