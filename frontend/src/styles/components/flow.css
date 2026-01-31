@@ -297,6 +297,36 @@
   paint-order: stroke fill markers;
 }
 
+/* === Branch status legend (bottom-right, matches neu-btn-icon style) === */
+.flow-legend {
+  pointer-events: none;
+  min-width: 0;
+}
+
+.flow-legend-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.flow-legend-dot--critical {
+  background-color: var(--color-critical);
+}
+
+.flow-legend-dot--warning {
+  background-color: var(--color-warning);
+}
+
+.flow-legend-dot--success {
+  background-color: var(--color-success);
+}
+
+.flow-legend-dot--neutral {
+  background-color: var(--color-neutral);
+}
+
 /* === Light theme overrides === */
 [data-theme="light"] .flow-dropdown-trigger {
   background: var(--color-bg-elevated);

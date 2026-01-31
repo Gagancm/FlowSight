@@ -22,6 +22,28 @@ const PlusIcon = () => (
   </svg>
 );
 
+const PlusIconSmall = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+const PencilIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <line x1="10" y1="11" x2="10" y2="17" />
+    <line x1="14" y1="11" x2="14" y2="17" />
+  </svg>
+);
+
 const DownloadIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -86,6 +108,10 @@ export function FlowPage() {
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [currentProjectName, setCurrentProjectName] = useState('Untitled');
+  const [editProjectId, setEditProjectId] = useState<string | null>(null);
+  const [editProjectName, setEditProjectName] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const projectDropdownRef = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -94,6 +120,8 @@ export function FlowPage() {
   const [pinnedPosition, setPinnedPosition] = useState<{ x: number; y: number } | null>(null);
   const { getBranchDetail } = useFlowData();
   const { hoveredItem, onHover } = useHoverPanel<Branch>();
+
+  const deleteConfirmMatches = currentProjectName && deleteConfirmName.trim() === currentProjectName;
 
   // Show pinned if exists, otherwise show hovered
   const displayBranch = pinnedBranch || hoveredItem;
@@ -164,6 +192,47 @@ export function FlowPage() {
     setNewProjectName('');
   };
 
+  // Edit Project handlers
+  const openEditProject = () => {
+    setEditProjectId('current'); // Dummy ID since we only have one project
+    setEditProjectName(currentProjectName);
+    setProjectDropdownOpen(false);
+  };
+
+  const handleEditProjectSave = () => {
+    const name = editProjectName.trim() || 'Untitled';
+    setCurrentProjectName(name);
+    setEditProjectId(null);
+    setEditProjectName('');
+  };
+
+  const handleEditProjectDeleteClick = () => {
+    setDeleteConfirmName('');
+    setShowDeleteConfirm(true);
+  };
+
+  const handleEditProjectDeleteConfirm = () => {
+    if (!deleteConfirmMatches) return;
+    setCurrentProjectName('Untitled');
+    setEditProjectId(null);
+    setEditProjectName('');
+    setDeleteConfirmName('');
+    setShowDeleteConfirm(false);
+    setProjectDropdownOpen(false);
+  };
+
+  const handleDeleteConfirmClose = () => {
+    setShowDeleteConfirm(false);
+    setDeleteConfirmName('');
+  };
+
+  const handleEditProjectClose = () => {
+    setEditProjectId(null);
+    setEditProjectName('');
+    setShowDeleteConfirm(false);
+    setDeleteConfirmName('');
+  };
+
   return (
     <motion.div
       className="absolute inset-0 flex flex-col sm:flex-row"
@@ -230,17 +299,28 @@ export function FlowPage() {
             </AnimatePresence>
           </div>
 
-          {/* Project Dropdown */}
-          <div ref={projectDropdownRef} className="relative">
+          {/* Project Dropdown with Edit Icon */}
+          <div ref={projectDropdownRef} className="relative flex items-center gap-1 min-w-[140px] sm:min-w-[160px]">
             <motion.button
               type="button"
               onClick={() => setProjectDropdownOpen((o) => !o)}
-              className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
+              className="flow-dropdown-trigger flex flex-1 min-w-0 items-center justify-between gap-2 px-4 py-2.5 text-sm"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span>{currentProjectName}</span>
+              <span className="truncate">{currentProjectName}</span>
               <ChevronDownIcon />
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={openEditProject}
+              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg neu-btn-icon text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Edit project"
+              aria-label="Edit project"
+            >
+              <PencilIcon />
             </motion.button>
             <AnimatePresence>
               {projectDropdownOpen && (
@@ -251,18 +331,37 @@ export function FlowPage() {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <button
-                    type="button"
-                    className="w-full text-left px-4 py-2 text-sm bg-[var(--color-accent-bg)] text-[var(--color-accent)] rounded-md"
-                  >
-                    {currentProjectName}
-                  </button>
+                  <div className="flex items-center w-full rounded-md bg-[var(--color-accent-bg)]">
+                    <button
+                      type="button"
+                      onClick={() => setProjectDropdownOpen(false)}
+                      className="flex-1 min-w-0 text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center text-[var(--color-accent)]"
+                    >
+                      <span className="truncate block">{currentProjectName}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEditProject();
+                        setProjectDropdownOpen(false);
+                      }}
+                      className="shrink-0 flex items-center justify-center w-9 h-9 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+                      title="Edit project"
+                      aria-label="Edit project"
+                    >
+                      <PencilIcon />
+                    </button>
+                  </div>
                   <button
                     type="button"
                     onClick={handleAddProjectClick}
-                    className="w-full text-left px-4 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors rounded-md border-t border-[var(--color-border)] mt-1 pt-2"
+                    className="w-full flex items-center px-4 h-9 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors rounded-md border-t border-[var(--color-border)] mt-1"
                   >
-                    + Add Project
+                    <span className="shrink-0 flex items-center justify-center w-9 h-9 -ml-1">
+                      <PlusIconSmall />
+                    </span>
+                    <span>Add Project</span>
                   </button>
                 </motion.div>
               )}
@@ -319,6 +418,26 @@ export function FlowPage() {
           >
             <ZoomOutIcon />
           </motion.button>
+        </div>
+
+        {/* Bottom right - branch status legend */}
+        <div className="flow-legend neu-btn-icon absolute bottom-4 right-4 z-10 flex flex-col gap-1.5 px-3 py-2.5">
+          <div className="flex items-center gap-2">
+            <span className="flow-legend-dot flow-legend-dot--critical" />
+            <span className="text-xs text-[var(--color-text-secondary)]">Critical / Blocked</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="flow-legend-dot flow-legend-dot--warning" />
+            <span className="text-xs text-[var(--color-text-secondary)]">Warning / In Progress</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="flow-legend-dot flow-legend-dot--success" />
+            <span className="text-xs text-[var(--color-text-secondary)]">Success / Ready</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="flow-legend-dot flow-legend-dot--neutral" />
+            <span className="text-xs text-[var(--color-text-secondary)]">Neutral / Pending</span>
+          </div>
         </div>
       </div>
 
@@ -377,6 +496,127 @@ export function FlowPage() {
                   className="px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-colors"
                 >
                   Create
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Project modal */}
+      <AnimatePresence>
+        {editProjectId != null && (
+          <motion.div
+            className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 bg-black/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleEditProjectClose}
+          >
+            <motion.div
+              className="flow-dropdown-panel rounded-2xl p-6 w-full max-w-[320px] min-w-0 shadow-xl"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'tween', duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">
+                Edit Project
+              </h3>
+              <input
+                type="text"
+                value={editProjectName}
+                onChange={(e) => setEditProjectName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleEditProjectSave()}
+                placeholder="Project name"
+                className="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]"
+                autoFocus
+              />
+              <div className="flex justify-between gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={handleEditProjectClose}
+                  className="px-4 py-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEditProjectSave}
+                  className="px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-colors"
+                >
+                  Save
+                </button>
+              </div>
+              <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
+                <button
+                  type="button"
+                  onClick={handleEditProjectDeleteClick}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg text-[var(--color-critical)] hover:bg-[var(--color-critical-bg)] transition-colors"
+                >
+                  <TrashIcon />
+                  Delete project
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete project confirmation */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            className="fixed inset-0 z-[calc(var(--z-modal)+1)] flex items-center justify-center p-4 bg-black/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleDeleteConfirmClose}
+          >
+            <motion.div
+              className="flow-dropdown-panel rounded-2xl p-6 w-full max-w-[400px] min-w-0 shadow-xl"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'tween', duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-2">
+                Delete project
+              </h3>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-4">
+                If you delete this project you will be losing all the workflow data. If you still want to proceed, enter the project name below.
+              </p>
+              <p className="text-sm font-medium text-[var(--color-text-primary)] mb-1.5">
+                Type <span className="font-semibold text-[var(--color-critical)]">{currentProjectName}</span> to confirm
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmName}
+                onChange={(e) => setDeleteConfirmName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && deleteConfirmMatches && handleEditProjectDeleteConfirm()}
+                placeholder="Project name"
+                className="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-critical)]"
+                autoFocus
+              />
+              <div className="flex justify-between gap-2 mt-6">
+                <button
+                  type="button"
+                  onClick={handleDeleteConfirmClose}
+                  className="px-4 py-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEditProjectDeleteConfirm}
+                  disabled={!deleteConfirmMatches}
+                  className="px-4 py-2 rounded-lg bg-[var(--color-critical)] text-white hover:bg-[var(--color-critical)]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Delete project
                 </button>
               </div>
             </motion.div>
