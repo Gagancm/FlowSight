@@ -22,8 +22,8 @@ info:
     name: FlowSight Team
 
 servers:
-  - url: https://YOUR-CODE-ENGINE-URL.us-south.codeengine.appdomain.cloud
-    description: IBM Cloud Code Engine (update this URL after deployment)
+  - url: https://unfluorescent-unverdantly-josephine.ngrok-free.dev
+    description: ngrok tunnel to local development server
 
 paths:
   /api/v1/mock/events:
