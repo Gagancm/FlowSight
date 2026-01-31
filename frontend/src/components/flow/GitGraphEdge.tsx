@@ -11,8 +11,8 @@ function GitGraphEdgeComponent({
   sourceY,
   targetX,
   targetY,
-  sourcePosition,
-  targetPosition,
+  sourcePosition: _sourcePosition,
+  targetPosition: _targetPosition,
   data,
   selected,
 }: EdgeProps<GitGraphEdgeData>) {
