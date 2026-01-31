@@ -74,6 +74,10 @@ function EmptyStateDemo() {
             <span className="connections-empty-state-step-num">3</span>
             <span>Hover over branches to see details and AI recommendations</span>
           </li>
+          <li className="flex items-start gap-3 mb-2.5 last:mb-0 text-sm text-[var(--color-text-secondary)]">
+            <span className="connections-empty-state-step-num">4</span>
+            <span>Or select a project from dropdown to get started</span>
+          </li>
         </ol>
       </div>
     </div>
