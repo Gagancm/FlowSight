@@ -46,9 +46,9 @@
   --color-border-light: #35373C;
   --color-divider: #2A2C30;
 
-  /* Brand / Logo (amber-orange from diamond) - slightly bright for visibility */
-  --color-brand-orange: #C4915A;
-  --color-brand-orange-glow: rgba(196, 145, 90, 0.6);
+  /* Brand / Logo (amber-orange from diamond) - dark theme: saturated orange, glow without white halo */
+  --color-brand-orange: #D4945A;
+  --color-brand-orange-glow: rgba(220, 130, 50, 0.8);
 
   /* Theme accent & Interactive - primary blue used for step indicators, buttons, links, highlights */
   --color-accent: #3b82f6;
@@ -169,6 +169,17 @@
 
   /* Layout background */
   --layout-bg: linear-gradient(180deg, #F1F3F5 0%, #E9ECEF 49%, #F5F5F5 100%);
+
+  /* Vibrant orange on light bg – no tan, no dark behind logo/text/border */
+  --color-brand-orange: #D47828;
+  --color-brand-orange-glow: rgba(212, 120, 50, 0.85);
+  --color-brand-orange-glow-soft: rgba(255, 248, 240, 0.95);
+}
+
+/* Dark theme – orange glow with no white/cream halo */
+[data-theme="dark"] {
+  --color-brand-orange: #E0A050;
+  --color-brand-orange-glow: rgba(220, 130, 50, 0.8);
 }
 
 /* Responsive: center AI chat in viewport on mobile (no sidebar offset) */

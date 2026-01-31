@@ -131,7 +131,7 @@ export function ToolsSidebar({ onToolDragStart, onClose: _onClose }: ToolsSideba
                 whileTap={{ scale: 0.95 }}
               >
                 <div
-                  className="w-full h-full flex items-center justify-center text-[var(--color-text-secondary)] transition-all duration-200 group-hover:text-[#B5BAC1] group-hover:scale-110"
+                  className="neu-tool-card-icon w-full h-full flex items-center justify-center text-[var(--color-text-secondary)] transition-all duration-200 group-hover:scale-110"
                   draggable
                   onDragStart={handleDragStart(tool)}
                 >
@@ -164,7 +164,7 @@ export function ToolsSidebar({ onToolDragStart, onClose: _onClose }: ToolsSideba
                     onDragStart={handleDragStart(tool)}
                   >
                   {/* Icon */}
-                  <div className="flex h-8 w-8 items-center justify-center flex-shrink-0 text-[var(--color-text-secondary)] transition-all duration-200 group-hover:text-[#B5BAC1]">
+                  <div className="neu-tool-card-icon flex h-8 w-8 items-center justify-center flex-shrink-0 text-[var(--color-text-secondary)] transition-all duration-200">
                     {getToolIcon(tool.icon, 'sm')}
                   </div>
 

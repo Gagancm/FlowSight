@@ -412,8 +412,9 @@ export function ConnectionCanvas({
   }, []);
 
   return (
-    <div 
-      className="w-full h-full" 
+    <div
+      id="connections-flow-export"
+      className="w-full h-full"
       ref={reactFlowWrapper}
       onDrop={onDrop}
       onDragOver={onDragOver}
