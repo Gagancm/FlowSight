@@ -24,13 +24,6 @@ const PlusIcon = () => (
   </svg>
 );
 
-const PlusIconSmall = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
 const PencilIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
@@ -107,8 +100,6 @@ export function FlowPage() {
   const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('list');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
-  const [showAddProjectModal, setShowAddProjectModal] = useState(false);
-  const [newProjectName, setNewProjectName] = useState('');
   const [currentProjectName, setCurrentProjectName] = useState('Untitled');
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState('');
@@ -193,20 +184,6 @@ export function FlowPage() {
   const handleClearPinned = () => {
     setPinnedBranch(null);
     setPinnedPosition(null);
-  };
-
-  // Add Project handlers
-  const handleAddProjectClick = () => {
-    setNewProjectName('');
-    setShowAddProjectModal(true);
-    setProjectDropdownOpen(false);
-  };
-
-  const handleAddProjectConfirm = () => {
-    const name = newProjectName.trim() || 'Untitled';
-    setCurrentProjectName(name);
-    setShowAddProjectModal(false);
-    setNewProjectName('');
   };
 
   // Edit Project handlers
@@ -453,16 +430,6 @@ export function FlowPage() {
                       <PencilIcon />
                     </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleAddProjectClick}
-                    className="w-full flex items-center px-4 h-9 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors rounded-md border-t border-[var(--color-border)] mt-1"
-                  >
-                    <span className="shrink-0 flex items-center justify-center w-9 h-9 -ml-1">
-                      <PlusIconSmall />
-                    </span>
-                    <span>Add Project</span>
-                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -608,58 +575,6 @@ export function FlowPage() {
           isPinned={!!pinnedBranch}
         />
       )}
-
-      {/* Add Project modal */}
-      <AnimatePresence>
-        {showAddProjectModal && (
-          <motion.div
-            className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 bg-black/50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setShowAddProjectModal(false)}
-          >
-            <motion.div
-              className="flow-dropdown-panel rounded-2xl p-6 w-full max-w-[320px] min-w-0 shadow-xl"
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ type: 'tween', duration: 0.2 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">
-                New Project
-              </h3>
-              <input
-                type="text"
-                value={newProjectName}
-                onChange={(e) => setNewProjectName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddProjectConfirm()}
-                placeholder="Project name"
-                className="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]"
-                autoFocus
-              />
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddProjectModal(false)}
-                  className="px-4 py-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddProjectConfirm}
-                  className="px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-colors"
-                >
-                  Create
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Edit Project modal */}
       <AnimatePresence>
