@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ReactFlowProvider } from 'reactflow';
 import { ToolsSidebar } from '../components/connections/ToolsSidebar';
 import { ConnectionCanvas } from '../components/connections/ConnectionCanvas';
 
@@ -86,8 +87,6 @@ export function ConnectionsPage() {
   const handleFitView = () => {
     if (reactFlowInstance) {
       reactFlowInstance.fitView({ padding: 0.2, duration: 200 });
-    } else {
-      console.log('React Flow instance not ready');
     }
   };
 
@@ -97,9 +96,11 @@ export function ConnectionsPage() {
       <div className="flex-1 relative">
         {/* React Flow Canvas */}
         <div className="absolute inset-0">
-          <ConnectionCanvas 
-            onInit={setReactFlowInstance}
-          />
+          <ReactFlowProvider>
+            <ConnectionCanvas 
+              onInit={setReactFlowInstance}
+            />
+          </ReactFlowProvider>
         </div>
         
         {/* Right side action buttons - moves left when sidebar is open */}
@@ -146,17 +147,19 @@ export function ConnectionsPage() {
 
       {/* Right Sidebar with Tools - Slides in from right */}
       <div className={`
-        fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-20
+        fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-      `}>
-        <ToolsSidebar />
+      `}
+      style={{ zIndex: 25 }}
+      >
+        <ToolsSidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
 
-      {/* Overlay when sidebar is open */}
+      {/* Overlay when sidebar is open - but allow pointer events to pass through to canvas */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-10 transition-opacity duration-300"
-          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-black/50 transition-opacity duration-300 pointer-events-none"
+          style={{ zIndex: 15 }}
         />
       )}
     </div>

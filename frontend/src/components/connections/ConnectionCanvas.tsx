@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -12,8 +12,10 @@ import ReactFlow, {
   useEdgesState,
   ConnectionMode,
   ReactFlowInstance,
+  NodeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { ToolNode } from './ToolNode';
 
 interface ConnectionCanvasProps {
   onNodesChange?: (nodes: Node[]) => void;
@@ -22,9 +24,30 @@ interface ConnectionCanvasProps {
 }
 
 export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: ConnectionCanvasProps) {
-  // Initial empty state - we'll add nodes via drag & drop
-  const [nodes, setNodes, onNodesChangeInternal] = useNodesState([]);
+  // Initial state with one test node
+  const initialNodes: Node[] = [
+    {
+      id: 'test-github',
+      type: 'toolNode',
+      position: { x: 250, y: 200 },
+      data: {
+        tool: 'github',
+        name: 'GitHub',
+        icon: 'github',
+        status: 'active',
+      },
+    },
+  ];
+
+  const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChangeInternal] = useEdgesState([]);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+
+  // Register custom node types
+  const nodeTypes: NodeTypes = useMemo(() => ({
+    toolNode: ToolNode,
+  }), []);
 
   // Handle new connections between nodes
   const onConnect = useCallback(
@@ -59,13 +82,62 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
   // Expose React Flow instance to parent
   const handleInit = useCallback(
     (instance: ReactFlowInstance) => {
+      setReactFlowInstance(instance);
       onInit?.(instance);
     },
     [onInit]
   );
 
+  // Handle drop from sidebar
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      if (!reactFlowInstance) return;
+
+      // Get the tool data from drag event
+      const toolData = event.dataTransfer.getData('application/json');
+      if (!toolData) return;
+
+      const tool = JSON.parse(toolData);
+
+      // Get the position where the tool was dropped
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      // Create a new node
+      const newNode: Node = {
+        id: `${tool.id}-${Date.now()}`, // Unique ID
+        type: 'toolNode',
+        position,
+        data: {
+          tool: tool.id,
+          name: tool.name,
+          icon: tool.icon,
+          status: 'inactive',
+        },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [reactFlowInstance, setNodes]
+  );
+
+  // Allow drop
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
   return (
-    <div className="w-full h-full">
+    <div 
+      className="w-full h-full" 
+      ref={reactFlowWrapper}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -73,6 +145,7 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
         onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
         onInit={handleInit}
+        nodeTypes={nodeTypes}
         connectionMode={ConnectionMode.Loose}
         fitView
         attributionPosition="bottom-left"
