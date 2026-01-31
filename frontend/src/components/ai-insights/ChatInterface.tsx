@@ -45,19 +45,16 @@ export function ChatInterface() {
         style={{ fontFamily: 'var(--font-sans)' }}
       >
         {/* Messages area - scrollable, fills space */}
-        <div className="flex-1 min-h-0 overflow-y-auto chat-messages-container">
-          <div className="w-full max-w-3xl mx-auto px-6 py-8">
+        <div className="flex-1 min-h-0 overflow-y-auto chat-messages-container flex justify-center">
+          <div className="w-full max-w-3xl px-6 py-8" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
             {messages.map((msg) => (
               <ChatMessage key={msg.id} message={msg} />
             ))}
             {loading && (
-              <div className="flex justify-start py-3">
-                <div className="neu-chat-bubble neu-chat-bubble--ai max-w-[85%] text-left px-4 py-2.5">
-                  <span className="inline-flex gap-1">
-                    <span className="w-2 h-2 rounded-full bg-[#6b6b6b] animate-pulse" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-[#6b6b6b] animate-pulse" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-[#6b6b6b] animate-pulse" style={{ animationDelay: '300ms' }} />
-                  </span>
+              <div className="flex justify-start py-3" aria-label="AI is thinking">
+                <div className="neu-diamond-outer neu-diamond-outer--loading flex-shrink-0" aria-hidden>
+                  <div className="neu-diamond" />
+                  <div className="neu-diamond neu-diamond-inner" />
                 </div>
               </div>
             )}
@@ -66,8 +63,8 @@ export function ChatInterface() {
         </div>
 
         {/* Input area - fixed at bottom, sidebar-style panel */}
-        <div className="flex-shrink-0 px-6 pb-8 pt-4 chat-input-wrapper">
-          <div className="neu-chat-panel neu-chat-panel--sidebar-style w-full max-w-3xl mx-auto">
+        <div className="flex-shrink-0 flex justify-center pb-8 pt-4 chat-input-wrapper">
+          <div className="neu-chat-panel neu-chat-panel--sidebar-style w-full max-w-3xl px-6" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
             <div className="px-5 pt-5 pb-4">
               <textarea
                 value={input}
@@ -118,12 +115,12 @@ export function ChatInterface() {
       className="flex h-full min-h-0 overflow-y-auto justify-center items-center"
       style={{ fontFamily: 'var(--font-sans)' }}
     >
-      <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto px-6 py-8">
-        {/* Soft diamond shape with orange border */}
-        <div
-          className="neu-diamond flex-shrink-0 mb-6"
-          aria-hidden
-        />
+      <div className="flex flex-col items-center justify-center w-full max-w-3xl px-6 py-8" style={{ marginLeft: 'var(--ai-chat-center-offset)' }}>
+        {/* Soft diamond shape with orange border + inner squircle (rotates on hover) */}
+        <div className="neu-diamond-outer flex-shrink-0 mb-6" aria-hidden>
+          <div className="neu-diamond" />
+          <div className="neu-diamond neu-diamond-inner" />
+        </div>
 
         {/* Greeting */}
         <h2

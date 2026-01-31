@@ -28,6 +28,13 @@
   color: #e8e8e8;
   resize: none;
   transition: box-shadow 0.15s ease;
+  /* Hide scrollbar when content is large; content remains scrollable */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.neu-textarea::-webkit-scrollbar {
+  display: none;
 }
 
 .neu-textarea::placeholder {
@@ -157,18 +164,106 @@
   }
 }
 
+@keyframes neu-diamond-inner-spin {
+  from { transform: rotate(45deg); }
+  to { transform: rotate(405deg); }
+}
+
+/* Faster outer glow/breathing for loading */
+@keyframes neu-diamond-breathe-fast {
+  0%, 100% {
+    border-color: rgba(172, 126, 75, 0.45);
+    box-shadow:
+      inset 2px 2px 6px rgba(0, 0, 0, 0.4),
+      inset -1px -1px 4px rgba(40, 40, 40, 0.15),
+      0 0 6px rgba(172, 126, 75, 0.08);
+  }
+  50% {
+    border-color: rgba(172, 126, 75, 0.85);
+    box-shadow:
+      inset 2px 2px 6px rgba(0, 0, 0, 0.4),
+      inset -1px -1px 4px rgba(40, 40, 40, 0.15),
+      0 0 14px rgba(172, 126, 75, 0.25);
+  }
+}
+
+/* Inner diamond: stronger breathing (opacity + glow) for a clear “pulse” */
+.neu-diamond-outer {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .neu-diamond {
   width: 80px;
   height: 80px;
-  background: #1a1a1a;
+  background: rgb(28, 28, 28);
   border-radius: 20px;
   transform: rotate(45deg);
-  border: 1.5px solid rgba(200, 140, 90, 0.7);
+  border: 1.5px solid rgba(172, 126, 75, 0.7);
   box-shadow:
     inset 4px 4px 12px rgba(0, 0, 0, 0.5),
     inset -2px -2px 8px rgba(30, 30, 30, 0.2),
-    0 0 20px rgba(200, 140, 90, 0.15);
+    0 0 20px rgba(172, 126, 75, 0.15);
   animation: neu-diamond-breathe 4s ease-in-out infinite;
+}
+
+.neu-diamond-inner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  margin-left: -22px;
+  margin-top: -22px;
+  border-radius: 12px;
+  transform: rotate(45deg);
+  border: 1.5px solid rgba(172, 126, 75, 0.6);
+  box-shadow:
+    inset 3px 3px 8px rgba(0, 0, 0, 0.5),
+    inset -1px -1px 4px rgba(30, 30, 30, 0.2),
+    0 0 12px rgba(172, 126, 75, 0.2);
+}
+
+.neu-diamond-outer:hover .neu-diamond-inner,
+.neu-diamond-outer--loading .neu-diamond-inner {
+  animation: neu-diamond-inner-spin 8s linear infinite;
+}
+
+/* Loading variant: smaller, no box, inner rotates, outer glow pulses faster */
+.neu-diamond-outer--loading {
+  width: 36px;
+  height: 36px;
+}
+
+.neu-diamond-outer--loading .neu-diamond {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(172, 126, 75, 0.55);
+  background: rgb(28, 28, 28);
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.45),
+    inset -1px -1px 4px rgba(35, 35, 35, 0.2),
+    0 0 10px rgba(172, 126, 75, 0.12);
+  animation: neu-diamond-breathe-fast 1.25s ease-in-out infinite;
+}
+
+.neu-diamond-outer--loading .neu-diamond-inner {
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  margin-top: -10px;
+  border-radius: 6px;
+  border: 1px solid rgba(172, 126, 75, 0.6);
+  box-shadow:
+    inset 1px 1px 4px rgba(0, 0, 0, 0.4),
+    inset -1px -1px 2px rgba(35, 35, 35, 0.2),
+    0 0 6px rgba(172, 126, 75, 0.1);
+  animation: neu-diamond-inner-spin 6s linear infinite;
 }
 
 /* === Messages panel - raised === */
@@ -248,7 +343,6 @@
 .chat-input-wrapper {
   /* Blend with page background - no gradient band to avoid visual clash */
   background: transparent;
-  border-top: 1px solid rgba(42, 44, 48, 0.4);
 }
 
 /* === Chat bubbles - same pop design as sidebar tabs === */
