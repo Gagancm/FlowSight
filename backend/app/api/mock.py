@@ -203,6 +203,177 @@ async def get_mock_workflow() -> GraphEnvelope:
     return GraphEnvelope(workflow_graph=_get_mock_workflow_graph())
 
 
+def _get_mock_branches() -> list[dict]:
+    """Mock branch data for the Flow page."""
+    return [
+        {
+            "id": "main",
+            "name": "main",
+            "status": "success",
+            "author": "system",
+        },
+        {
+            "id": "nwl-branch",
+            "name": "nwl-branch",
+            "parent": "main",
+            "pulledFrom": "main",
+            "status": "warning",
+            "author": "team",
+            "conflicts": ["auth.js"],
+        },
+        {
+            "id": "release/1.0",
+            "name": "release/1.0",
+            "parent": "main",
+            "pulledFrom": "main",
+            "status": "success",
+            "author": "team",
+        },
+        {
+            "id": "feature/auth-refactor",
+            "name": "feature/auth-refactor",
+            "parent": "nwl-branch",
+            "mergeInto": "nwl-branch",
+            "pulledFrom": "nwl-branch",
+            "author": "sarah",
+            "status": "critical",
+            "jiraTicket": "JIRA-247",
+            "jiraTitle": "Auth Refactor",
+            "prId": 247,
+            "prStatus": "awaiting_review",
+            "daysWaiting": 3,
+            "filesModified": ["auth.js", "user.js"],
+            "blocking": ["feature/login-ui", "nwl-merge"],
+        },
+        {
+            "id": "feature/login-ui",
+            "name": "feature/login-ui",
+            "parent": "nwl-branch",
+            "mergeInto": "nwl-branch",
+            "pulledFrom": "nwl-branch",
+            "author": "mike",
+            "status": "warning",
+            "jiraTicket": "JIRA-248",
+            "jiraTitle": "Login UI",
+            "prId": 248,
+            "daysWaiting": 1,
+            "filesModified": ["auth.js", "login.jsx"],
+            "conflicts": ["feature/auth-refactor"],
+        },
+        {
+            "id": "feature/api-endpoint",
+            "name": "feature/api-endpoint",
+            "parent": "nwl-branch",
+            "mergeInto": "nwl-branch",
+            "pulledFrom": "nwl-branch",
+            "author": "emma",
+            "status": "success",
+            "jiraTicket": "JIRA-251",
+            "jiraTitle": "API Endpoint",
+            "prId": 251,
+        },
+    ]
+
+
+def _get_mock_branch_details() -> dict[str, dict]:
+    """Mock branch details with bottleneck and recommendation data."""
+    branches = {b["id"]: b for b in _get_mock_branches()}
+    return {
+        "feature/auth-refactor": {
+            **branches["feature/auth-refactor"],
+            "owner": "Sarah Chen",
+            "ownerTeam": "Backend Team",
+            "jiraStatus": "In Progress",
+            "jiraStoryPoints": 8,
+            "prCreatedAt": "2026-01-27T08:00:00Z",
+            "reviewers": ["@john", "@mike"],
+            "ciStatus": "passed",
+            "bottleneck": {
+                "severity": "CRITICAL",
+                "waitTimeHours": 72,
+                "deviationFactor": 6,
+                "rootCause": ["Both reviewers have 4+ pending PRs", "Team avg capacity exceeded"],
+                "blockingCount": 2,
+            },
+            "recommendation": {
+                "action": "Add @emma as reviewer",
+                "rationale": "She reviewed 3 similar auth PRs this month, has capacity (1 PR vs team avg 2.5)",
+                "expectedImpact": "Reduce wait time by ~48 hours",
+                "alternatives": ["Split PR into smaller chunks"],
+            },
+        },
+        "feature/login-ui": {
+            **branches["feature/login-ui"],
+            "owner": "Mike Johnson",
+            "ownerTeam": "Frontend Team",
+            "jiraStatus": "In Progress",
+            "jiraStoryPoints": 5,
+            "prCreatedAt": "2026-01-29T10:00:00Z",
+            "reviewers": ["@sarah"],
+            "ciStatus": "passed",
+            "bottleneck": {
+                "severity": "MEDIUM",
+                "waitTimeHours": 24,
+                "deviationFactor": 2,
+                "rootCause": ["Blocked by feature/auth-refactor merge conflict"],
+                "blockingCount": 0,
+            },
+            "recommendation": {
+                "action": "Rebase on feature/auth-refactor after it merges",
+                "rationale": "Conflict in auth.js will auto-resolve once auth-refactor is merged",
+                "expectedImpact": "Unblock within 24 hours of auth-refactor merge",
+                "alternatives": ["Manually resolve conflict now"],
+            },
+        },
+        "nwl-branch": {
+            **branches["nwl-branch"],
+            "owner": "Team Lead",
+            "ownerTeam": "Core Team",
+            "jiraStatus": "Active Sprint",
+            "bottleneck": {
+                "severity": "LOW",
+                "waitTimeHours": 0,
+                "rootCause": ["Integration branch - waiting on feature PRs"],
+                "blockingCount": 0,
+            },
+            "recommendation": {
+                "action": "Monitor feature/auth-refactor progress",
+                "rationale": "Main blocker for sprint completion",
+                "expectedImpact": "Sprint can close once auth-refactor merges",
+            },
+        },
+    }
+
+
+@router.get(
+    "/mock/branches",
+    summary="Get all branches for Flow page",
+    description="Returns all branches with their status and relationships.",
+    operation_id="get_mock_branches",
+)
+async def get_mock_branches() -> dict:
+    """Fetch all branches for the Flow page visualization."""
+    return {"branches": _get_mock_branches()}
+
+
+@router.get(
+    "/mock/branch/{branch_id:path}",
+    summary="Get branch details with bottleneck analysis",
+    description="Returns detailed branch info including AI-detected bottlenecks and recommendations.",
+    operation_id="get_mock_branch_detail",
+)
+async def get_mock_branch_detail(branch_id: str) -> dict:
+    """Fetch detailed branch info for hover panel."""
+    details = _get_mock_branch_details()
+    if branch_id in details:
+        return details[branch_id]
+    # Return basic info for branches without detailed analysis
+    branches = {b["id"]: b for b in _get_mock_branches()}
+    if branch_id in branches:
+        return {**branches[branch_id], "owner": "Unknown", "bottleneck": None, "recommendation": None}
+    return {"error": "Branch not found", "id": branch_id}
+
+
 @router.post(
     "/mock/normalize",
     response_model=GraphEnvelope,
