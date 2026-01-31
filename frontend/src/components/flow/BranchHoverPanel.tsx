@@ -15,8 +15,8 @@ export function BranchHoverPanel({ branch }: BranchHoverPanelProps) {
 
   return (
     <div
-      className="flow-hover-panel fixed right-[var(--space-lg)] top-1/2 z-[var(--z-hover-panel)] w-[360px] -translate-y-1/2 p-5 transition-all duration-300"
-      style={{ fontFamily: 'var(--font-sans)' }}
+      className="flow-hover-panel fixed right-8 top-1/2 w-[360px] -translate-y-1/2 p-5 transition-all duration-300"
+      style={{ fontFamily: 'var(--font-sans)', zIndex: 2000 }}
     >
       <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
         <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />

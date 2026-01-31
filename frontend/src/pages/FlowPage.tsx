@@ -1,4 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
+import { ReactFlowProvider } from 'reactflow';
+import { BranchFlowCanvas } from '../components/flow/BranchFlowCanvas';
+import { BranchHoverPanel } from '../components/flow/BranchHoverPanel';
+import { useFlowData } from '../hooks/useFlowData';
+import { useHoverPanel } from '../hooks/useHoverPanel';
+import type { Branch, BranchDetail } from '../types/flow';
+import '../styles/components/flow.css';
 
 // SVG Icons for action buttons (Flow page - same set as Connections)
 const ChevronDownIcon = () => (
@@ -57,19 +64,24 @@ const ZoomOutIcon = () => (
   </svg>
 );
 
-import { BranchGraph } from '../components/flow/BranchGraph';
-import '../styles/components/flow.css';
-
 const GRAPH_OPTIONS = [
+  { value: 'list', label: 'List View' },
   { value: 'github', label: 'Github Graph' },
   { value: 'pr', label: 'PR Graph' },
   { value: 'timeline', label: 'Timeline' },
 ] as const;
 
 export function FlowPage() {
-  const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('github');
+  const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('list');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const { getBranchDetail } = useFlowData();
+  const { hoveredItem, onHover } = useHoverPanel<Branch>();
+
+  const hoveredDetail: BranchDetail | null = hoveredItem
+    ? (getBranchDetail(hoveredItem.id) ?? ({ ...hoveredItem } as BranchDetail))
+    : null;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -81,18 +93,42 @@ export function FlowPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Github Graph';
+  const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'List View';
+
+  const handleZoomIn = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.zoomIn();
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.zoomOut();
+    }
+  };
+
+  const handleFitView = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.fitView({ padding: 0.2, duration: 200 });
+    }
+  };
 
   return (
     <div className="absolute inset-0 flex" style={{ fontFamily: 'var(--font-sans)' }}>
       {/* Main content area - same structure as Connections */}
       <div className="flex-1 relative overflow-hidden min-h-0">
-        {/* Graph content - scrollable, with top padding so branch list starts well below dropdown */}
-        <div className="absolute inset-0 theme-scrollbar overflow-auto pt-24 pl-4 pr-4 pb-4">
-          <BranchGraph />
+        {/* Graph content - always render canvas */}
+        <div className="absolute inset-0">
+          <ReactFlowProvider>
+            <BranchFlowCanvas 
+              onInit={setReactFlowInstance} 
+              onHover={onHover}
+              viewType={selectedGraph}
+            />
+          </ReactFlowProvider>
         </div>
 
-        {/* Top-left: graph type dropdown - above content so branch list starts below it */}
+        {/* Top-left: graph type dropdown */}
         <div className="absolute top-4 left-4 z-10" ref={dropdownRef}>
           <button
             type="button"
@@ -140,19 +176,37 @@ export function FlowPage() {
           </button>
         </div>
 
-        {/* Bottom-left: canvas controls - same position and style as Connections */}
+        {/* Bottom-left: canvas controls - always show */}
         <div className="absolute bottom-4 left-4 flex gap-2 z-10">
-          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Fit view">
+          <button 
+            type="button" 
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center" 
+            title="Fit view"
+            onClick={handleFitView}
+          >
             <MoveIcon />
           </button>
-          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Zoom in">
+          <button 
+            type="button" 
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center" 
+            title="Zoom in"
+            onClick={handleZoomIn}
+          >
             <ZoomInIcon />
           </button>
-          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Zoom out">
+          <button 
+            type="button" 
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center" 
+            title="Zoom out"
+            onClick={handleZoomOut}
+          >
             <ZoomOutIcon />
           </button>
         </div>
       </div>
+
+      {/* Hover Panel - always show */}
+      <BranchHoverPanel branch={hoveredDetail} />
     </div>
   );
 }

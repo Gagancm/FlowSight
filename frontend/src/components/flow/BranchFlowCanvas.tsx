@@ -1,0 +1,398 @@
+import { useCallback, useMemo, useState, useEffect } from 'react';
+import ReactFlow, {
+  Background,
+  BackgroundVariant,
+  Controls,
+  Node,
+  Edge,
+  useNodesState,
+  useEdgesState,
+  NodeTypes,
+  EdgeTypes,
+  ReactFlowInstance,
+  Position,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { FlowNode } from './FlowNode';
+import { ListNode } from './ListNode';
+import { ConnectionEdge } from '../connections/ConnectionEdge';
+import { GitGraphEdge } from './GitGraphEdge';
+import { GitGraphDotsOverlay } from './GitGraphDotsOverlay';
+import { useFlowData } from '../../hooks/useFlowData';
+import type { Branch } from '../../types/flow';
+
+interface BranchFlowCanvasProps {
+  onInit?: (instance: ReactFlowInstance) => void;
+  onHover?: (branch: Branch | null) => void;
+  viewType?: 'github' | 'pr' | 'timeline' | 'list';
+}
+
+// Convert branches to React Flow nodes with hierarchical positioning (Github Graph - default)
+function branchesToNodesGithub(branches: Branch[], onHover?: (branch: Branch | null) => void): Node[] {
+  const nodes: Node[] = [];
+  const levelMap = new Map<string, number>();
+  
+  // Calculate levels (depth in hierarchy)
+  const calculateLevel = (branch: Branch): number => {
+    if (levelMap.has(branch.id)) {
+      return levelMap.get(branch.id)!;
+    }
+    if (!branch.parent) {
+      levelMap.set(branch.id, 0);
+      return 0;
+    }
+    const parentBranch = branches.find(b => b.id === branch.parent);
+    if (!parentBranch) {
+      levelMap.set(branch.id, 0);
+      return 0;
+    }
+    const level = calculateLevel(parentBranch) + 1;
+    levelMap.set(branch.id, level);
+    return level;
+  };
+
+  // Calculate levels for all branches
+  branches.forEach(branch => calculateLevel(branch));
+
+  // Group branches by level
+  const branchesByLevel = new Map<number, Branch[]>();
+  branches.forEach(branch => {
+    const level = levelMap.get(branch.id) || 0;
+    if (!branchesByLevel.has(level)) {
+      branchesByLevel.set(level, []);
+    }
+    branchesByLevel.get(level)!.push(branch);
+  });
+
+  // Position nodes - hierarchical vertical layout
+  const HORIZONTAL_SPACING = 320;
+  const VERTICAL_SPACING = 180;
+  const START_X = 400;
+  const START_Y = 100;
+
+  branchesByLevel.forEach((levelBranches, level) => {
+    const totalWidth = (levelBranches.length - 1) * HORIZONTAL_SPACING;
+    const startX = START_X - totalWidth / 2;
+
+    levelBranches.forEach((branch, index) => {
+      const x = startX + index * HORIZONTAL_SPACING;
+      const y = START_Y + level * VERTICAL_SPACING;
+
+      nodes.push({
+        id: branch.id,
+        type: 'flowNode',
+        position: { x, y },
+        data: {
+          branch,
+          onHover,
+        },
+      });
+    });
+  });
+
+  return nodes;
+}
+
+// Convert branches to React Flow nodes - PR Graph (horizontal timeline)
+function branchesToNodesPR(branches: Branch[], onHover?: (branch: Branch | null) => void): Node[] {
+  const nodes: Node[] = [];
+  
+  // Filter only PRs and related branches
+  const prs = branches.filter(b => b.prId !== undefined);
+  const HORIZONTAL_SPACING = 350;
+  const START_X = 100;
+  const START_Y = 250;
+
+  prs.forEach((branch, index) => {
+    nodes.push({
+      id: branch.id,
+      type: 'flowNode',
+      position: { x: START_X + index * HORIZONTAL_SPACING, y: START_Y },
+      data: {
+        branch,
+        onHover,
+      },
+    });
+  });
+
+  return nodes;
+}
+
+// Convert branches to React Flow nodes - List View (vertical list like BranchGraph)
+function branchesToNodesList(branches: Branch[], onHover?: (branch: Branch | null) => void): Node[] {
+  const nodes: Node[] = [];
+  
+  // Build ordered list of (branch, depth) for tree display
+  const byParent = new Map<string, Branch[]>();
+  
+  for (const b of branches) {
+    const parent = b.parent ?? '__root__';
+    if (!byParent.has(parent)) byParent.set(parent, []);
+    byParent.get(parent)!.push(b);
+  }
+  
+  const ordered: { branch: Branch; depth: number }[] = [];
+  function walk(parentId: string, depth: number) {
+    const children = byParent.get(parentId);
+    if (!children) return;
+    for (const b of children) {
+      ordered.push({ branch: b, depth });
+      walk(b.id, depth + 1);
+    }
+  }
+  walk('__root__', 0);
+
+  // Position nodes vertically in a compact list (matching BranchGraph layout)
+  const START_X = 50; // Start from left edge
+  const START_Y = 50;
+  const VERTICAL_SPACING = 60; // Reduced from 70 for tighter spacing
+  const INDENT_PER_LEVEL = 28; // Match BranchGraphBox indentation
+
+  let currentY = START_Y;
+
+  ordered.forEach(({ branch, depth }, index) => {
+    // Add gap after 'main' branch (like in BranchGraph)
+    if (index > 0 && ordered[index - 1].branch.id === 'main') {
+      currentY += 50; // Reduced gap spacing
+    }
+
+    nodes.push({
+      id: branch.id,
+      type: 'listNode', // Use listNode type for list view
+      position: { 
+        x: START_X + (depth * INDENT_PER_LEVEL), 
+        y: currentY
+      },
+      data: {
+        branch,
+        onHover,
+      },
+    });
+
+    currentY += VERTICAL_SPACING;
+  });
+
+  return nodes;
+}
+
+// Convert branches to React Flow nodes - Timeline (horizontal by creation time)
+function branchesToNodesTimeline(branches: Branch[], onHover?: (branch: Branch | null) => void): Node[] {
+  const nodes: Node[] = [];
+  
+  // Sort by creation time (using daysWaiting as proxy - older = higher)
+  const sortedBranches = [...branches].sort((a, b) => {
+    const aWait = a.daysWaiting || 0;
+    const bWait = b.daysWaiting || 0;
+    return bWait - aWait; // Descending - older first
+  });
+
+  const HORIZONTAL_SPACING = 320;
+  const START_X = 100;
+  const VERTICAL_LANES = [100, 280, 460]; // Multiple horizontal lanes
+
+  sortedBranches.forEach((branch, index) => {
+    const laneIndex = index % VERTICAL_LANES.length;
+    nodes.push({
+      id: branch.id,
+      type: 'flowNode',
+      position: { 
+        x: START_X + Math.floor(index / VERTICAL_LANES.length) * HORIZONTAL_SPACING, 
+        y: VERTICAL_LANES[laneIndex]
+      },
+      data: {
+        branch,
+        onHover,
+      },
+    });
+  });
+
+  return nodes;
+}
+
+// Convert branch relationships to React Flow edges
+function branchesToEdges(branches: Branch[], viewType?: string): Edge[] {
+  const edges: Edge[] = [];
+  const edgeType = viewType === 'list' ? 'gitGraphEdge' : 'connectionEdge';
+
+  branches.forEach(branch => {
+    // Parent relationship (dependency)
+    if (branch.parent) {
+      edges.push({
+        id: `${branch.parent}-${branch.id}`,
+        source: branch.parent,
+        target: branch.id,
+        type: edgeType,
+        animated: branch.status === 'critical' && viewType !== 'list',
+        data: {
+          status: branch.status === 'critical' ? 'error' : 
+                  branch.status === 'warning' ? 'syncing' : 'active',
+        },
+      });
+    }
+
+    // Blocking relationships (skip in list view for cleaner look)
+    if (viewType !== 'list' && branch.blocking && branch.blocking.length > 0) {
+      branch.blocking.forEach(blockedId => {
+        const blockedBranch = branches.find(b => b.name === blockedId || b.id === blockedId);
+        if (blockedBranch) {
+          edges.push({
+            id: `block-${branch.id}-${blockedBranch.id}`,
+            source: branch.id,
+            target: blockedBranch.id,
+            type: edgeType,
+            animated: true,
+            style: { strokeDasharray: '5 5' },
+            data: {
+              status: 'error',
+            },
+          });
+        }
+      });
+    }
+  });
+
+  return edges;
+}
+
+export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: BranchFlowCanvasProps) {
+  const { branches } = useFlowData();
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+
+  // Convert branches to nodes and edges based on view type
+  const initialNodes = useMemo(() => {
+    switch (viewType) {
+      case 'pr':
+        return branchesToNodesPR(branches, onHover);
+      case 'timeline':
+        return branchesToNodesTimeline(branches, onHover);
+      case 'list':
+        return branchesToNodesList(branches, onHover);
+      case 'github':
+      default:
+        return branchesToNodesGithub(branches, onHover);
+    }
+  }, [branches, onHover, viewType]);
+  
+  const initialEdges = useMemo(() => branchesToEdges(branches, viewType), [branches, viewType]);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Update nodes and edges when viewType changes
+  useEffect(() => {
+    const newNodes = (() => {
+      switch (viewType) {
+        case 'pr':
+          return branchesToNodesPR(branches, onHover);
+        case 'timeline':
+          return branchesToNodesTimeline(branches, onHover);
+        case 'list':
+          return branchesToNodesList(branches, onHover);
+        case 'github':
+        default:
+          return branchesToNodesGithub(branches, onHover);
+      }
+    })();
+    
+    setNodes(newNodes);
+    setEdges(branchesToEdges(branches, viewType));
+    
+    // Fit view after layout change with appropriate padding based on view type
+    setTimeout(() => {
+      if (reactFlowInstance) {
+        const padding = viewType === 'list' ? 0.5 : 0.2; // More padding for list view
+        reactFlowInstance.fitView({ padding, duration: 300 });
+      }
+    }, 100);
+  }, [viewType, branches, onHover, reactFlowInstance, setNodes, setEdges]);
+
+  // Register custom node types
+  const nodeTypes: NodeTypes = useMemo(() => ({
+    flowNode: FlowNode,
+    listNode: ListNode,
+  }), []);
+
+  // Register custom edge types
+  const edgeTypes: EdgeTypes = useMemo(() => ({
+    connectionEdge: ConnectionEdge,
+    gitGraphEdge: GitGraphEdge,
+  }), []);
+
+  // Expose React Flow instance to parent and set initial zoom
+  const handleInit = useCallback(
+    (instance: ReactFlowInstance) => {
+      setReactFlowInstance(instance);
+      onInit?.(instance);
+      // Fit view with even more padding to zoom out further
+      setTimeout(() => {
+        instance.fitView({ padding: 0.6, duration: 0 });
+      }, 100);
+    },
+    [onInit]
+  );
+
+  // Handle node mouse enter - use React Flow's event system
+  const onNodeMouseEnter = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      const branch = node.data.branch as Branch;
+      console.log('Node mouse enter:', branch.name);
+      onHover?.(branch);
+    },
+    [onHover]
+  );
+
+  // Handle node mouse leave
+  const onNodeMouseLeave = useCallback(
+    () => {
+      console.log('Node mouse leave');
+      onHover?.(null);
+    },
+    [onHover]
+  );
+
+  return (
+    <div className="w-full h-full relative">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onInit={handleInit}
+        onNodeMouseEnter={onNodeMouseEnter}
+        onNodeMouseLeave={onNodeMouseLeave}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        nodesDraggable={viewType !== 'list'} // Disable drag in list view
+        nodesConnectable={viewType !== 'list'} // Disable connections in list view
+        elementsSelectable={viewType !== 'list'} // Disable selection in list view
+        deleteKeyCode="Delete"
+        fitView
+        fitViewOptions={{ padding: 0.6, minZoom: 0.3, maxZoom: 2 }} // Even more padding = more zoom out
+        proOptions={{ hideAttribution: true }}
+        className="react-flow-canvas flow-canvas"
+      >
+        {/* n8n-style dot grid background */}
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1.5}
+          color="rgba(255, 255, 255, 0.15)"
+          className="react-flow-background"
+        />
+
+        {/* Canvas controls - hidden as we have custom controls */}
+        <Controls 
+          showZoom={false}
+          showFitView={false}
+          showInteractive={false}
+          className="hidden"
+        />
+      </ReactFlow>
+      
+      {/* Render dots overlay on top for list view */}
+      {viewType === 'list' && (
+        <GitGraphDotsOverlay nodes={nodes} edges={edges} />
+      )}
+    </div>
+  );
+}
