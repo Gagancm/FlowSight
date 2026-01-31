@@ -1,4 +1,5 @@
 import { cn } from '../../utils/helpers';
+import '../../styles/components/sidebar.css';
 
 export type Tab = 'connections' | 'flow' | 'ai-insights';
 
@@ -46,25 +47,23 @@ const TABS = [
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
-    <aside
-      className="flex h-screen flex-col bg-[var(--color-bg-secondary)] border-r border-[var(--color-border)]"
-      style={{ width: 'var(--sidebar-width)' }}
-    >
+    <aside className="sidebar flex flex-col">
       {/* Empty space matching top bar height */}
       <div style={{ height: 'var(--navbar-height)' }} />
-      <nav className="flex flex-1 flex-col gap-2 px-3 pt-4">
+      <nav className="flex flex-1 flex-col gap-3 px-4 pt-6">
         {TABS.map((tab) => {
           const IconComponent = tab.icon;
+          const isSelected = activeTab === tab.id;
           return (
             <button
               type="button"
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                'flex h-11 min-h-11 items-center gap-3 rounded-lg px-3 text-left text-sm font-medium tracking-wide transition-colors',
-                activeTab === tab.id
-                  ? 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]'
-                  : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'
+                'sidebar-tab flex shrink-0 items-center gap-3 px-4 text-left text-sm font-medium tracking-wide',
+                isSelected
+                  ? 'sidebar-tab--selected text-[var(--color-text-primary)]'
+                  : 'text-[var(--color-text-secondary)]'
               )}
             >
               <IconComponent />
