@@ -78,11 +78,17 @@ export function FlowPage() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [hoverNodePosition, setHoverNodePosition] = useState<{ x: number; y: number } | null>(null);
+  const [pinnedBranch, setPinnedBranch] = useState<Branch | null>(null);
+  const [pinnedPosition, setPinnedPosition] = useState<{ x: number; y: number } | null>(null);
   const { getBranchDetail } = useFlowData();
   const { hoveredItem, onHover } = useHoverPanel<Branch>();
 
-  const hoveredDetail: BranchDetail | null = hoveredItem
-    ? (getBranchDetail(hoveredItem.id) ?? ({ ...hoveredItem } as BranchDetail))
+  // Show pinned if exists, otherwise show hovered
+  const displayBranch = pinnedBranch || hoveredItem;
+  const displayPosition = pinnedBranch ? pinnedPosition : hoverNodePosition;
+
+  const hoveredDetail: BranchDetail | null = displayBranch
+    ? (getBranchDetail(displayBranch.id) ?? ({ ...displayBranch } as BranchDetail))
     : null;
 
   useEffect(() => {
@@ -117,6 +123,18 @@ export function FlowPage() {
     }
   };
 
+  // Handle card click to pin the hover panel
+  const handleNodeClick = (branch: Branch, position: { x: number; y: number }) => {
+    setPinnedBranch(branch);
+    setPinnedPosition(position);
+  };
+
+  // Clear pinned panel
+  const handleClearPinned = () => {
+    setPinnedBranch(null);
+    setPinnedPosition(null);
+  };
+
   return (
     <motion.div
       className="absolute inset-0 flex flex-col sm:flex-row"
@@ -132,6 +150,7 @@ export function FlowPage() {
               onInit={setReactFlowInstance}
               onHover={onHover}
               onHoverPosition={setHoverNodePosition}
+              onNodeClick={handleNodeClick}
               viewType={selectedGraph}
             />
           </ReactFlowProvider>
@@ -232,8 +251,15 @@ export function FlowPage() {
         </div>
       </div>
 
-      {/* Hover Panel - branch details on hover */}
-      <BranchHoverPanel branch={hoveredDetail} position={hoverNodePosition} />
+      {/* Hover Panel - show on hover or when pinned */}
+      {displayBranch && (
+        <BranchHoverPanel 
+          branch={hoveredDetail} 
+          position={displayPosition}
+          onClose={handleClearPinned}
+          isPinned={!!pinnedBranch}
+        />
+      )}
     </motion.div>
   );
 }

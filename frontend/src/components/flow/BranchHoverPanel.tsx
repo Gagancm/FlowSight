@@ -6,9 +6,11 @@ import type { BranchDetail } from '../../types/flow';
 interface BranchHoverPanelProps {
   branch: BranchDetail | null;
   position?: { x: number; y: number } | null;
+  onClose?: () => void;
+  isPinned?: boolean;
 }
 
-export function BranchHoverPanel({ branch, position }: BranchHoverPanelProps) {
+export function BranchHoverPanel({ branch, position, onClose, isPinned }: BranchHoverPanelProps) {
   if (!branch) return null;
 
   const { bottleneck, recommendation } = branch;
@@ -35,9 +37,24 @@ export function BranchHoverPanel({ branch, position }: BranchHoverPanelProps) {
       style={{ 
         fontFamily: 'var(--font-sans)', 
         zIndex: 2000,
+        pointerEvents: 'auto',
         ...positionStyle,
       }}
     >
+      {/* Close button when pinned */}
+      {isPinned && onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+          title="Close"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      )}
+      
       <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
         <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />
         {branch.name}
