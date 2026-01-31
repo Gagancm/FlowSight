@@ -102,6 +102,27 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
     [setEdges]
   );
 
+  // Handle node deletion
+  const onNodesDelete = useCallback(
+    (deleted: Node[]) => {
+      if (deleted.length > 0) {
+        const toolName = deleted[0].data.name;
+        setToast({ message: `${toolName} removed from canvas`, type: 'info' });
+      }
+    },
+    []
+  );
+
+  // Handle edge deletion
+  const onEdgesDelete = useCallback(
+    (deleted: Edge[]) => {
+      if (deleted.length > 0) {
+        setToast({ message: 'Connection removed', type: 'info' });
+      }
+    },
+    []
+  );
+
   // Handle node drag end
   const handleNodesChange = useCallback(
     (changes: any) => {
@@ -195,12 +216,15 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
         edges={edges}
         onNodesChange={handleNodesChange}
         onEdgesChange={handleEdgesChange}
+        onNodesDelete={onNodesDelete}
+        onEdgesDelete={onEdgesDelete}
         onConnect={onConnect}
         onInit={handleInit}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         isValidConnection={isValidConnection}
         connectionMode={ConnectionMode.Loose}
+        deleteKeyCode="Delete"
         fitView
         proOptions={{ hideAttribution: true }}
         className="react-flow-canvas"
