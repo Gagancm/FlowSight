@@ -100,7 +100,8 @@ export function FlowPage() {
   const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('list');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
-  const [currentProjectName, setCurrentProjectName] = useState('Untitled');
+  const [currentProjectName, setCurrentProjectName] = useState<string | null>(null); // Changed to null for no selection
+  const [availableProjects] = useState<string[]>(['None', 'Untitled', 'Project Alpha', 'Project Beta']); // Added 'None' option
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -188,6 +189,7 @@ export function FlowPage() {
 
   // Edit Project handlers
   const openEditProject = () => {
+    if (!currentProjectName) return; // Only allow edit if project is selected
     setEditProjectId('current'); // Dummy ID since we only have one project
     setEditProjectName(currentProjectName);
     setProjectDropdownOpen(false);
@@ -207,7 +209,7 @@ export function FlowPage() {
 
   const handleEditProjectDeleteConfirm = () => {
     if (!deleteConfirmMatches) return;
-    setCurrentProjectName('Untitled');
+    setCurrentProjectName(null); // Changed to null instead of 'Untitled'
     setEditProjectId(null);
     setEditProjectName('');
     setDeleteConfirmName('');
@@ -233,6 +235,7 @@ export function FlowPage() {
   }, []);
 
   const handleExportAsSvg = useCallback(async () => {
+    if (!currentProjectName) return; // Don't export if no project selected
     const element = getFlowElement();
     if (!element) return;
     try {
@@ -256,6 +259,7 @@ export function FlowPage() {
   }, [getFlowElement, currentProjectName]);
 
   const handleExportAsPdf = useCallback(async () => {
+    if (!currentProjectName) return; // Don't export if no project selected
     const element = getFlowElement();
     if (!element) return;
     try {
@@ -288,6 +292,7 @@ export function FlowPage() {
   }, [getFlowElement, currentProjectName]);
 
   const handleExportAsImage = useCallback(async () => {
+    if (!currentProjectName) return; // Don't export if no project selected
     const element = getFlowElement();
     if (!element) return;
     try {
@@ -318,7 +323,7 @@ export function FlowPage() {
       animate={{ opacity: 1 }}
     >
       <div className="flex-1 relative overflow-hidden min-h-0 min-w-0">
-        {/* Graph content - React Flow canvas */}
+        {/* Graph content - React Flow canvas (always shown, empty when no project) */}
         <div className="absolute inset-0" id="flow-export">
           <ReactFlowProvider>
             <BranchFlowCanvas
@@ -327,12 +332,69 @@ export function FlowPage() {
               onHoverPosition={setHoverNodePosition}
               onNodeClick={handleNodeClick}
               viewType={selectedGraph}
+              projectName={currentProjectName}
             />
           </ReactFlowProvider>
         </div>
 
-        {/* Top-left: Graph type dropdown and Project dropdown - responsive padding for mobile hamburger */}
+        {/* Top-left: Project dropdown and Graph type dropdown - responsive padding for mobile hamburger */}
         <div className="absolute top-4 left-4 z-10 pl-14 lg:pl-0 flex items-center gap-2">
+          {/* Project Dropdown with Edit Icon */}
+          <div ref={projectDropdownRef} className="relative flex items-center gap-1 min-w-[140px] sm:min-w-[160px]">
+            <motion.button
+              type="button"
+              onClick={() => setProjectDropdownOpen((o) => !o)}
+              className="flow-dropdown-trigger flex flex-1 min-w-0 items-center justify-between gap-2 px-4 py-2.5 text-sm"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="truncate">{currentProjectName === null ? 'Select Project' : currentProjectName}</span>
+              <ChevronDownIcon />
+            </motion.button>
+            {currentProjectName && (
+              <motion.button
+                type="button"
+                onClick={openEditProject}
+                className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg neu-btn-icon text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Edit project"
+                aria-label="Edit project"
+              >
+                <PencilIcon />
+              </motion.button>
+            )}
+            <AnimatePresence>
+              {projectDropdownOpen && (
+                <motion.div
+                  className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {availableProjects.map((project) => (
+                    <button
+                      key={project}
+                      type="button"
+                      onClick={() => {
+                        setCurrentProjectName(project === 'None' ? null : project);
+                        setProjectDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center rounded-md ${
+                        (project === 'None' && !currentProjectName) || currentProjectName === project
+                          ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                          : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                      }`}
+                    >
+                      <span className="truncate block">{project}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           {/* Graph type dropdown */}
           <div ref={dropdownRef} className="relative">
             <motion.button
@@ -371,65 +433,6 @@ export function FlowPage() {
                       {opt.label}
                     </button>
                   ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Project Dropdown with Edit Icon */}
-          <div ref={projectDropdownRef} className="relative flex items-center gap-1 min-w-[140px] sm:min-w-[160px]">
-            <motion.button
-              type="button"
-              onClick={() => setProjectDropdownOpen((o) => !o)}
-              className="flow-dropdown-trigger flex flex-1 min-w-0 items-center justify-between gap-2 px-4 py-2.5 text-sm"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span className="truncate">{currentProjectName}</span>
-              <ChevronDownIcon />
-            </motion.button>
-            <motion.button
-              type="button"
-              onClick={openEditProject}
-              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg neu-btn-icon text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              title="Edit project"
-              aria-label="Edit project"
-            >
-              <PencilIcon />
-            </motion.button>
-            <AnimatePresence>
-              {projectDropdownOpen && (
-                <motion.div
-                  className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="flex items-center w-full rounded-md bg-[var(--color-accent-bg)]">
-                    <button
-                      type="button"
-                      onClick={() => setProjectDropdownOpen(false)}
-                      className="flex-1 min-w-0 text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center text-[var(--color-accent)]"
-                    >
-                      <span className="truncate block">{currentProjectName}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openEditProject();
-                        setProjectDropdownOpen(false);
-                      }}
-                      className="shrink-0 flex items-center justify-center w-9 h-9 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
-                      title="Edit project"
-                      aria-label="Edit project"
-                    >
-                      <PencilIcon />
-                    </button>
-                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
