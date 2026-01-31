@@ -75,8 +75,8 @@ export function Toast({ message, type = 'info', onClose, duration = 3000 }: Toas
       className={`
         fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50
         flex items-center gap-3 px-4 py-3 rounded-2xl max-w-[calc(100vw-2rem)]
-        bg-[#222222] outline outline-1 outline-[#2A2C30]
-        shadow-[4px_4px_12px_rgba(16,17,19,0.6),-2px_-2px_8px_rgba(36,37,41,0.15),-1px_-1px_2px_rgba(52,52,52,0.4)_inset,1px_1px_2px_rgba(16,17,19,0.25)_inset]
+        bg-[var(--color-bg-elevated)] outline outline-1 outline-[var(--color-border)]
+        shadow-[var(--shadow-md)]
       `}
       initial={{ opacity: 0, y: 24, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}

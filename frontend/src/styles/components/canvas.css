@@ -372,3 +372,46 @@
 .react-flow__attribution a:hover {
   color: var(--color-accent);
 }
+
+/* === Light theme overrides === */
+[data-theme="light"] .tool-node {
+  background: var(--color-bg-elevated);
+  outline: 1px solid var(--color-border);
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.7),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .tool-node:hover {
+  background: var(--color-bg-hover);
+  box-shadow:
+    3px 3px 12px rgba(0, 0, 0, 0.05),
+    -1px -1px 8px rgba(255, 255, 255, 0.5),
+    -1px -1px 1px rgba(0, 0, 0, 0.03) inset,
+    1px 1px 1px rgba(0, 0, 0, 0.03) inset;
+}
+
+[data-theme="light"] .react-flow__node.selected .tool-node {
+  outline: 1px solid var(--color-brand-orange);
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.7),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset,
+    0 0 0 2px var(--color-brand-orange-glow);
+}
+
+[data-theme="light"] .tool-node-handle,
+[data-theme="light"] .react-flow__handle {
+  background: var(--color-bg-tertiary);
+  outline: 1px solid var(--color-border);
+  box-shadow:
+    2px 2px 6px rgba(0, 0, 0, 0.06),
+    -1px -1px 3px rgba(255, 255, 255, 0.5) inset;
+}
+
+[data-theme="light"] .tool-node-icon {
+  color: var(--color-text-secondary);
+}

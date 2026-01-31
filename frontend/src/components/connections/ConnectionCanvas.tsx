@@ -120,7 +120,7 @@ function EmptyStateDemo() {
           Watch how to open the Add sidebar and drag tools onto the canvas
         </p>
 
-        <div className="connections-empty-state-video-wrap rounded-xl bg-[#1a1a1a] border border-[var(--color-border)]">
+        <div className="connections-empty-state-video-wrap rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]">
           {!videoError ? (
             <video
               className="connections-empty-state-video"

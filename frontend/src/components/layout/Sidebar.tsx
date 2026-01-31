@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/helpers';
 import {
@@ -16,6 +17,10 @@ interface SidebarProps {
   onTabChange: (tab: Tab) => void;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  /** Immediate theme toggle (no animation). */
+  onThemeToggle?: () => void;
+  /** Theme toggle with logo-origin for animated overlay. When provided, used instead of onThemeToggle. */
+  onThemeToggleClick?: (rect: DOMRect) => void;
   isMobile?: boolean;
   onMobileMenuClose?: () => void;
   onOpenMobileMenu?: () => void;
@@ -41,7 +46,21 @@ export function Sidebar({
   activeTab,
   onTabChange,
   collapsed,
+  onThemeToggle,
+  onThemeToggleClick,
 }: SidebarProps) {
+  const diamondRef = useRef<HTMLDivElement>(null);
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (onThemeToggleClick) {
+      // Use diamond logo rect so the transition expands from the diamond, not the "F" in Flowsight
+      const rect = diamondRef.current?.getBoundingClientRect() ?? e.currentTarget.getBoundingClientRect();
+      onThemeToggleClick(rect);
+    } else {
+      onThemeToggle?.();
+    }
+  };
+
   return (
     <motion.aside
       className={cn('sidebar flex flex-col', collapsed && 'sidebar--collapsed')}
@@ -51,13 +70,19 @@ export function Sidebar({
     >
       {/* Inner content clipped during width transition; collapse button is in AppLayout wrapper */}
       <div className="sidebar-content flex flex-1 flex-col min-h-0 overflow-hidden">
-        {/* Logo and Title */}
-        <motion.div
+        {/* Logo and Title – click toggles light/dark theme (animated from logo when onThemeToggleClick provided) */}
+        <motion.button
+          type="button"
           className={cn('sidebar-logo-container', collapsed && 'sidebar-logo-container--collapsed')}
           initial={false}
           animate={{ opacity: 1 }}
+          onClick={handleLogoClick}
+          aria-label="Toggle light or dark theme"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.15 }}
         >
-          <div className="neu-diamond-outer neu-diamond-outer--sidebar" aria-hidden>
+          <div ref={diamondRef} className="neu-diamond-outer neu-diamond-outer--sidebar" aria-hidden>
             <div className="neu-diamond" />
             <div className="neu-diamond neu-diamond-inner" />
           </div>
@@ -73,7 +98,7 @@ export function Sidebar({
               </motion.span>
             )}
           </AnimatePresence>
-        </motion.div>
+        </motion.button>
         <nav className={cn('flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4', collapsed && 'sidebar-nav--collapsed')}>
         {TABS.map((tab, i) => {
           const IconComponent = tab.icon;

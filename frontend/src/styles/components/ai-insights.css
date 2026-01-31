@@ -219,6 +219,41 @@
   }
 }
 
+/* Light theme: same soft imprint + orange + breathing as dark, but with light shadows (no black) */
+@keyframes neu-diamond-breathe-light {
+  0%, 100% {
+    border-color: rgba(200, 140, 90, 0.5);
+    box-shadow:
+      inset 4px 4px 12px rgba(0, 0, 0, 0.1),
+      inset -2px -2px 8px rgba(255, 255, 255, 0.9),
+      0 0 12px rgba(200, 140, 90, 0.12);
+  }
+  50% {
+    border-color: rgba(200, 140, 90, 0.9);
+    box-shadow:
+      inset 4px 4px 12px rgba(0, 0, 0, 0.1),
+      inset -2px -2px 8px rgba(255, 255, 255, 0.9),
+      0 0 28px rgba(200, 140, 90, 0.28);
+  }
+}
+
+@keyframes neu-diamond-breathe-fast-light {
+  0%, 100% {
+    border-color: rgba(196, 145, 90, 0.45);
+    box-shadow:
+      inset 2px 2px 6px rgba(0, 0, 0, 0.08),
+      inset -1px -1px 4px rgba(255, 255, 255, 0.85),
+      0 0 6px rgba(196, 145, 90, 0.1);
+  }
+  50% {
+    border-color: rgba(196, 145, 90, 0.85);
+    box-shadow:
+      inset 2px 2px 6px rgba(0, 0, 0, 0.08),
+      inset -1px -1px 4px rgba(255, 255, 255, 0.85),
+      0 0 14px rgba(196, 145, 90, 0.22);
+  }
+}
+
 /* Inner diamond: stronger breathing (opacity + glow) for a clear “pulse” */
 .neu-diamond-outer {
   position: relative;
@@ -484,4 +519,216 @@
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin: 1em 0;
+}
+
+/* === Light theme overrides === */
+[data-theme="light"] .chat-message-markdown hr {
+  border-top: 1px solid var(--color-border);
+}
+
+[data-theme="light"] .neu-chat-panel,
+[data-theme="light"] .neu-chat-panel--sidebar-style {
+  background: linear-gradient(136deg, #FFFFFF 0%, #F5F5F5 49%, #FAFAFA 100%);
+  outline: 1px solid var(--color-border);
+  box-shadow:
+    5px 5px 13px rgba(0, 0, 0, 0.06) inset,
+    -5px -5px 10px rgba(255, 255, 255, 0.9) inset,
+    -1px -1px 2px rgba(0, 0, 0, 0.06),
+    1px 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .neu-textarea {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.06),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="light"] .neu-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+[data-theme="light"] .neu-textarea:focus {
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.06),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.6),
+    0 0 0 1px var(--color-accent);
+}
+
+[data-theme="light"] .neu-btn-send {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.7),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .neu-btn-send:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  box-shadow:
+    5px 5px 14px rgba(0, 0, 0, 0.06),
+    -3px -3px 10px rgba(255, 255, 255, 0.6),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .neu-btn-icon {
+  background: var(--color-bg-elevated);
+  outline: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.7),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .neu-btn-icon:hover {
+  background: var(--color-bg-hover);
+  box-shadow:
+    5px 5px 14px rgba(0, 0, 0, 0.06),
+    -3px -3px 10px rgba(255, 255, 255, 0.6),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .neu-quick-action,
+[data-theme="light"] .neu-quick-action--highlighted {
+  background: var(--color-bg-elevated);
+  outline: 1px solid var(--color-border);
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.7),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .neu-quick-action:hover,
+[data-theme="light"] .neu-quick-action--highlighted:hover {
+  background: var(--color-bg-hover);
+  box-shadow:
+    3px 3px 12px rgba(0, 0, 0, 0.05),
+    -1px -1px 8px rgba(255, 255, 255, 0.5),
+    -1px -1px 1px rgba(0, 0, 0, 0.03) inset,
+    1px 1px 1px rgba(0, 0, 0, 0.03) inset;
+}
+
+[data-theme="light"] .neu-avatar-circle {
+  background: linear-gradient(136deg, #FFFFFF 0%, #F5F5F5 49%, #FAFAFA 100%);
+  outline: 1px solid var(--color-border);
+  box-shadow:
+    5px 5px 13px rgba(0, 0, 0, 0.06) inset,
+    -5px -5px 10px rgba(255, 255, 255, 0.9) inset,
+    -1px -1px 2px rgba(0, 0, 0, 0.06),
+    1px 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Light theme: logo diamonds – same soft imprint + orange + breathing as dark, light shadows only */
+[data-theme="light"] .neu-diamond-outer {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.06));
+}
+
+[data-theme="light"] .neu-diamond-outer .neu-diamond {
+  background: #ffffff;
+  border: 1.5px solid rgba(196, 145, 90, 0.7);
+  animation-name: neu-diamond-breathe-light;
+  box-shadow:
+    inset 4px 4px 12px rgba(0, 0, 0, 0.1),
+    inset -2px -2px 8px rgba(255, 255, 255, 0.9),
+    0 0 20px rgba(196, 145, 90, 0.15);
+}
+
+[data-theme="light"] .neu-diamond-outer .neu-diamond-inner {
+  background: #ffffff;
+  border: 1.5px solid rgba(196, 145, 90, 0.6);
+  box-shadow:
+    inset 3px 3px 8px rgba(0, 0, 0, 0.12),
+    inset -1px -1px 4px rgba(255, 255, 255, 0.9),
+    0 0 12px rgba(196, 145, 90, 0.18);
+}
+
+/* Light theme: sidebar logo inner always rotating (same as dark, same as chat) */
+[data-theme="light"] .neu-diamond-outer--sidebar .neu-diamond-inner {
+  animation: neu-diamond-inner-spin 8s linear infinite;
+}
+
+/* Light theme: ensure inner spin on hover for main chat logo (same as dark) */
+[data-theme="light"] .neu-diamond-outer:hover .neu-diamond-inner {
+  animation: neu-diamond-inner-spin 8s linear infinite;
+}
+
+[data-theme="light"] .neu-diamond-outer--loading .neu-diamond {
+  background: #ffffff;
+  border: 1.5px solid rgba(196, 145, 90, 0.55);
+  animation-name: neu-diamond-breathe-fast-light;
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.08),
+    inset -1px -1px 4px rgba(255, 255, 255, 0.85),
+    0 0 10px rgba(196, 145, 90, 0.12);
+}
+
+[data-theme="light"] .neu-diamond-outer--loading .neu-diamond-inner {
+  background: #ffffff;
+  border: 1.5px solid rgba(196, 145, 90, 0.6);
+  box-shadow:
+    inset 1px 1px 4px rgba(0, 0, 0, 0.1),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.85),
+    0 0 6px rgba(196, 145, 90, 0.1);
+  animation: neu-diamond-inner-spin 6s linear infinite;
+}
+
+[data-theme="light"] .neu-messages-panel {
+  background: linear-gradient(136deg, #FAFAFA 0%, #F1F3F5 50%, #FFFFFF 100%);
+  outline: 1px solid var(--color-border);
+  box-shadow:
+    5px 5px 13px rgba(0, 0, 0, 0.06) inset,
+    -5px -5px 10px rgba(255, 255, 255, 0.9) inset,
+    -1px -1px 2px rgba(0, 0, 0, 0.06),
+    1px 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .neu-attach-link {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="light"] .neu-attach-link:hover {
+  color: var(--color-text-primary);
+}
+
+[data-theme="light"] .neu-chat-bubble--user {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.06),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="light"] .neu-chat-bubble--ai {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.7),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .neu-chat-bubble {
+  box-shadow:
+    6px 6px 28px rgba(0, 0, 0, 0.08),
+    -2px -2px 24px rgba(255, 255, 255, 0.8),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+}
+
+[data-theme="light"] .chat-message-markdown code {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-primary);
+}
+
+[data-theme="light"] .chat-message-markdown pre {
+  background: var(--color-bg-tertiary);
 }
