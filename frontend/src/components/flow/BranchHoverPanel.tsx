@@ -1,5 +1,6 @@
 import { Avatar } from '../shared/Avatar';
 import { Button } from '../shared/Button';
+import { StatusIndicator } from '../shared/StatusIndicator';
 import type { BranchDetail } from '../../types/flow';
 
 interface BranchHoverPanelProps {
@@ -13,16 +14,19 @@ export function BranchHoverPanel({ branch }: BranchHoverPanelProps) {
   const ownerDisplay = branch.owner ?? branch.author ?? '—';
 
   return (
-    <div className="fixed right-[var(--space-lg)] top-1/2 z-[var(--z-hover-panel)] w-[360px] -translate-y-1/2 rounded-[var(--card-border-radius)] border border-[var(--color-border)] bg-[var(--color-bg-secondary)] p-5 shadow-xl transition-all duration-300">
-      <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-        <span>{branch.status === 'critical' ? '🔴' : branch.status === 'warning' ? '⚠️' : '✅'}</span>
+    <div
+      className="flow-hover-panel fixed right-[var(--space-lg)] top-1/2 z-[var(--z-hover-panel)] w-[360px] -translate-y-1/2 p-5 transition-all duration-300"
+      style={{ fontFamily: 'var(--font-sans)' }}
+    >
+      <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
+        <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />
         {branch.name}
       </h3>
       <section className="mb-4">
-        <h4 className="mb-1 text-xs font-medium text-[var(--color-text-muted)]">OWNER</h4>
+        <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--color-text-muted)]">Owner</h4>
         <div className="flex items-center gap-2">
-          <Avatar name={ownerDisplay} size="sm" />
-          <span>{ownerDisplay}</span>
+          <Avatar name={ownerDisplay} size="sm" className="neu-avatar-circle flex items-center justify-center text-[var(--color-text-secondary)]" />
+          <span className="text-[var(--color-text-primary)]">{ownerDisplay}</span>
           {branch.ownerTeam && (
             <span className="text-sm text-[var(--color-text-muted)]">· {branch.ownerTeam}</span>
           )}
@@ -30,8 +34,8 @@ export function BranchHoverPanel({ branch }: BranchHoverPanelProps) {
       </section>
       {branch.jiraTicket && (
         <section className="mb-4">
-          <h4 className="mb-1 text-xs font-medium text-[var(--color-text-muted)]">JIRA TICKET</h4>
-          <p className="text-sm">
+          <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--color-text-muted)]">Jira ticket</h4>
+          <p className="text-sm text-[var(--color-text-primary)]">
             {branch.jiraTicket}: {branch.jiraTitle}
           </p>
           {branch.jiraStatus && (
@@ -40,27 +44,27 @@ export function BranchHoverPanel({ branch }: BranchHoverPanelProps) {
         </section>
       )}
       {bottleneck && (
-        <section className="mb-4 rounded-lg bg-[var(--color-critical-bg)] p-3">
-          <h4 className="mb-2 text-xs font-medium text-[var(--color-critical)]">
-            BOTTLENECK DETECTED
+        <section className="mb-4 rounded-xl bg-[var(--color-critical-bg)] p-3 outline outline-1 outline-[var(--color-critical-border)]">
+          <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--color-critical)]">
+            Bottleneck detected
           </h4>
-          <p className="text-sm">
+          <p className="text-sm text-[var(--color-text-primary)]">
             Wait: {bottleneck.waitTimeHours}h ({bottleneck.deviationFactor}x team avg)
           </p>
-          <p className="text-sm">Blocking: {bottleneck.blockingCount} features</p>
+          <p className="text-sm text-[var(--color-text-primary)]">Blocking: {bottleneck.blockingCount} features</p>
         </section>
       )}
       {recommendation && (
-        <section className="mb-4 rounded-lg bg-[var(--color-success-bg)] p-3">
-          <h4 className="mb-2 text-xs font-medium text-[var(--color-success)]">AI RECOMMENDATION</h4>
-          <p className="text-sm font-medium">{recommendation.action}</p>
+        <section className="mb-4 rounded-xl bg-[var(--color-success-bg)] p-3 outline outline-1 outline-[var(--color-success-border)]">
+          <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--color-success)]">AI recommendation</h4>
+          <p className="text-sm font-medium text-[var(--color-text-primary)]">{recommendation.action}</p>
           <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{recommendation.rationale}</p>
           {recommendation.expectedImpact && (
             <p className="mt-1 text-xs text-[var(--color-text-muted)]">
               Impact: {recommendation.expectedImpact}
             </p>
           )}
-          <Button size="sm" className="mt-3">
+          <Button size="sm" variant="secondary" className="mt-3">
             Assign Emma
           </Button>
         </section>

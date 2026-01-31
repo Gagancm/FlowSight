@@ -40,10 +40,8 @@ export function BranchGraphBox({ branch, depth, onHover }: BranchGraphBoxProps) 
         onFocus={() => onHover?.(branch)}
         onBlur={() => onHover?.(null)}
         className={cn(
-          'branch-graph-box flex items-center gap-3 rounded-xl border px-4 py-3 transition-all',
-          'bg-[var(--color-bg-secondary)] border-[var(--color-border)]',
-          'hover:bg-[var(--color-bg-hover)] hover:border-[var(--color-border-light)]',
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-primary)] cursor-pointer'
+          'flow-branch-card flex items-center gap-3 px-4 py-3 cursor-pointer',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-primary)]'
         )}
       >
         <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />
@@ -57,16 +55,26 @@ export function BranchGraphBox({ branch, depth, onHover }: BranchGraphBoxProps) 
         )}
         <span className="ml-auto flex flex-wrap items-center justify-end gap-2 shrink-0">
           {branch.pulledFrom && (
-            <span className="flex items-center gap-1.5 rounded bg-[var(--color-accent-bg)] px-2 py-1 text-xs text-[var(--color-link)]" title={`Pull from ${branch.pulledFrom}`}>
+            <button
+              type="button"
+              className="flow-action-pull shrink-0"
+              title={`Pull from ${branch.pulledFrom}`}
+              onClick={(e) => e.stopPropagation()}
+            >
               <PullArrowIcon />
               <span>Pull from {branch.pulledFrom}</span>
-            </span>
+            </button>
           )}
           {branch.mergeInto && (
-            <span className="flex items-center gap-1.5 rounded bg-[var(--color-success-bg)] px-2 py-1 text-xs text-[var(--color-success)]" title={`Push / merge into ${branch.mergeInto}`}>
+            <button
+              type="button"
+              className="flow-action-push shrink-0"
+              title={`Push / merge into ${branch.mergeInto}`}
+              onClick={(e) => e.stopPropagation()}
+            >
               <span>Push → {branch.mergeInto}</span>
               <PushArrowIcon />
-            </span>
+            </button>
           )}
         </span>
       </div>

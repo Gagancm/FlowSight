@@ -52,3 +52,13 @@ textarea,
 select {
   font-family: inherit;
 }
+
+/* === Global scrollbar - hidden, content still scrollable === */
+.theme-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.theme-scrollbar::-webkit-scrollbar {
+  display: none;
+}

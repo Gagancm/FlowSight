@@ -227,7 +227,7 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
         deleteKeyCode="Delete"
         fitView
         proOptions={{ hideAttribution: true }}
-        className="react-flow-canvas"
+        className="react-flow-canvas connections-canvas"
       >
         {/* n8n-style dot grid background */}
         <Background

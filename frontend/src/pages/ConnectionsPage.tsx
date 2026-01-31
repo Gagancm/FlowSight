@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import { ToolsSidebar } from '../components/connections/ToolsSidebar';
 import { ConnectionCanvas } from '../components/connections/ConnectionCanvas';
+import '../styles/components/connections.css';
 
 // SVG Icons for action buttons
 const PlusIcon = () => (
@@ -91,9 +92,9 @@ export function ConnectionsPage() {
   };
 
   return (
-    <div className="absolute inset-0 flex">
+    <div className="absolute inset-0 flex" style={{ fontFamily: 'var(--font-sans)' }}>
       {/* Main Canvas Area - shrinks when sidebar opens */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden min-h-0">
         {/* React Flow Canvas */}
         <div className="absolute inset-0">
           <ReactFlowProvider>
@@ -107,16 +108,16 @@ export function ConnectionsPage() {
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
           >
             {isSidebarOpen ? <CloseIcon /> : <PlusIcon />}
           </button>
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button className="neu-btn-icon w-11 h-11 flex items-center justify-center">
             <DownloadIcon />
           </button>
           <button 
             onClick={() => window.location.hash = 'ai-insights'}
-            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
           >
             <AIIcon />
           </button>
@@ -126,19 +127,19 @@ export function ConnectionsPage() {
         <div className="absolute bottom-4 left-4 flex gap-2 z-10">
           <button 
             onClick={handleFitView}
-            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
           >
             <MoveIcon />
           </button>
           <button 
             onClick={handleZoomIn}
-            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
           >
             <ZoomInIcon />
           </button>
           <button 
             onClick={handleZoomOut}
-            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
           >
             <ZoomOutIcon />
           </button>
@@ -147,12 +148,11 @@ export function ConnectionsPage() {
 
       {/* Right Sidebar with Tools - Takes physical space */}
       <div className={`
-        h-full transition-all duration-300 ease-in-out border-l border-[var(--color-border)] bg-[var(--color-bg-secondary)]
+        h-full transition-all duration-300 ease-in-out overflow-hidden
         ${isSidebarOpen ? 'w-80' : 'w-0'}
       `}
-      style={{ overflow: 'hidden' }}
       >
-        <div className="w-80 h-full">
+        <div className="w-80 h-full connections-tools-panel">
           <ToolsSidebar onClose={() => setIsSidebarOpen(false)} />
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-// SVG Icons for action buttons (Flow page has fewer actions than Connections - no add button)
+// SVG Icons for action buttons (Flow page - same set as Connections)
 const ChevronDownIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9" />
@@ -58,6 +58,7 @@ const ZoomOutIcon = () => (
 );
 
 import { BranchGraph } from '../components/flow/BranchGraph';
+import '../styles/components/flow.css';
 
 const GRAPH_OPTIONS = [
   { value: 'github', label: 'Github Graph' },
@@ -83,66 +84,71 @@ export function FlowPage() {
   const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Github Graph';
 
   return (
-    <div className="absolute inset-0 flex">
-      {/* Main Canvas Area */}
-      <div className="flex-1 relative flex flex-col min-h-0">
-        {/* Toolbar above graph: dropdown left, action buttons right */}
-        <div className="flex items-center justify-between gap-4 px-4 pt-4 pb-2 shrink-0">
-          <div className="relative" ref={dropdownRef}>
-            <button
-              type="button"
-              onClick={() => setDropdownOpen((o) => !o)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] text-sm hover:bg-[var(--color-bg-hover)] transition-colors"
-            >
-              <span>{currentLabel}</span>
-              <ChevronDownIcon />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 min-w-[160px] py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-lg z-[var(--z-dropdown)]">
-                {GRAPH_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => {
-                      setSelectedGraph(opt.value);
-                      setDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                      selectedGraph === opt.value
-                        ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
-                        : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <button type="button" className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors" title="Download">
-              <DownloadIcon />
-            </button>
-            <button type="button" className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors" title="View graph">
-              <AIIcon />
-            </button>
-          </div>
-        </div>
-
-        {/* Branch graph: rectangle boxes with hierarchy (Graph tab) */}
-        <div className="flex-1 overflow-auto p-4">
+    <div className="absolute inset-0 flex" style={{ fontFamily: 'var(--font-sans)' }}>
+      {/* Main content area - same structure as Connections */}
+      <div className="flex-1 relative overflow-hidden min-h-0">
+        {/* Graph content - scrollable, with top padding so branch list starts well below dropdown */}
+        <div className="absolute inset-0 theme-scrollbar overflow-auto pt-24 pl-4 pr-4 pb-4">
           <BranchGraph />
         </div>
 
-        {/* Bottom left canvas controls */}
-        <div className="absolute bottom-4 left-4 flex gap-2">
-          <button type="button" className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+        {/* Top-left: graph type dropdown - above content so branch list starts below it */}
+        <div className="absolute top-4 left-4 z-10" ref={dropdownRef}>
+          <button
+            type="button"
+            onClick={() => setDropdownOpen((o) => !o)}
+            className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[160px]"
+          >
+            <span>{currentLabel}</span>
+            <ChevronDownIcon />
+          </button>
+          {dropdownOpen && (
+            <div className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]">
+              {GRAPH_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    setSelectedGraph(opt.value);
+                    setDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors rounded-md ${
+                    selectedGraph === opt.value
+                      ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                      : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Top-right: action buttons - same position and style as Connections */}
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Download">
+            <DownloadIcon />
+          </button>
+          <button
+            type="button"
+            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
+            title="AI Insights"
+            onClick={() => { window.location.hash = 'ai-insights'; }}
+          >
+            <AIIcon />
+          </button>
+        </div>
+
+        {/* Bottom-left: canvas controls - same position and style as Connections */}
+        <div className="absolute bottom-4 left-4 flex gap-2 z-10">
+          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Fit view">
             <MoveIcon />
           </button>
-          <button type="button" className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Zoom in">
             <ZoomInIcon />
           </button>
-          <button type="button" className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Zoom out">
             <ZoomOutIcon />
           </button>
         </div>
