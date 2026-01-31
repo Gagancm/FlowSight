@@ -38,7 +38,7 @@ export function BranchGraph() {
     : null;
 
   return (
-    <div className="flex h-full gap-6">
+    <div className="flex h-full gap-6" style={{ fontFamily: 'var(--font-sans)' }}>
       <div className="flex flex-1 flex-col min-w-0">
         <div className="flex flex-col gap-2">
           {orderedBranches.length === 0 ? (

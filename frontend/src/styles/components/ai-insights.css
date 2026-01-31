@@ -84,6 +84,38 @@
   cursor: not-allowed;
 }
 
+/* === Icon button (rounded square) - same theme as send, for Connections/Flow toolbars === */
+.neu-btn-icon {
+  background: #2A2A2A;
+  border-radius: 10px;
+  border: none;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.4),
+    -2px -2px 8px rgba(36, 37, 41, 0.2),
+    -1px -1px 2px rgba(52.72, 52.72, 52.72, 0.50) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.30) inset;
+  color: #B5BAC1;
+  transition: box-shadow 0.2s ease, transform 0.1s ease, background 0.15s ease;
+}
+
+.neu-btn-icon:hover {
+  background: #333333;
+  color: var(--color-text-primary);
+  box-shadow:
+    5px 5px 14px rgba(0, 0, 0, 0.45),
+    -3px -3px 10px rgba(36, 37, 41, 0.25),
+    -1px -1px 2px rgba(52.72, 52.72, 52.72, 0.50) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.30) inset;
+}
+
+.neu-btn-icon:active {
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.4),
+    inset -1px -1px 3px rgba(50, 50, 50, 0.1);
+  transform: scale(0.97);
+}
+
 /* === Quick action cards - match sidebar tab + AI bubble colors === */
 .neu-quick-action {
   background: #222222;
@@ -308,36 +340,14 @@
   overscroll-behavior: contain;
 }
 
-/* === Custom scrollbar - dark theme, matches neumorphic design === */
+/* === Chat messages - scrollbar hidden, content still scrollable === */
 .chat-messages-container {
-  scrollbar-width: thin;
-  scrollbar-color: #454545 #1a1a1a;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .chat-messages-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.chat-messages-container::-webkit-scrollbar-track {
-  background: #1a1a1a;
-  border-radius: 4px;
-}
-
-.chat-messages-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #454545 0%, #353535 50%, #2a2a2a 100%);
-  border-radius: 4px;
-  box-shadow:
-    1px 1px 2px rgba(0, 0, 0, 0.4),
-    inset -1px -1px 1px rgba(255, 255, 255, 0.04);
-}
-
-.chat-messages-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #505050 0%, #404040 50%, #353535 100%);
-}
-
-.chat-messages-container::-webkit-scrollbar-thumb:active {
-  background: #2a2a2a;
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.5);
+  display: none;
 }
 
 .chat-input-wrapper {

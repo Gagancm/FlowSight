@@ -1,1 +1,147 @@
+/**
+ * Flow Page - Neumorphic theme (matches Connections & AI Insights)
+ * Reuses neu-* classes from ai-insights.css
+ */
+
+@import './ai-insights.css';
+
 /* Flow view component styles */
+
+/* Dropdown trigger - same neumorphic style as icon buttons, wider for text */
+.flow-dropdown-trigger {
+  background: #2A2A2A;
+  border-radius: 10px;
+  border: none;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.4),
+    -2px -2px 8px rgba(36, 37, 41, 0.2),
+    -1px -1px 2px rgba(52.72, 52.72, 52.72, 0.50) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.30) inset;
+  color: #B5BAC1;
+  transition: box-shadow 0.2s ease, transform 0.1s ease, background 0.15s ease;
+}
+
+.flow-dropdown-trigger:hover {
+  background: #333333;
+  color: var(--color-text-primary);
+  box-shadow:
+    5px 5px 14px rgba(0, 0, 0, 0.45),
+    -3px -3px 10px rgba(36, 37, 41, 0.25),
+    -1px -1px 2px rgba(52.72, 52.72, 52.72, 0.50) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.30) inset;
+}
+
+.flow-dropdown-panel {
+  background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
+  border-radius: 10px;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    5px 5px 13px rgba(16, 17, 19, 0.90) inset,
+    -5px -5px 10px rgba(36, 37, 41, 0.90) inset,
+    -1px -1px 2px rgba(16, 17, 19, 0.50),
+    1px 1px 2px rgba(36, 37, 41, 0.30);
+}
+
+/* === Branch list cards - same neumorphic style as neu-tool-card (Connections) === */
+.flow-branch-card {
+  background: #222222;
+  border-radius: 12px;
+  border: none;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    4px 4px 12px rgba(16, 17, 19, 0.6),
+    -2px -2px 8px rgba(36, 37, 41, 0.15),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset;
+  color: var(--color-text-primary);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.flow-branch-card:hover {
+  background: rgba(40, 40, 40, 0.7);
+  box-shadow:
+    3px 3px 12px rgba(16, 17, 19, 0.4),
+    -1px -1px 8px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+}
+
+.flow-branch-card:active {
+  box-shadow:
+    inset 2px 2px 6px rgba(16, 17, 19, 0.5),
+    inset -1px -1px 3px rgba(50, 50, 50, 0.1);
+}
+
+/* Pull / Push action buttons - neumorphic with accent colors */
+.flow-action-pull {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: none;
+  outline: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--color-link);
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow:
+    2px 2px 6px rgba(0, 0, 0, 0.3),
+    -1px -1px 4px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(52, 52, 52, 0.3) inset,
+    1px 1px 1px rgba(0, 0, 0, 0.2) inset;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.flow-action-pull:hover {
+  background: rgba(59, 130, 246, 0.18);
+  box-shadow:
+    3px 3px 8px rgba(0, 0, 0, 0.35),
+    -1px -1px 5px rgba(36, 37, 41, 0.12),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+}
+
+.flow-action-push {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: none;
+  outline: 1px solid rgba(0, 208, 132, 0.3);
+  background: rgba(0, 208, 132, 0.12);
+  color: var(--color-success);
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow:
+    2px 2px 6px rgba(0, 0, 0, 0.3),
+    -1px -1px 4px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(52, 52, 52, 0.3) inset,
+    1px 1px 1px rgba(0, 0, 0, 0.2) inset;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.flow-action-push:hover {
+  background: rgba(0, 208, 132, 0.18);
+  box-shadow:
+    3px 3px 8px rgba(0, 0, 0, 0.35),
+    -1px -1px 5px rgba(36, 37, 41, 0.12),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+}
+
+/* Hover panel - same raised inset style as connections-tools-panel / neu-chat-panel */
+.flow-hover-panel {
+  background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
+  border-radius: 20px;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    5px 5px 13px rgba(16, 17, 19, 0.90) inset,
+    -5px -5px 10px rgba(36, 37, 41, 0.90) inset,
+    5px -5px 10px rgba(16, 17, 19, 0.20) inset,
+    -5px 5px 10px rgba(16, 17, 19, 0.20) inset,
+    -1px -1px 2px rgba(16, 17, 19, 0.50),
+    1px 1px 2px rgba(36, 37, 41, 0.30);
+}

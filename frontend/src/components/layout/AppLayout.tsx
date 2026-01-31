@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import type { Tab } from './Sidebar';
 
@@ -47,10 +46,14 @@ export function AppLayout({ children }: AppLayoutProps) {
       </div>
       <div
         className="flex min-w-0 flex-1 flex-col overflow-hidden"
-        style={{ marginLeft: 'calc(19px + var(--sidebar-width) + 20px)' }}
+        style={{
+          marginLeft: 'calc(19px + var(--sidebar-width) + 20px)',
+          marginRight: 19,
+          height: 'calc(100vh - 30px)',
+          alignSelf: 'center',
+        }}
       >
-        {activeTab !== 'ai-insights' && <Navbar />}
-        <main className="relative flex-1 overflow-hidden" style={{ background: 'transparent' }}>
+        <main className="relative flex-1 overflow-hidden theme-scrollbar" style={{ background: 'transparent' }}>
           {children(activeTab)}
         </main>
       </div>
