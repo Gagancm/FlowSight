@@ -1,0 +1,123 @@
+/**
+ * FlowSight AI - Centralized Design Variables
+ * Dark mode-first design system
+ */
+
+:root {
+  /* === COLORS === */
+  /* Background */
+  --color-bg-primary: #1E1F22;
+  --color-bg-secondary: #1A1B1E;
+  --color-bg-tertiary: #25262A;
+  --color-bg-elevated: #2E2F33;
+  --color-bg-hover: #2A2C30;
+
+  /* Text */
+  --color-text-primary: #E5E5E5;
+  --color-text-secondary: #8B8D93;
+  --color-text-muted: #5C5E64;
+  --color-text-inverse: #1A1B1E;
+
+  /* Status - Critical */
+  --color-critical: #ff4444;
+  --color-critical-bg: rgba(255, 68, 68, 0.1);
+  --color-critical-border: rgba(255, 68, 68, 0.4);
+  --color-critical-glow: rgba(255, 68, 68, 0.3);
+
+  /* Status - Warning */
+  --color-warning: #ffb84d;
+  --color-warning-bg: rgba(255, 184, 77, 0.1);
+  --color-warning-border: rgba(255, 184, 77, 0.4);
+  --color-warning-glow: rgba(255, 184, 77, 0.2);
+
+  /* Status - Success */
+  --color-success: #00d084;
+  --color-success-bg: rgba(0, 208, 132, 0.1);
+  --color-success-border: rgba(0, 208, 132, 0.4);
+  --color-success-glow: rgba(0, 208, 132, 0.2);
+
+  /* Status - Neutral */
+  --color-neutral: #6b7280;
+  --color-neutral-bg: rgba(107, 114, 128, 0.1);
+  --color-neutral-border: rgba(107, 114, 128, 0.3);
+
+  /* Borders & Dividers */
+  --color-border: #2A2C30;
+  --color-border-light: #35373C;
+  --color-divider: #2A2C30;
+
+  /* Accent & Interactive */
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-accent-bg: rgba(59, 130, 246, 0.1);
+  --color-link: #60a5fa;
+  --color-link-hover: #93c5fd;
+
+  /* === SPACING === */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* === TYPOGRAPHY === */
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* === LAYOUT === */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+  --navbar-height: 64px;
+  --bottom-panel-height: 180px;
+  --max-content-width: 1440px;
+  --card-border-radius: 16px;
+  --card-border-radius-sm: 12px;
+  --button-border-radius: 8px;
+  --input-border-radius: 8px;
+
+  /* === SHADOWS === */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.25);
+  --shadow-critical: 0 0 40px var(--color-critical-glow);
+  --shadow-warning: 0 0 30px var(--color-warning-glow);
+  --shadow-success: 0 0 20px var(--color-success-glow);
+
+  /* === TRANSITIONS === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 400ms ease;
+  --ease-out-expo: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* === Z-INDEX === */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-tooltip: 400;
+  --z-hover-panel: 50;
+
+  /* === CONNECTION LINES (Flow view) === */
+  --line-parent: 2px solid var(--color-border);
+  --line-blocking: 3px dashed var(--color-critical);
+  --line-conflict: 2px dashed var(--color-warning);
+}

@@ -3,11 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "description": "FlowSight - AI Workflow Intelligence Frontend",
+  "type": "module",
   "scripts": {
-    "dev": "echo 'Frontend not yet implemented - see README for architecture'",
-    "build": "echo 'Frontend not yet implemented'",
-    "start": "echo 'Frontend not yet implemented'"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "start": "vite preview",
+    "lint": "eslint ."
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.1"
+  }
 }
