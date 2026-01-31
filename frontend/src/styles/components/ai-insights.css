@@ -380,3 +380,108 @@
   background: #222222;
   color: #E5E5E5;
 }
+
+/* === AI message markdown (Claude-style: clean, no raw * or `) === */
+.chat-message-markdown {
+  color: inherit;
+  word-wrap: break-word;
+}
+
+.chat-message-markdown > * + * {
+  margin-top: 0.75em;
+}
+
+.chat-message-markdown > *:first-child {
+  margin-top: 0;
+}
+
+.chat-message-markdown p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.chat-message-markdown p + p {
+  margin-top: 0.6em;
+}
+
+.chat-message-markdown strong {
+  font-weight: 600;
+  color: inherit;
+}
+
+.chat-message-markdown em {
+  font-style: italic;
+  color: inherit;
+}
+
+.chat-message-markdown code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #e0e0e0;
+}
+
+.chat-message-markdown pre {
+  margin: 0.75em 0;
+  padding: 0.75em 1em;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow-x: auto;
+  font-size: 0.875em;
+  line-height: 1.5;
+}
+
+.chat-message-markdown pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.chat-message-markdown ul,
+.chat-message-markdown ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.chat-message-markdown li {
+  margin: 0.25em 0;
+  line-height: 1.55;
+}
+
+.chat-message-markdown li::marker {
+  color: var(--color-text-muted, #8b8d93);
+}
+
+.chat-message-markdown h1,
+.chat-message-markdown h2,
+.chat-message-markdown h3 {
+  font-weight: 600;
+  margin: 1em 0 0.4em;
+  line-height: 1.3;
+  color: inherit;
+}
+
+.chat-message-markdown h1 { font-size: 1.15em; }
+.chat-message-markdown h2 { font-size: 1.05em; }
+.chat-message-markdown h3 { font-size: 1em; }
+
+.chat-message-markdown h1:first-child,
+.chat-message-markdown h2:first-child,
+.chat-message-markdown h3:first-child {
+  margin-top: 0;
+}
+
+.chat-message-markdown blockquote {
+  margin: 0.6em 0;
+  padding-left: 1em;
+  border-left: 3px solid rgba(172, 126, 75, 0.5);
+  color: var(--color-text-muted, #b5bac1);
+}
+
+.chat-message-markdown hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 1em 0;
+}

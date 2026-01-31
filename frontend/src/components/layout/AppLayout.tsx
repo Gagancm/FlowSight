@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import type { Tab } from './Sidebar';
+import '../../styles/components/sidebar.css';
+
+const HamburgerIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="sidebar-closer-icon">
+    <line x1="5" y1="7" x2="19" y2="7" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <line x1="5" y1="17" x2="19" y2="17" />
+  </svg>
+);
 
 const TAB_FROM_HASH: Record<string, Tab> = {
   flow: 'flow',
@@ -115,6 +124,27 @@ export function AppLayout({ children }: AppLayoutProps) {
         }
         transition={{ type: 'tween', duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       >
+        {/* Collapse button: wrapper handles fixed positioning; inner button has scale so transform never conflicts */}
+        {((!isMobile) || (isMobile && mobileMenuOpen)) && (
+          <div
+            className="sidebar-closer-wrapper"
+            style={{
+              left: isMobile ? 'calc(280px - 18px)' : `calc(19px + ${sidebarWidth} - 18px)`,
+            }}
+          >
+            <motion.button
+              type="button"
+              onClick={() => (isMobile ? setMobileMenuOpen(false) : setSidebarCollapsed((c) => !c))}
+              className="sidebar-closer"
+              aria-label={isMobile ? 'Close menu' : sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.15 }}
+            >
+              <HamburgerIcon />
+            </motion.button>
+          </div>
+        )}
         <Sidebar
           activeTab={activeTab}
           onTabChange={handleTabChange}
