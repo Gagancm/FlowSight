@@ -484,25 +484,26 @@ export function FlowPage() {
           </div>
         </div>
 
-        {/* Top-right: action buttons */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-          <div
-            ref={downloadDropdownRef}
-            className="relative"
-            onMouseEnter={() => {
-              if (downloadCloseTimerRef.current) {
-                clearTimeout(downloadCloseTimerRef.current);
-                downloadCloseTimerRef.current = null;
-              }
-              setDownloadDropdownOpen(true);
-            }}
-            onMouseLeave={() => {
-              downloadCloseTimerRef.current = setTimeout(() => {
-                setDownloadDropdownOpen(false);
-                downloadCloseTimerRef.current = null;
-              }, 150);
-            }}
-          >
+        {/* Top-right: action buttons (only show when project is selected) */}
+        {currentProjectName && (
+          <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+            <div
+              ref={downloadDropdownRef}
+              className="relative"
+              onMouseEnter={() => {
+                if (downloadCloseTimerRef.current) {
+                  clearTimeout(downloadCloseTimerRef.current);
+                  downloadCloseTimerRef.current = null;
+                }
+                setDownloadDropdownOpen(true);
+              }}
+              onMouseLeave={() => {
+                downloadCloseTimerRef.current = setTimeout(() => {
+                  setDownloadDropdownOpen(false);
+                  downloadCloseTimerRef.current = null;
+                }, 150);
+              }}
+            >
             <AnimatePresence>
               {downloadDropdownOpen && (
                 <motion.div
@@ -557,41 +558,44 @@ export function FlowPage() {
           >
             <AIIcon />
           </motion.button>
-        </div>
+          </div>
+        )}
 
-        {/* Bottom-left: canvas controls - responsive padding for mobile hamburger */}
-        <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
-          <motion.button
-            type="button"
-            onClick={handleFitView}
-            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
-            title="Fit view"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <MoveIcon />
-          </motion.button>
-          <motion.button
-            type="button"
-            onClick={handleZoomIn}
-            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
-            title="Zoom in"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ZoomInIcon />
-          </motion.button>
-          <motion.button
-            type="button"
-            onClick={handleZoomOut}
-            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
-            title="Zoom out"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ZoomOutIcon />
-          </motion.button>
-        </div>
+        {/* Bottom-left: canvas controls (only show when project is selected) - responsive padding for mobile hamburger */}
+        {currentProjectName && (
+          <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
+            <motion.button
+              type="button"
+              onClick={handleFitView}
+              className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+              title="Fit view"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <MoveIcon />
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={handleZoomIn}
+              className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+              title="Zoom in"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ZoomInIcon />
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={handleZoomOut}
+              className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+              title="Zoom out"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ZoomOutIcon />
+            </motion.button>
+          </div>
+        )}
 
         {/* Bottom right - branch status legend (only show when project is selected) */}
         {currentProjectName && (
