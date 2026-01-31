@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { AIMessage } from '../types/ai';
+import { loadConnectionsContextForAI, type AIConnectionsContext } from '../utils/aiContext';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
@@ -12,11 +13,22 @@ function generateId(): string {
 }
 
 /** Call the backend chat endpoint */
-async function fetchChatResponse(message: string, conversationId?: string): Promise<{ content: string; conversationId?: string }> {
+async function fetchChatResponse(
+  message: string,
+  conversationId?: string,
+  connectionsContext?: AIConnectionsContext | null
+): Promise<{ content: string; conversationId?: string }> {
+  const body: { message: string; conversation_id?: string; context?: AIConnectionsContext } = {
+    message,
+    conversation_id: conversationId ?? undefined,
+  };
+  if (connectionsContext) {
+    body.context = connectionsContext;
+  }
   const res = await fetch(`${API_BASE}/api/v1/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, conversation_id: conversationId }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {
@@ -35,6 +47,12 @@ export function useAIQuery() {
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>();
+  const [connectionsContext, setConnectionsContext] = useState<AIConnectionsContext | null>(null);
+
+  useEffect(() => {
+    const ctx = loadConnectionsContextForAI();
+    if (ctx) setConnectionsContext(ctx);
+  }, []);
 
   const sendQuery = useCallback(async (content: string) => {
     const trimmed = content.trim();
@@ -50,7 +68,11 @@ export function useAIQuery() {
     setLoading(true);
 
     try {
-      const { content: reply, conversationId: newConvId } = await fetchChatResponse(trimmed, conversationId);
+      const { content: reply, conversationId: newConvId } = await fetchChatResponse(
+        trimmed,
+        conversationId,
+        connectionsContext
+      );
       if (newConvId) setConversationId(newConvId);
 
       const assistantMessage: AIMessage = {
@@ -71,7 +93,7 @@ export function useAIQuery() {
       setMessages((prev) => [...prev, errorMessage]);
       setLoading(false);
     }
-  }, [conversationId]);
+  }, [conversationId, connectionsContext]);
 
   const newChat = useCallback(() => {
     setMessages([]);
@@ -79,5 +101,5 @@ export function useAIQuery() {
     setLoading(false);
   }, []);
 
-  return { messages, loading, sendQuery, newChat };
+  return { messages, loading, sendQuery, newChat, connectionsContext, setConnectionsContext };
 }

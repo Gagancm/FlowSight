@@ -355,6 +355,28 @@
   color: #B5BAC1;
 }
 
+/* === Context badge - neumorphic raised badge === */
+.neu-context-badge {
+  background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
+  border: none;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    3px 3px 10px rgba(0, 0, 0, 0.35),
+    -2px -2px 8px rgba(36, 37, 41, 0.15),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.neu-context-badge:hover {
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.4),
+    -2px -2px 10px rgba(36, 37, 41, 0.2),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset;
+  transform: translateY(-1px);
+}
+
 /* === Chat panel when in chatting stage - matches sidebar exactly === */
 .neu-chat-panel--sidebar-style {
   /* Same as .sidebar - soft inset, integrated look (no floating drop shadow) */
@@ -696,6 +718,26 @@
 
 [data-theme="light"] .neu-attach-link:hover {
   color: var(--color-text-primary);
+}
+
+[data-theme="light"] .neu-context-badge {
+  background: linear-gradient(136deg, #FFFFFF 0%, #F5F5F5 49%, #FAFAFA 100%);
+  outline: 1px solid var(--color-border);
+  box-shadow:
+    3px 3px 10px rgba(0, 0, 0, 0.06),
+    -2px -2px 8px rgba(255, 255, 255, 0.7),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+[data-theme="light"] .neu-context-badge:hover {
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.08),
+    -2px -2px 10px rgba(255, 255, 255, 0.8),
+    -1px -1px 2px rgba(0, 0, 0, 0.04) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.04) inset;
+  transform: translateY(-1px);
 }
 
 [data-theme="light"] .neu-chat-bubble--user {
