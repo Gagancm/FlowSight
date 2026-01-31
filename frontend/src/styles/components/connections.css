@@ -82,6 +82,17 @@
     inset -1px -1px 3px rgba(50, 50, 50, 0.1);
 }
 
+/* Tool card – only the logo/icon glows on hover and drag (like canvas tool nodes) */
+.neu-tool-card .neu-tool-card-icon {
+  transition: color 0.2s ease, filter 0.2s ease;
+}
+
+.neu-tool-card:hover .neu-tool-card-icon,
+.neu-tool-card:active .neu-tool-card-icon {
+  color: var(--color-brand-orange);
+  filter: drop-shadow(0 0 8px var(--color-brand-orange-glow));
+}
+
 /* Empty canvas: video demo overlay - uses flow-dropdown-panel (same as New Project modal) */
 .connections-empty-state {
   position: absolute;
@@ -198,4 +209,37 @@
     -1px -1px 8px rgba(255, 255, 255, 0.5),
     -1px -1px 1px rgba(0, 0, 0, 0.03) inset,
     1px 1px 1px rgba(0, 0, 0, 0.03) inset;
+}
+
+/* Light theme: logo-only glow (same as canvas tool node) */
+[data-theme="light"] .neu-tool-card:hover .neu-tool-card-icon,
+[data-theme="light"] .neu-tool-card:active .neu-tool-card-icon {
+  color: var(--color-brand-orange);
+  filter: drop-shadow(0 0 6px var(--color-brand-orange-glow-soft)) drop-shadow(0 0 12px var(--color-brand-orange-glow));
+}
+
+/* === Connection status legend (bottom-right, matches neu-btn-icon style) === */
+.connections-legend {
+  pointer-events: none;
+  min-width: 0;
+}
+
+.connections-legend-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.connections-legend-dot--inactive {
+  background-color: var(--color-text-muted);
+}
+
+.connections-legend-dot--connected {
+  background-color: var(--color-warning);
+}
+
+.connections-legend-dot--active {
+  background-color: var(--color-success);
 }
