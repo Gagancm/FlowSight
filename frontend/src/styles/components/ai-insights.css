@@ -204,18 +204,18 @@
 /* Faster outer glow/breathing for loading */
 @keyframes neu-diamond-breathe-fast {
   0%, 100% {
-    border-color: rgba(172, 126, 75, 0.45);
+    border-color: rgba(196, 145, 90, 0.45);
     box-shadow:
       inset 2px 2px 6px rgba(0, 0, 0, 0.4),
       inset -1px -1px 4px rgba(40, 40, 40, 0.15),
-      0 0 6px rgba(172, 126, 75, 0.08);
+      0 0 6px rgba(196, 145, 90, 0.08);
   }
   50% {
-    border-color: rgba(172, 126, 75, 0.85);
+    border-color: rgba(196, 145, 90, 0.85);
     box-shadow:
       inset 2px 2px 6px rgba(0, 0, 0, 0.4),
       inset -1px -1px 4px rgba(40, 40, 40, 0.15),
-      0 0 14px rgba(172, 126, 75, 0.25);
+      0 0 14px rgba(196, 145, 90, 0.25);
   }
 }
 
@@ -235,11 +235,11 @@
   background: rgb(28, 28, 28);
   border-radius: 20px;
   transform: rotate(45deg);
-  border: 1.5px solid rgba(172, 126, 75, 0.7);
+  border: 1.5px solid rgba(196, 145, 90, 0.7);
   box-shadow:
     inset 4px 4px 12px rgba(0, 0, 0, 0.5),
     inset -2px -2px 8px rgba(30, 30, 30, 0.2),
-    0 0 20px rgba(172, 126, 75, 0.15);
+    0 0 20px rgba(196, 145, 90, 0.15);
   animation: neu-diamond-breathe 4s ease-in-out infinite;
 }
 
@@ -253,11 +253,11 @@
   margin-top: -22px;
   border-radius: 12px;
   transform: rotate(45deg);
-  border: 1.5px solid rgba(172, 126, 75, 0.6);
+  border: 1.5px solid rgba(196, 145, 90, 0.6);
   box-shadow:
     inset 3px 3px 8px rgba(0, 0, 0, 0.5),
     inset -1px -1px 4px rgba(30, 30, 30, 0.2),
-    0 0 12px rgba(172, 126, 75, 0.2);
+    0 0 12px rgba(196, 145, 90, 0.2);
 }
 
 .neu-diamond-outer:hover .neu-diamond-inner,
@@ -275,12 +275,12 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  border: 1px solid rgba(172, 126, 75, 0.55);
+  border: 1.5px solid rgba(196, 145, 90, 0.55);
   background: rgb(28, 28, 28);
   box-shadow:
     inset 2px 2px 6px rgba(0, 0, 0, 0.45),
     inset -1px -1px 4px rgba(35, 35, 35, 0.2),
-    0 0 10px rgba(172, 126, 75, 0.12);
+    0 0 10px rgba(196, 145, 90, 0.12);
   animation: neu-diamond-breathe-fast 1.25s ease-in-out infinite;
 }
 
@@ -290,11 +290,11 @@
   margin-left: -10px;
   margin-top: -10px;
   border-radius: 6px;
-  border: 1px solid rgba(172, 126, 75, 0.6);
+  border: 1.5px solid rgba(196, 145, 90, 0.6);
   box-shadow:
     inset 1px 1px 4px rgba(0, 0, 0, 0.4),
     inset -1px -1px 2px rgba(35, 35, 35, 0.2),
-    0 0 6px rgba(172, 126, 75, 0.1);
+    0 0 6px rgba(196, 145, 90, 0.1);
   animation: neu-diamond-inner-spin 6s linear infinite;
 }
 
@@ -476,7 +476,7 @@
 .chat-message-markdown blockquote {
   margin: 0.6em 0;
   padding-left: 1em;
-  border-left: 3px solid rgba(172, 126, 75, 0.5);
+  border-left: 3px solid rgba(196, 145, 90, 0.5);
   color: var(--color-text-muted, #b5bac1);
 }
 

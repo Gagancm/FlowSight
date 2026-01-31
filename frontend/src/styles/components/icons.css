@@ -36,8 +36,8 @@
 }
 
 @keyframes icon-link-pulse {
-  0%, 100% { stroke-opacity: 1; }
-  50% { stroke-opacity: 0.5; }
+  0%, 100% { stroke-opacity: 1; opacity: 1; }
+  50% { stroke-opacity: 0.45; opacity: 0.7; }
 }
 
 @keyframes icon-sparkle {
@@ -55,6 +55,32 @@
   50% { transform: rotate(8deg); }
 }
 
+@keyframes icon-chevron-bounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(2px); }
+}
+
+@keyframes icon-sidebar-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+/* === Shared .icon class (sidebar + AI Insights) === */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* === Sidebar collapse button: chevron animates on hover === */
+
+.sidebar-closer:hover .icon-collapse-chevron,
+.sidebar-closer:focus-visible .icon-collapse-chevron {
+  animation: icon-chevron-bounce 0.6s ease-in-out infinite;
+}
+
 /* === Sidebar tab icons (when selected or on hover) === */
 
 .sidebar-tab .animated-icon-wrap {
@@ -63,16 +89,30 @@
   justify-content: center;
 }
 
+/* Whole icon subtly scales when tab selected or hovered */
+.sidebar-tab--selected .animated-icon-wrap,
+.sidebar-tab:hover .animated-icon-wrap {
+  animation: icon-sidebar-breathe 2.2s ease-in-out infinite;
+}
+
+/* AI Insights: center dot + rays pulse when tab selected or hovered */
 .sidebar-tab--selected .icon-ai-center,
 .sidebar-tab:hover .icon-ai-center {
   animation: icon-pulse-soft 2.2s ease-in-out infinite;
 }
 
+.sidebar-tab--selected .icon-ai-ray,
+.sidebar-tab:hover .icon-ai-ray {
+  animation: icon-pulse-soft 2s ease-in-out infinite;
+}
+
+/* Connections: link paths pulse (opacity + stroke-opacity) */
 .sidebar-tab--selected .icon-connections-path,
 .sidebar-tab:hover .icon-connections-path {
   animation: icon-link-pulse 1.8s ease-in-out infinite;
 }
 
+/* Flow: branch line/circle/path pulse */
 .sidebar-tab--selected .icon-flow-path,
 .sidebar-tab:hover .icon-flow-path {
   animation: icon-link-pulse 2s ease-in-out infinite;
