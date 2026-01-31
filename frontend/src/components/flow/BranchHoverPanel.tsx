@@ -5,18 +5,38 @@ import type { BranchDetail } from '../../types/flow';
 
 interface BranchHoverPanelProps {
   branch: BranchDetail | null;
+  position?: { x: number; y: number } | null;
 }
 
-export function BranchHoverPanel({ branch }: BranchHoverPanelProps) {
+export function BranchHoverPanel({ branch, position }: BranchHoverPanelProps) {
   if (!branch) return null;
 
   const { bottleneck, recommendation } = branch;
   const ownerDisplay = branch.owner ?? branch.author ?? '—';
 
+  // Calculate position - if position provided, place next to node, otherwise fixed right
+  const positionStyle = position
+    ? {
+        position: 'absolute' as const,
+        left: `${position.x + 650}px`, // 650px to the right of the node (node width ~600px + gap)
+        top: `${position.y}px`,
+        transform: 'translateY(-20%)', // Slight vertical adjustment
+      }
+    : {
+        position: 'fixed' as const,
+        right: '32px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+      };
+
   return (
     <div
-      className="flow-hover-panel fixed right-8 top-1/2 w-[360px] -translate-y-1/2 p-5 transition-all duration-300"
-      style={{ fontFamily: 'var(--font-sans)', zIndex: 2000 }}
+      className="flow-hover-panel w-[360px] p-5 transition-all duration-300"
+      style={{ 
+        fontFamily: 'var(--font-sans)', 
+        zIndex: 2000,
+        ...positionStyle,
+      }}
     >
       <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-[var(--color-text-primary)]">
         <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />

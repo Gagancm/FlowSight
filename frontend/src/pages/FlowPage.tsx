@@ -77,6 +77,7 @@ export function FlowPage() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [hoverNodePosition, setHoverNodePosition] = useState<{ x: number; y: number } | null>(null);
   const { getBranchDetail } = useFlowData();
   const { hoveredItem, onHover } = useHoverPanel<Branch>();
 
@@ -130,6 +131,7 @@ export function FlowPage() {
             <BranchFlowCanvas
               onInit={setReactFlowInstance}
               onHover={onHover}
+              onHoverPosition={setHoverNodePosition}
               viewType={selectedGraph}
             />
           </ReactFlowProvider>
@@ -231,7 +233,7 @@ export function FlowPage() {
       </div>
 
       {/* Hover Panel - branch details on hover */}
-      <BranchHoverPanel branch={hoveredDetail} />
+      <BranchHoverPanel branch={hoveredDetail} position={hoverNodePosition} />
     </motion.div>
   );
 }

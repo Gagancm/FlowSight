@@ -24,6 +24,7 @@ import type { Branch } from '../../types/flow';
 interface BranchFlowCanvasProps {
   onInit?: (instance: ReactFlowInstance) => void;
   onHover?: (branch: Branch | null) => void;
+  onHoverPosition?: (position: { x: number; y: number } | null) => void;
   viewType?: 'github' | 'pr' | 'timeline' | 'list';
 }
 
@@ -254,7 +255,7 @@ function branchesToEdges(branches: Branch[], viewType?: string): Edge[] {
   return edges;
 }
 
-export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: BranchFlowCanvasProps) {
+export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, viewType = 'github' }: BranchFlowCanvasProps) {
   const { branches } = useFlowData();
   const { theme } = useTheme();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
@@ -338,8 +339,16 @@ export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: Branc
       const branch = node.data.branch as Branch;
       console.log('Node mouse enter:', branch.name);
       onHover?.(branch);
+      
+      // Calculate screen position for hover panel
+      if (reactFlowInstance && onHoverPosition) {
+        const { x, y, zoom } = reactFlowInstance.getViewport();
+        const screenX = node.position.x * zoom + x;
+        const screenY = node.position.y * zoom + y;
+        onHoverPosition({ x: screenX, y: screenY });
+      }
     },
-    [onHover]
+    [onHover, onHoverPosition, reactFlowInstance]
   );
 
   // Handle node mouse leave
@@ -347,8 +356,9 @@ export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: Branc
     () => {
       console.log('Node mouse leave');
       onHover?.(null);
+      onHoverPosition?.(null);
     },
-    [onHover]
+    [onHover, onHoverPosition]
   );
 
   return (
