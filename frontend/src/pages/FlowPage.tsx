@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactFlowProvider } from 'reactflow';
+import { toPng, toSvg } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 import { BranchFlowCanvas } from '../components/flow/BranchFlowCanvas';
 import { BranchHoverPanel } from '../components/flow/BranchHoverPanel';
 import { useFlowData } from '../hooks/useFlowData';
@@ -112,8 +114,11 @@ export function FlowPage() {
   const [editProjectName, setEditProjectName] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const projectDropdownRef = useRef<HTMLDivElement>(null);
+  const downloadDropdownRef = useRef<HTMLDivElement>(null);
+  const downloadCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [hoverNodePosition, setHoverNodePosition] = useState<{ x: number; y: number } | null>(null);
   const [pinnedBranch, setPinnedBranch] = useState<Branch | null>(null);
@@ -139,9 +144,21 @@ export function FlowPage() {
       if (projectDropdownRef.current && !projectDropdownRef.current.contains(e.target as Node)) {
         setProjectDropdownOpen(false);
       }
+      const target = e.target as HTMLElement | null;
+      if (downloadDropdownRef.current && target && !downloadDropdownRef.current.contains(target)) {
+        setDownloadDropdownOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (downloadCloseTimerRef.current) {
+        clearTimeout(downloadCloseTimerRef.current);
+      }
+    };
   }, []);
 
   const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'List View';
@@ -233,6 +250,89 @@ export function FlowPage() {
     setDeleteConfirmName('');
   };
 
+  // Export handlers
+  const getFlowElement = useCallback(() => {
+    return document.querySelector('#flow-export .react-flow') as HTMLElement | null;
+  }, []);
+
+  const handleExportAsSvg = useCallback(async () => {
+    const element = getFlowElement();
+    if (!element) return;
+    try {
+      const dataUrl = await toSvg(element, {
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-bg-primary').trim() || '#1a1a1a',
+        filter: (node) => {
+          const el = node as HTMLElement;
+          if (el.classList?.contains('react-flow__controls')) return false;
+          if (el.classList?.contains('react-flow__minimap')) return false;
+          return true;
+        },
+      });
+      const link = document.createElement('a');
+      link.download = `${currentProjectName}-flow.svg`;
+      link.href = dataUrl;
+      link.click();
+      setDownloadDropdownOpen(false);
+    } catch (err) {
+      console.error('Export as SVG failed:', err);
+    }
+  }, [getFlowElement, currentProjectName]);
+
+  const handleExportAsPdf = useCallback(async () => {
+    const element = getFlowElement();
+    if (!element) return;
+    try {
+      const dataUrl = await toPng(element, {
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-bg-primary').trim() || '#1a1a1a',
+        filter: (node) => {
+          const el = node as HTMLElement;
+          if (el.classList?.contains('react-flow__controls')) return false;
+          if (el.classList?.contains('react-flow__minimap')) return false;
+          return true;
+        },
+      });
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+      });
+      const pdf = new jsPDF({
+        orientation: img.width > img.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [img.width, img.height],
+      });
+      pdf.addImage(dataUrl, 'PNG', 0, 0, img.width, img.height);
+      pdf.save(`${currentProjectName}-flow.pdf`);
+      setDownloadDropdownOpen(false);
+    } catch (err) {
+      console.error('Export as PDF failed:', err);
+    }
+  }, [getFlowElement, currentProjectName]);
+
+  const handleExportAsImage = useCallback(async () => {
+    const element = getFlowElement();
+    if (!element) return;
+    try {
+      const dataUrl = await toPng(element, {
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-bg-primary').trim() || '#1a1a1a',
+        filter: (node) => {
+          const el = node as HTMLElement;
+          if (el.classList?.contains('react-flow__controls')) return false;
+          if (el.classList?.contains('react-flow__minimap')) return false;
+          return true;
+        },
+      });
+      const link = document.createElement('a');
+      link.download = `${currentProjectName}-flow.png`;
+      link.href = dataUrl;
+      link.click();
+      setDownloadDropdownOpen(false);
+    } catch (err) {
+      console.error('Export as Image failed:', err);
+    }
+  }, [getFlowElement, currentProjectName]);
+
   return (
     <motion.div
       className="absolute inset-0 flex flex-col sm:flex-row"
@@ -242,7 +342,7 @@ export function FlowPage() {
     >
       <div className="flex-1 relative overflow-hidden min-h-0 min-w-0">
         {/* Graph content - React Flow canvas */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" id="flow-export">
           <ReactFlowProvider>
             <BranchFlowCanvas
               onInit={setReactFlowInstance}
@@ -371,9 +471,67 @@ export function FlowPage() {
 
         {/* Top-right: action buttons */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-          <motion.button type="button" className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center" title="Download" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <DownloadIcon />
-          </motion.button>
+          <div
+            ref={downloadDropdownRef}
+            className="relative"
+            onMouseEnter={() => {
+              if (downloadCloseTimerRef.current) {
+                clearTimeout(downloadCloseTimerRef.current);
+                downloadCloseTimerRef.current = null;
+              }
+              setDownloadDropdownOpen(true);
+            }}
+            onMouseLeave={() => {
+              downloadCloseTimerRef.current = setTimeout(() => {
+                setDownloadDropdownOpen(false);
+                downloadCloseTimerRef.current = null;
+              }, 150);
+            }}
+          >
+            <AnimatePresence>
+              {downloadDropdownOpen && (
+                <motion.div
+                  className="absolute right-full top-1/2 -translate-y-1/2 mr-2 min-w-[140px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
+                  initial={{ opacity: 0, x: 8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <button
+                    type="button"
+                    onClick={handleExportAsSvg}
+                    className="w-full flex items-center px-4 py-2.5 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors rounded-md text-left"
+                  >
+                    Save as SVG
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleExportAsPdf}
+                    className="w-full flex items-center px-4 py-2.5 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors rounded-md text-left"
+                  >
+                    Save as PDF
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleExportAsImage}
+                    className="w-full flex items-center px-4 py-2.5 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors rounded-md text-left"
+                  >
+                    Save as Image
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <motion.button
+              type="button"
+              className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Download"
+              aria-label="Download"
+            >
+              <DownloadIcon />
+            </motion.button>
+          </div>
           <motion.button
             type="button"
             className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"

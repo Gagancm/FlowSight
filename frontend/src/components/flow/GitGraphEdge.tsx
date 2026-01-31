@@ -79,16 +79,55 @@ function GitGraphEdgeComponent({
   const edgePath = createGitGraphPath();
 
   return (
-    <path
-      id={id}
-      className="react-flow__edge-path git-graph-line"
-      d={edgePath}
-      strokeWidth={selected ? 3 : 2}
-      stroke={edgeColor}
-      fill="none"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <g className="git-graph-edge-group">
+      {/* Main edge path */}
+      <path
+        id={id}
+        className="react-flow__edge-path git-graph-line"
+        d={edgePath}
+        strokeWidth={selected ? 3 : 2}
+        stroke={edgeColor}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* Larger background circles to better mask crossing lines */}
+      <circle
+        cx={sourceX}
+        cy={sourceY}
+        r={9}
+        fill="var(--color-bg-primary)"
+        className="git-graph-dot-bg"
+      />
+      <circle
+        cx={targetX}
+        cy={targetY}
+        r={9}
+        fill="var(--color-bg-primary)"
+        className="git-graph-dot-bg"
+      />
+
+      {/* Visible dots on top */}
+      <circle
+        cx={sourceX}
+        cy={sourceY}
+        r={6}
+        fill={edgeColor}
+        stroke="var(--color-bg-primary)"
+        strokeWidth={2}
+        className="git-graph-dot"
+      />
+      <circle
+        cx={targetX}
+        cy={targetY}
+        r={6}
+        fill={edgeColor}
+        stroke="var(--color-bg-primary)"
+        strokeWidth={2}
+        className="git-graph-dot"
+      />
+    </g>
   );
 }
 

@@ -16,7 +16,6 @@ import { FlowNode } from './FlowNode';
 import { ListNode } from './ListNode';
 import { ConnectionEdge } from '../connections/ConnectionEdge';
 import { GitGraphEdge } from './GitGraphEdge';
-import { GitGraphDotsOverlay } from './GitGraphDotsOverlay';
 import { useFlowData } from '../../hooks/useFlowData';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { Branch } from '../../types/flow';
@@ -409,11 +408,6 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
           className="hidden"
         />
       </ReactFlow>
-      
-      {/* Render dots overlay on top for list view */}
-      {viewType === 'list' && (
-        <GitGraphDotsOverlay nodes={nodes} edges={edges} />
-      )}
     </div>
   );
 }
