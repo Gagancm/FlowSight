@@ -4,3 +4,8 @@ pydantic>=2.5.0
 pydantic-settings>=2.1.0
 python-dotenv>=1.0.0
 httpx>=0.27.0
+
+# ETL Pipeline dependencies
+requests>=2.31.0
+astrapy>=1.0.0
+ibm-watsonx-ai>=1.0.0

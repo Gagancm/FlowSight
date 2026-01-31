@@ -1,0 +1,280 @@
+{
+  "repository": {
+    "name": "order-management-service",
+    "org": "acme-payments",
+    "url": "https://github.com/acme-payments/order-management-service"
+  },
+  "commits": [
+    {
+      "sha": "a1b2c3d4e5f6",
+      "message": "feat(webhooks): add Stripe webhook handler for payment events",
+      "author": "alice-chen",
+      "timestamp": "2025-01-17T14:00:00Z",
+      "branch": "feature/webhook-handlers"
+    },
+    {
+      "sha": "f6e5d4c3b2a1",
+      "message": "test(webhooks): add integration tests for webhook validation",
+      "author": "alice-chen",
+      "timestamp": "2025-01-17T17:00:00Z",
+      "branch": "feature/webhook-handlers"
+    },
+    {
+      "sha": "9a8b7c6d5e4f",
+      "message": "feat(retry): implement exponential backoff for payment API calls",
+      "author": "david-kim",
+      "timestamp": "2025-01-26T07:00:00Z",
+      "branch": "feature/retry-logic"
+    },
+    {
+      "sha": "3d4e5f6a7b8c",
+      "message": "fix(payments): prevent duplicate charge processing",
+      "author": "bob-martinez",
+      "timestamp": "2025-01-28T07:00:00Z",
+      "branch": "hotfix/duplicate-charges"
+    },
+    {
+      "sha": "7c8d9e0f1a2b",
+      "message": "refactor(retry): extract retry config to constants",
+      "author": "david-kim",
+      "timestamp": "2025-01-26T09:00:00Z",
+      "branch": "feature/retry-logic"
+    },
+    {
+      "sha": "2b3c4d5e6f7a",
+      "message": "feat(dashboard): add payment metrics dashboard skeleton",
+      "author": "david-kim",
+      "timestamp": "2025-01-28T10:00:00Z",
+      "branch": "feature/payment-dashboard"
+    }
+  ],
+  "pull_requests": [
+    {
+      "number": 142,
+      "title": "feat: Add Stripe webhook handlers",
+      "author": "alice-chen",
+      "state": "merged",
+      "created_at": "2025-01-17T18:00:00Z",
+      "merged_at": "2025-01-21T14:00:00Z",
+      "base_branch": "main",
+      "head_branch": "feature/webhook-handlers",
+      "linked_issues": [
+        "PAY-101"
+      ],
+      "commits": [
+        "a1b2c3d4e5f6",
+        "f6e5d4c3b2a1"
+      ],
+      "reviews": [
+        {
+          "reviewer": "bob-martinez",
+          "state": "APPROVED",
+          "submitted_at": "2025-01-21T13:00:00Z"
+        },
+        {
+          "reviewer": "eva-singh",
+          "state": "APPROVED",
+          "submitted_at": "2025-01-21T13:00:00Z"
+        }
+      ],
+      "review_time_hours": 91,
+      "files_changed": 8,
+      "additions": 342,
+      "deletions": 12
+    },
+    {
+      "number": 145,
+      "title": "feat: Implement exponential backoff retry logic for payment API",
+      "author": "david-kim",
+      "state": "open",
+      "created_at": "2025-01-26T10:00:00Z",
+      "base_branch": "main",
+      "head_branch": "feature/retry-logic",
+      "linked_issues": [
+        "PAY-102"
+      ],
+      "commits": [
+        "9a8b7c6d5e4f",
+        "7c8d9e0f1a2b"
+      ],
+      "reviews": [],
+      "review_time_hours": 52,
+      "files_changed": 5,
+      "additions": 187,
+      "deletions": 23,
+      "labels": [
+        "enhancement",
+        "needs-review"
+      ],
+      "requested_reviewers": [
+        "bob-martinez",
+        "alice-chen"
+      ],
+      "ci_status": "passing",
+      "checks": [
+        {
+          "name": "CI/Tests",
+          "status": "success"
+        },
+        {
+          "name": "Lint",
+          "status": "success"
+        },
+        {
+          "name": "Security Scan",
+          "status": "success"
+        }
+      ]
+    },
+    {
+      "number": 148,
+      "title": "fix: Prevent duplicate charge processing in race conditions",
+      "author": "bob-martinez",
+      "state": "open",
+      "created_at": "2025-01-28T08:00:00Z",
+      "base_branch": "main",
+      "head_branch": "hotfix/duplicate-charges",
+      "linked_issues": [
+        "PAY-108"
+      ],
+      "commits": [
+        "3d4e5f6a7b8c"
+      ],
+      "reviews": [
+        {
+          "reviewer": "alice-chen",
+          "state": "APPROVED",
+          "submitted_at": "2025-01-28T10:00:00Z"
+        }
+      ],
+      "review_time_hours": 6,
+      "files_changed": 3,
+      "additions": 45,
+      "deletions": 8,
+      "labels": [
+        "bug",
+        "critical",
+        "hotfix"
+      ],
+      "requested_reviewers": [
+        "eva-singh"
+      ],
+      "ci_status": "passing",
+      "checks": [
+        {
+          "name": "CI/Tests",
+          "status": "success"
+        },
+        {
+          "name": "Lint",
+          "status": "success"
+        }
+      ]
+    },
+    {
+      "number": 150,
+      "title": "feat: Payment metrics dashboard",
+      "author": "david-kim",
+      "state": "draft",
+      "created_at": "2025-01-28T11:00:00Z",
+      "base_branch": "main",
+      "head_branch": "feature/payment-dashboard",
+      "linked_issues": [
+        "PAY-104"
+      ],
+      "commits": [
+        "2b3c4d5e6f7a"
+      ],
+      "reviews": [],
+      "review_time_hours": 3,
+      "files_changed": 6,
+      "additions": 124,
+      "deletions": 0,
+      "labels": [
+        "enhancement",
+        "wip"
+      ],
+      "ci_status": "pending"
+    }
+  ],
+  "ci_runs": [
+    {
+      "id": "run-1001",
+      "workflow": "CI Pipeline",
+      "trigger": "pull_request",
+      "pr_number": 142,
+      "status": "success",
+      "started_at": "2025-01-21T13:00:00Z",
+      "completed_at": "2025-01-21T13:30:00Z",
+      "duration_minutes": 30
+    },
+    {
+      "id": "run-1002",
+      "workflow": "CI Pipeline",
+      "trigger": "pull_request",
+      "pr_number": 145,
+      "status": "success",
+      "started_at": "2025-01-26T10:00:00Z",
+      "completed_at": "2025-01-26T10:30:00Z",
+      "duration_minutes": 28
+    },
+    {
+      "id": "run-1003",
+      "workflow": "CI Pipeline",
+      "trigger": "pull_request",
+      "pr_number": 148,
+      "status": "success",
+      "started_at": "2025-01-28T08:00:00Z",
+      "completed_at": "2025-01-28T08:18:00Z",
+      "duration_minutes": 18
+    },
+    {
+      "id": "run-1004",
+      "workflow": "CI Pipeline",
+      "trigger": "pull_request",
+      "pr_number": 150,
+      "status": "in_progress",
+      "started_at": "2025-01-28T11:00:00Z",
+      "duration_minutes": null
+    }
+  ],
+  "deployments": [
+    {
+      "id": "deploy-501",
+      "environment": "production",
+      "ref": "a1b2c3d4e5f6",
+      "pr_number": 142,
+      "status": "success",
+      "deployed_by": "eva-singh",
+      "deployed_at": "2025-01-21T15:00:00Z",
+      "duration_minutes": 12
+    },
+    {
+      "id": "deploy-502",
+      "environment": "staging",
+      "ref": "3d4e5f6a7b8c",
+      "pr_number": 148,
+      "status": "pending",
+      "deployed_by": "bob-martinez",
+      "created_at": "2025-01-28T11:00:00Z",
+      "pending_approvers": [
+        "eva-singh"
+      ]
+    },
+    {
+      "id": "deploy-503",
+      "environment": "staging",
+      "ref": "9a8b7c6d5e4f",
+      "pr_number": 145,
+      "status": "blocked",
+      "created_at": "2025-01-26T12:00:00Z",
+      "blocked_reason": "PR not approved"
+    }
+  ],
+  "metadata": {
+    "generated_at": "2026-01-30T18:55:52.878579",
+    "total_commits": 6,
+    "total_prs": 4,
+    "open_prs": 2
+  }
+}

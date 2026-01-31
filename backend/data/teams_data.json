@@ -1,0 +1,111 @@
+{
+  "organization": "Acme Payments",
+  "team": "Payment Engineering",
+  "meetings": [
+    {
+      "id": "meet-001",
+      "title": "Sprint 10 - Daily Standup",
+      "type": "standup",
+      "start_time": "2025-01-27T14:00:00Z",
+      "end_time": "2025-01-27T14:15:00Z",
+      "duration_minutes": 15,
+      "organizer": "carol.johnson@company.com",
+      "attendees": [
+        "alice.chen@company.com",
+        "bob.martinez@company.com",
+        "carol.johnson@company.com",
+        "david.kim@company.com",
+        "eva.singh@company.com"
+      ],
+      "notes": "\n## Sprint 10 - Daily Standup (Day 8)\n\n### Alice Chen\n- \u2705 Yesterday: Webhook handlers merged to main\n- \ud83d\udccb Today: Available for reviews, starting PAY-103\n- \ud83d\udeab Blockers: PAY-103 blocked by PAY-102\n\n### Bob Martinez\n- \u2705 Yesterday: Architecture review for retry logic\n- \ud83d\udccb Today: Will review PR-145 (David's retry logic)\n- \ud83d\udeab Blockers: None\n\n### Carol Johnson (PM)\n- Sprint velocity: 29% complete, 3 days remaining\n- At-risk: PAY-102, PAY-103, PAY-105\n- Action: Monitor PR-145 review\n\n### David Kim\n- \u2705 Yesterday: Completed PR-145, all tests passing\n- \ud83d\udccb Today: Waiting on review, starting PAY-104 (dashboard)\n- \ud83d\udeab Blockers: PR-145 in review for 28 hours\n\n### Eva Singh\n- \u2705 Yesterday: Deployment automation updates\n- \ud83d\udccb Today: PAY-105 planning (blocked)\n- \ud83d\udeab Blockers: Can't start PAY-105 until PAY-102 merged\n            ",
+      "action_items": [
+        {
+          "description": "Review PR-145 (retry logic)",
+          "assignee": "bob.martinez@company.com",
+          "due_date": "2025-01-27T15:00:00Z",
+          "status": "overdue",
+          "referenced_items": [
+            "PR-145",
+            "PAY-102"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meet-002",
+      "title": "Sprint 10 - Daily Standup",
+      "type": "standup",
+      "start_time": "2025-01-28T13:30:00Z",
+      "end_time": "2025-01-28T13:45:00Z",
+      "duration_minutes": 15,
+      "organizer": "carol.johnson@company.com",
+      "attendees": [
+        "alice.chen@company.com",
+        "bob.martinez@company.com",
+        "carol.johnson@company.com",
+        "david.kim@company.com",
+        "eva.singh@company.com"
+      ],
+      "notes": "\n## Sprint 10 - Daily Standup (Day 9)\n\n### Alice Chen\n- \u2705 Yesterday: Started reviewing PAY-103 design\n- \ud83d\udccb Today: Can help with PR-145 review if needed\n- \ud83d\udeab Blockers: Still waiting on PAY-102\n\n### Bob Martinez\n- \u2705 Yesterday: Fixed PAY-108 critical bug, PR-148 created\n- \ud83d\udccb Today: Deploy hotfix, then review PR-145\n- \ud83d\udeab Blockers: None\n- \u26a0\ufe0f Note: PAY-108 took priority - production incident\n\n### Carol Johnson (PM)\n- Sprint velocity: Still 29%, critical path at risk\n- PR-145 now at 52 hours in review\n- 2 stories blocked by PAY-102\n- Sprint ends in 3 days - escalation may be needed\n\n### David Kim\n- \u2705 Yesterday: Dashboard work, 40% complete\n- \ud83d\udccb Today: Continue dashboard, follow up on PR-145\n- \ud83d\udeab Blockers: PR-145 blocked for 52 hours\n\n### Eva Singh\n- \u2705 Yesterday: Approved PR-148 (hotfix)\n- \ud83d\udccb Today: Deploy PR-148, still can't start PAY-105\n- \ud83d\udeab Blockers: PAY-105 blocked by PAY-102\n            ",
+      "action_items": [
+        {
+          "description": "Deploy PR-148 hotfix to production",
+          "assignee": "eva.singh@company.com",
+          "due_date": "2025-01-28T16:00:00Z",
+          "status": "in_progress",
+          "referenced_items": [
+            "PR-148",
+            "PAY-108"
+          ]
+        },
+        {
+          "description": "Review and merge PR-145 (URGENT)",
+          "assignee": "bob.martinez@company.com",
+          "due_date": "2025-01-28T18:00:00Z",
+          "status": "in_progress",
+          "priority": "critical",
+          "referenced_items": [
+            "PR-145",
+            "PAY-102"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meet-003",
+      "title": "PAY-108 Incident Review",
+      "type": "incident_review",
+      "start_time": "2025-01-28T09:00:00Z",
+      "end_time": "2025-01-28T10:00:00Z",
+      "duration_minutes": 60,
+      "organizer": "bob.martinez@company.com",
+      "attendees": [
+        "alice.chen@company.com",
+        "bob.martinez@company.com",
+        "eva.singh@company.com"
+      ],
+      "notes": "\n## Incident Review: PAY-108 - Duplicate Charges\n\n### Timeline\n- 12 hours ago: First duplicate charge detected\n- 11 hours ago: Bob started investigation\n- 7 hours ago: Root cause identified - race condition\n- 6 hours ago: PR-148 created with fix\n- 4 hours ago: PR-148 approved by Alice\n\n### Root Cause\nRace condition in payment processor when handling high-traffic scenarios.\nTwo concurrent requests for same order ID can both pass validation.\n\n### Impact\n- 3 customers affected\n- $1,247 in duplicate charges (refunded)\n- No data integrity issues\n\n### Fix\nPR-148 implements distributed lock using Redis to prevent concurrent processing.\n\n### Action Items\n- Deploy PR-148 to production (Eva - today)\n- Add monitoring for duplicate transaction patterns (Eva - next sprint)\n- Load testing for race conditions (PAY-105 - this sprint)\n\n### Notes\nThis incident pulled Bob away from PR reviews for 12+ hours.\nPR-145 (retry logic) has been waiting 52 hours as a result.\n            ",
+      "action_items": [
+        {
+          "description": "Deploy PR-148 with distributed lock fix",
+          "assignee": "eva.singh@company.com",
+          "due_date": "2025-01-28T14:00:00Z",
+          "status": "in_progress",
+          "referenced_items": [
+            "PR-148"
+          ]
+        },
+        {
+          "description": "Add duplicate transaction monitoring",
+          "assignee": "eva.singh@company.com",
+          "due_date": "2025-02-04T14:00:00Z",
+          "status": "todo"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "generated_at": "2026-01-30T18:55:52.878768",
+    "total_meetings": 3
+  }
+}
