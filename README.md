@@ -53,21 +53,25 @@ An n8n-style graph viewer + agentic AI that:
 FlowSight/
 ├── backend/
 │   ├── app/
-│   │   ├── api/mock.py           # API endpoints
+│   │   ├── api/
+│   │   │   ├── mock.py           # Mock data endpoints (tools for agents)
+│   │   │   └── chat.py           # Chat proxy endpoint (frontend → watsonx)
 │   │   ├── core/settings.py      # Configuration
 │   │   ├── models/
 │   │   │   ├── events.py         # RawEvent, RawEventsPayload
 │   │   │   └── graph.py          # Node, Edge, WorkflowGraph, etc.
 │   │   ├── services/
-│   │   │   └── normalizer.py     # Raw events → Workflow graph
+│   │   │   ├── normalizer.py     # Raw events → Workflow graph
+│   │   │   └── watsonx_client.py # watsonx Orchestrate API client
 │   │   └── main.py               # FastAPI app
 │   ├── openapi/
 │   │   └── mock_tool.yml         # OpenAPI spec for watsonx Orchestrate
 │   ├── infra/
 │   │   ├── docker/Dockerfile
 │   │   └── code_engine/deploy.sh
+│   ├── .env.example              # Environment variables template
 │   └── requirements.txt
-├── frontend/                      # n8n-style graph viewer (TODO)
+├── frontend/                      # n8n-style graph viewer
 └── README.md
 ```
 
@@ -96,7 +100,46 @@ Test endpoints:
 - Health: http://localhost:8080/healthz
 - Events: http://localhost:8080/api/v1/mock/events
 - Workflow: http://localhost:8080/api/v1/mock/workflow
+- Chat: http://localhost:8080/api/v1/chat
 - Docs: http://localhost:8080/docs
+
+### Stub Mode (Frontend Development)
+
+The backend includes a **stub mode** for frontend testing without watsonx Orchestrate credentials. Stub mode is enabled by default.
+
+**How it works:**
+- Returns realistic AI-style mock responses
+- Simulates streaming with typing delay
+- Detects intent from user messages and returns appropriate responses
+
+**Test the chat endpoint:**
+```bash
+curl -X POST http://localhost:8080/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What is blocking deployment?"}'
+```
+
+**Response types based on message content:**
+
+| Message Contains | Response Type |
+|-----------------|---------------|
+| "blocking", "stuck", "waiting" | Blocking issues analysis |
+| "workflow", "status", "pipeline" | Workflow overview |
+| "bottleneck", "slow", "optimize" | Bottleneck detection |
+| Anything else | General status summary |
+
+**Check current mode:**
+```bash
+curl http://localhost:8080/api/v1/chat/health
+```
+
+**To disable stub mode** (use real watsonx Orchestrate):
+```bash
+# In backend/.env
+STUB_MODE=false
+WATSONX_API_KEY=your-api-key
+WATSONX_AGENT_ID=your-agent-id
+```
 
 ### 2. Deploy to IBM Cloud Code Engine
 

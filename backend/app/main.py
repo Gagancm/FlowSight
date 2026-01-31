@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.mock import router as mock_router
+from app.api.chat import router as chat_router
 from app.core.settings import settings
 
 app = FastAPI(
@@ -30,6 +31,7 @@ app.add_middleware(
 
 # Mount routers
 app.include_router(mock_router, prefix=settings.api_v1_prefix)
+app.include_router(chat_router, prefix=settings.api_v1_prefix)
 
 # Also mount health check at root level
 app.include_router(mock_router, prefix="", include_in_schema=False)
@@ -44,4 +46,11 @@ async def root():
         "docs": "/docs",
         "openapi": "/openapi.json",
         "health": "/healthz",
+        "endpoints": {
+            "chat": "/api/v1/chat",
+            "chat_stream": "/api/v1/chat/stream",
+            "chat_health": "/api/v1/chat/health",
+            "mock_events": "/api/v1/mock/events",
+            "mock_workflow": "/api/v1/mock/workflow",
+        },
     }
