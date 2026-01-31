@@ -10,6 +10,7 @@ export function BranchHoverPanel({ branch }: BranchHoverPanelProps) {
   if (!branch) return null;
 
   const { bottleneck, recommendation } = branch;
+  const ownerDisplay = branch.owner ?? branch.author ?? '—';
 
   return (
     <div className="fixed right-[var(--space-lg)] top-1/2 z-[var(--z-hover-panel)] w-[360px] -translate-y-1/2 rounded-[var(--card-border-radius)] border border-[var(--color-border)] bg-[var(--color-bg-secondary)] p-5 shadow-xl transition-all duration-300">
@@ -20,8 +21,8 @@ export function BranchHoverPanel({ branch }: BranchHoverPanelProps) {
       <section className="mb-4">
         <h4 className="mb-1 text-xs font-medium text-[var(--color-text-muted)]">OWNER</h4>
         <div className="flex items-center gap-2">
-          <Avatar name={branch.owner} size="sm" />
-          <span>{branch.owner}</span>
+          <Avatar name={ownerDisplay} size="sm" />
+          <span>{ownerDisplay}</span>
           {branch.ownerTeam && (
             <span className="text-sm text-[var(--color-text-muted)]">· {branch.ownerTeam}</span>
           )}

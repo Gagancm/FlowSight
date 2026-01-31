@@ -9,12 +9,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function Button({
   variant = 'primary',
   size = 'md',
+  type = 'button',
   className,
   children,
   ...props
 }: ButtonProps) {
   return (
     <button
+      type={type}
       className={cn(
         'rounded-[var(--button-border-radius)] font-medium transition-colors',
         variant === 'primary' && 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]',

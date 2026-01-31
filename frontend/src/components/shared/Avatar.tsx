@@ -8,7 +8,8 @@ interface AvatarProps {
 }
 
 export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
-  const initial = name.charAt(0).toUpperCase();
+  const safeName = name ?? '';
+  const initial = safeName.charAt(0).toUpperCase() || '?';
   const sizeClasses = {
     sm: 'w-6 h-6 text-xs',
     md: 'w-8 h-8 text-sm',
@@ -24,7 +25,7 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
       )}
     >
       {src ? (
-        <img src={src} alt={name} className="h-full w-full rounded-full object-cover" />
+        <img src={src} alt={safeName} className="h-full w-full rounded-full object-cover" />
       ) : (
         initial
       )}
