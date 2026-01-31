@@ -11,6 +11,7 @@ backend_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(backend_root))
 
 from app.pipeline.teams_extractor import TeamsExtractor
+from app.pipeline.teams_cleaner import TeamsCleaner
 from app.pipeline.transformer import transform_teams_to_raw_events
 
 
@@ -62,14 +63,19 @@ def main():
             include_meetings=args.include_meetings
         )
 
+        # Clean data
+        print("\nCleaning data...")
+        cleaner = TeamsCleaner()
+        cleaned_data = cleaner.clean_all(data)
+
         # Add raw events
-        raw_events = transform_teams_to_raw_events(data)
-        data["raw_events"] = [event.model_dump(mode="json") for event in raw_events]
+        raw_events = transform_teams_to_raw_events(cleaned_data)
+        cleaned_data["raw_events"] = [event.model_dump(mode="json") for event in raw_events]
 
         # Save updated data
         import json
         with open(args.output, "w") as f:
-            json.dump(data, f, indent=2)
+            json.dump(cleaned_data, f, indent=2)
 
         print(f"\n✅ Successfully extracted data from Microsoft Teams")
 

@@ -11,6 +11,7 @@ backend_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(backend_root))
 
 from app.pipeline.slack_extractor import SlackExtractor
+from app.pipeline.slack_cleaner import SlackCleaner
 from app.pipeline.transformer import transform_slack_to_raw_events
 
 
@@ -56,14 +57,19 @@ def main():
             workspace_name=args.workspace_name
         )
 
+        # Clean data
+        print("\nCleaning data...")
+        cleaner = SlackCleaner()
+        cleaned_data = cleaner.clean_all(data)
+
         # Add raw events
-        raw_events = transform_slack_to_raw_events(data)
-        data["raw_events"] = [event.model_dump(mode="json") for event in raw_events]
+        raw_events = transform_slack_to_raw_events(cleaned_data)
+        cleaned_data["raw_events"] = [event.model_dump(mode="json") for event in raw_events]
 
         # Save updated data
         import json
         with open(args.output, "w") as f:
-            json.dump(data, f, indent=2)
+            json.dump(cleaned_data, f, indent=2)
 
         print(f"\n✅ Successfully extracted data from Slack workspace: {args.workspace_name}")
 

@@ -11,6 +11,7 @@ backend_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(backend_root))
 
 from app.pipeline.jira_extractor import JiraExtractor
+from app.pipeline.jira_cleaner import JiraCleaner
 from app.pipeline.transformer import transform_jira_to_raw_events
 
 
@@ -76,14 +77,19 @@ def main():
             output_path=args.output
         )
 
+        # Clean data
+        print("\nCleaning data...")
+        cleaner = JiraCleaner()
+        cleaned_data = cleaner.clean_all(data)
+
         # Add raw events
-        raw_events = transform_jira_to_raw_events(data)
-        data["raw_events"] = [event.model_dump(mode="json") for event in raw_events]
+        raw_events = transform_jira_to_raw_events(cleaned_data)
+        cleaned_data["raw_events"] = [event.model_dump(mode="json") for event in raw_events]
 
         # Save updated data
         import json
         with open(args.output, "w") as f:
-            json.dump(data, f, indent=2)
+            json.dump(cleaned_data, f, indent=2)
 
         print(f"\n✅ Successfully extracted data from Jira project: {args.project_key}")
 

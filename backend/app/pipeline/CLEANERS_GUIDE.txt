@@ -1,0 +1,358 @@
+=================================================================
+FLOWSIGHT AI - DATA CLEANERS GUIDE
+=================================================================
+
+OVERVIEW
+--------
+Separate cleaning modules for each data source:
+✓ Slack Cleaner - Clean Slack messages, channels, reactions
+✓ Jira Cleaner - Clean issues, sprints, normalize statuses
+✓ Teams Cleaner - Clean messages, meetings, remove HTML
+
+Each cleaner is independent and handles:
+- Data validation
+- Normalization
+- Deduplication
+- Missing data handling
+- Format standardization
+- Data enrichment
+- Reference extraction
+
+=================================================================
+1. SLACK CLEANER
+=================================================================
+
+File: slack_cleaner.py
+
+What it cleans:
+- Workspace data
+- Channels (with member counts)
+- Messages (text, mentions, reactions)
+- Thread detection
+- Reference extraction
+
+Features:
+
+✓ Text Cleaning
+  - Removes Slack formatting (<@USER>, <#CHANNEL>)
+  - Cleans URLs (<http://...|display>)
+  - Preserves original text for analysis
+
+✓ Mention Extraction
+  - Extracts all @user mentions
+  - Deduplicates mentions
+  - Keeps user IDs
+
+✓ Reference Extraction
+  - GitHub PRs (PR-123, #123)
+  - Jira issues (PROJ-123, PAY-456)
+  - Categorizes by type
+
+✓ Thread Detection
+  - Identifies thread replies
+  - Preserves thread_ts
+  - Marks is_thread_reply flag
+
+✓ Deduplication
+  - Based on timestamp (ts)
+  - Removes exact duplicates
+
+✓ Enrichment
+  - Total messages count
+  - Thread reply count
+  - Unique users count
+  - Top mentioned users
+  - PR/issue reference counts
+
+Output fields:
+{
+  "ts": "1234567890.123456",
+  "user": "U123",
+  "username": "Alice Chen",
+  "text": "Clean text without formatting",
+  "original_text": "Original Slack text",
+  "timestamp": "2025-01-30T10:00:00Z",
+  "channel_id": "C123",
+  "channel_name": "#engineering",
+  "thread_ts": "1234567890.000000",
+  "is_thread_reply": false,
+  "reactions": [...],
+  "mentions": ["U456", "U789"],
+  "references": [
+    {"type": "pull_request", "id": "145"},
+    {"type": "issue", "id": "PAY-102"}
+  ]
+}
+
+=================================================================
+2. JIRA CLEANER
+=================================================================
+
+File: jira_cleaner.py
+
+What it cleans:
+- Project metadata
+- Sprint information
+- Issues (all types)
+- Time tracking
+- Story points
+
+Features:
+
+✓ Status Normalization
+  - "to do" → "To Do"
+  - "in progress" → "In Progress"
+  - "code review" → "In Review"
+  - "closed" → "Done"
+
+✓ Priority Normalization
+  - "highest/high/medium/low/lowest"
+  - Defaults to "Medium"
+
+✓ Type Normalization
+  - Story, Bug, Task, Epic, Sub-task
+  - Standardizes casing
+
+✓ Date Normalization
+  - Validates ISO format
+  - Converts to consistent timezone
+  - Handles malformed dates
+
+✓ Story Points Validation
+  - Converts to float
+  - Handles null values
+  - Validates numeric
+
+✓ Time Tracking Cleaning
+  - Original estimate
+  - Remaining estimate
+  - Time spent
+
+✓ Deduplication
+  - Based on issue key
+  - Removes exact duplicates
+
+✓ Categorization
+  - By type: bugs, stories, tasks, epics
+  - By status: blocked, in_progress, done
+
+✓ Enrichment
+  - Total issues count
+  - Total story points
+  - Count by type
+  - Count by status
+  - Priority distribution
+  - Assignee distribution
+
+Output fields:
+{
+  "key": "PAY-102",
+  "type": "Story",
+  "summary": "Add retry logic",
+  "status": "In Review",
+  "priority": "High",
+  "created": "2025-01-23T14:00:00Z",
+  "updated": "2025-01-28T13:00:00Z",
+  "assignee": "david.kim@company.com",
+  "reporter": "carol.johnson@company.com",
+  "story_points": 5.0,
+  "labels": ["reliability", "api"],
+  "time_tracking": {
+    "original_estimate": "2d",
+    "remaining_estimate": "4h",
+    "time_spent": "1d 4h"
+  }
+}
+
+=================================================================
+3. TEAMS CLEANER
+=================================================================
+
+File: teams_cleaner.py
+
+What it cleans:
+- Team metadata
+- Channels
+- Messages (with HTML removal)
+- Meetings (with duration calculation)
+
+Features:
+
+✓ HTML Cleaning
+  - Removes HTML tags from message body
+  - Decodes HTML entities (&nbsp;, &amp;, etc.)
+  - Preserves original HTML
+
+✓ Reference Extraction
+  - GitHub PRs (PR-123, #123)
+  - Jira issues (PROJ-123, PAY-456)
+  - Categorizes by type
+
+✓ Meeting Duration
+  - Calculates from start/end times
+  - Returns duration in minutes
+  - Handles timezone conversions
+
+✓ Attendee Counting
+  - Counts meeting attendees
+  - Tracks unique attendees
+
+✓ Deduplication
+  - Messages by ID
+  - Meetings by ID
+  - Removes exact duplicates
+
+✓ Enrichment
+  - Total messages count
+  - Unique senders count
+  - Importance distribution
+  - Total meetings count
+  - Average attendees per meeting
+  - PR/issue reference counts
+
+Output fields (Message):
+{
+  "id": "msg-123",
+  "from": "Alice Chen",
+  "created_datetime": "2025-01-30T10:00:00Z",
+  "body": "Clean text without HTML",
+  "original_body": "<div>Original HTML</div>",
+  "importance": "normal",
+  "channel_name": "Engineering",
+  "mentions": ["Bob Martinez"],
+  "references": [
+    {"type": "pull_request", "id": "145"}
+  ]
+}
+
+Output fields (Meeting):
+{
+  "id": "meet-001",
+  "subject": "Daily Standup",
+  "start_time": "2025-01-30T14:00:00Z",
+  "end_time": "2025-01-30T14:15:00Z",
+  "duration_minutes": 15,
+  "organizer": "carol.johnson@company.com",
+  "attendees": ["alice@...", "bob@..."],
+  "attendee_count": 5,
+  "online_meeting_url": "https://teams.microsoft.com/..."
+}
+
+=================================================================
+USAGE
+=================================================================
+
+All cleaners are automatically integrated into extractors:
+
+1. Slack:
+   python app/pipeline/extract_slack.py workspace-name
+   # Automatically cleans data
+
+2. Jira:
+   python app/pipeline/extract_jira.py PROJECT-KEY
+   # Automatically cleans data
+
+3. Teams:
+   python app/pipeline/extract_teams.py team-id
+   # Automatically cleans data
+
+Manual usage (if needed):
+
+from app.pipeline.slack_cleaner import SlackCleaner
+
+cleaner = SlackCleaner()
+cleaned_data = cleaner.clean_all(raw_slack_data)
+
+=================================================================
+CLEANING FEATURES COMPARISON
+=================================================================
+
+Feature                | Slack | Jira | Teams
+-----------------------|-------|------|-------
+Text normalization     |  ✓    |  ✓   |  ✓
+HTML removal           |  ✓    |  -   |  ✓
+Mention extraction     |  ✓    |  -   |  ✓
+Reference extraction   |  ✓    |  -   |  ✓
+Status normalization   |  -    |  ✓   |  -
+Priority normalization |  -    |  ✓   |  -
+Type normalization     |  -    |  ✓   |  -
+Date normalization     |  ✓    |  ✓   |  ✓
+Deduplication          |  ✓    |  ✓   |  ✓
+Categorization         |  -    |  ✓   |  -
+Enrichment metadata    |  ✓    |  ✓   |  ✓
+Duration calculation   |  -    |  -   |  ✓
+Thread detection       |  ✓    |  -   |  -
+
+=================================================================
+ENRICHMENT METADATA
+=================================================================
+
+All cleaners add enrichment metadata:
+
+Slack Enrichment:
+- total_messages
+- thread_replies
+- unique_users
+- top_mentioned_users
+- total_references
+- pr_references
+- issue_references
+
+Jira Enrichment:
+- total_issues
+- total_story_points
+- bugs_count, stories_count, tasks_count, epics_count
+- blocked_count, in_progress_count, done_count
+- priority_distribution
+- assignee_distribution
+
+Teams Enrichment:
+- total_messages
+- unique_senders
+- importance_distribution
+- total_meetings
+- total_attendees
+- avg_attendees_per_meeting
+- total_references
+- pr_references
+- issue_references
+
+=================================================================
+VALIDATION & ERROR HANDLING
+=================================================================
+
+All cleaners handle:
+
+✓ Missing fields - Safe defaults
+✓ Null values - Graceful handling
+✓ Invalid dates - Fallback to current time
+✓ Malformed data - Skip or use default
+✓ Type mismatches - Type coercion
+✓ Empty strings - Trim and validate
+
+Cleaners never crash:
+- Return None to filter invalid items
+- Use safe defaults
+- Log warnings (via print)
+- Continue processing
+
+=================================================================
+OUTPUT STRUCTURE
+=================================================================
+
+All cleaned data includes:
+
+{
+  "source_data": {...},      // Cleaned source-specific data
+  "enrichment": {...},       // Calculated statistics
+  "metadata": {
+    "generated_at": "...",
+    "cleaned_at": "...",
+    "cleaning_version": "1.0.0",
+    ...
+  }
+}
+
+=================================================================
+END OF CLEANERS GUIDE
+=================================================================
