@@ -18,7 +18,7 @@ const svgProps = {
 
 export function AnimatedConnectionsIcon({ className }: { className?: string }) {
   return (
-    <span className={cn('animated-icon-wrap', className)}>
+    <span className={cn('animated-icon-wrap icon', className)}>
       <svg
         width="20"
         height="20"
@@ -41,7 +41,7 @@ export function AnimatedConnectionsIcon({ className }: { className?: string }) {
 
 export function AnimatedFlowIcon({ className }: { className?: string }) {
   return (
-    <span className={cn('animated-icon-wrap', className)}>
+    <span className={cn('animated-icon-wrap icon', className)}>
       <svg
         width="20"
         height="20"
@@ -60,7 +60,7 @@ export function AnimatedFlowIcon({ className }: { className?: string }) {
 
 export function AnimatedAIInsightsIcon({ className }: { className?: string }) {
   return (
-    <span className={cn('animated-icon-wrap', className)}>
+    <span className={cn('animated-icon-wrap icon', className)}>
       <svg
         width="20"
         height="20"
@@ -68,15 +68,43 @@ export function AnimatedAIInsightsIcon({ className }: { className?: string }) {
         className="animated-icon-svg"
         aria-hidden
       >
-        <path d="M12 2v4" />
-        <path d="M12 18v4" />
-        <path d="M2 12h4" />
-        <path d="M18 12h4" />
-        <path d="M5.64 5.64l2.83 2.83" />
-        <path d="M15.54 15.54l2.83 2.83" />
-        <path d="M5.64 18.36l2.83-2.83" />
-        <path d="M15.54 8.46l2.83-2.83" />
+        <path className="icon-ai-ray" d="M12 2v4" />
+        <path className="icon-ai-ray" d="M12 18v4" />
+        <path className="icon-ai-ray" d="M2 12h4" />
+        <path className="icon-ai-ray" d="M18 12h4" />
+        <path className="icon-ai-ray" d="M5.64 5.64l2.83 2.83" />
+        <path className="icon-ai-ray" d="M15.54 15.54l2.83 2.83" />
+        <path className="icon-ai-ray" d="M5.64 18.36l2.83-2.83" />
+        <path className="icon-ai-ray" d="M15.54 8.46l2.83-2.83" />
         <circle className="icon-ai-center" cx="12" cy="12" r="2.5" />
+      </svg>
+    </span>
+  );
+}
+
+/* === Sidebar: collapse/expand button (chevron, animated on hover) === */
+
+export function AnimatedCollapseIcon({
+  collapsed,
+  className,
+}: {
+  collapsed?: boolean;
+  className?: string;
+}) {
+  /* Chevron left when expanded (collapse action), chevron right when collapsed (expand action) */
+  const d = collapsed
+    ? 'M9 18l6-6-6-6'
+    : 'M15 18l-6-6 6-6';
+  return (
+    <span className={cn('animated-icon-wrap icon', className)}>
+      <svg
+        width="20"
+        height="20"
+        {...svgProps}
+        className="animated-icon-svg"
+        aria-hidden
+      >
+        <path className="icon-collapse-chevron" d={d} />
       </svg>
     </span>
   );

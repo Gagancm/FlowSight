@@ -46,9 +46,9 @@
   --color-border-light: #35373C;
   --color-divider: #2A2C30;
 
-  /* Brand / Logo (amber-orange from diamond) */
-  --color-brand-orange: #AC7E4B;
-  --color-brand-orange-glow: rgba(172, 126, 75, 0.6);
+  /* Brand / Logo (amber-orange from diamond) - slightly bright for visibility */
+  --color-brand-orange: #C4915A;
+  --color-brand-orange-glow: rgba(196, 145, 90, 0.6);
 
   /* Theme accent & Interactive - primary blue used for step indicators, buttons, links, highlights */
   --color-accent: #3b82f6;
