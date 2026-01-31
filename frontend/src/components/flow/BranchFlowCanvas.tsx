@@ -318,12 +318,12 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
   const { theme } = useTheme();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
-  // Show empty nodes/edges if no project is selected
-  const shouldShowEmpty = !projectName;
+  // Show empty nodes/edges if no project is selected OR no view is selected
+  const shouldShowEmpty = !projectName || viewType === 'none';
 
   // Convert branches to nodes and edges based on view type
   const initialNodes = useMemo(() => {
-    if (shouldShowEmpty) return []; // Return empty array if no project
+    if (shouldShowEmpty) return []; // Return empty array if no project or no view selected
     switch (viewType) {
       case 'pr':
         return branchesToNodesPR(branches);

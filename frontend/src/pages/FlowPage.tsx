@@ -90,6 +90,7 @@ const ZoomOutIcon = () => (
 );
 
 const GRAPH_OPTIONS = [
+  { value: 'none', label: 'Select View' },
   { value: 'list', label: 'Github Graph' },
   { value: 'github', label: 'Branch Timeline' },
   { value: 'pr', label: 'PR Graph' },
@@ -97,7 +98,7 @@ const GRAPH_OPTIONS = [
 ] as const;
 
 export function FlowPage() {
-  const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('list');
+  const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('none');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
   const [currentProjectName, setCurrentProjectName] = useState<string | null>(null); // Changed to null for no selection
@@ -187,7 +188,7 @@ export function FlowPage() {
     };
   }, [onHover]);
 
-  const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Github Graph';
+  const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Select View';
 
   const handleZoomIn = () => {
     if (reactFlowInstance) {
