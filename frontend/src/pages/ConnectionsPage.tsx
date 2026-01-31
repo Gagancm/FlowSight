@@ -141,9 +141,7 @@ export function ConnectionsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [projects, setProjects] = useState<ConnectionProject[]>(() => loadProjects());
-  const [currentProjectId, setCurrentProjectId] = useState<string | null>(() =>
-    loadLastProjectId(loadProjects())
-  );
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null); // Changed to null - no project selected initially
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
@@ -458,83 +456,75 @@ export function ConnectionsPage() {
       <div className="flex-1 relative overflow-hidden min-h-0 min-w-0">
         {/* Top-left: Add Project button / Project dropdown - responsive padding for mobile hamburger */}
         <div className="absolute top-4 left-4 sm:left-4 md:left-4 z-10 pl-14 lg:pl-0" ref={dropdownRef}>
-          {projects.length === 0 ? (
-            <div className="flex items-center gap-1 min-w-[140px] sm:min-w-[160px]">
+          <div className="flex items-center gap-1 min-w-[140px] sm:min-w-[160px]">
+            <motion.button
+              type="button"
+              onClick={() => setDropdownOpen((o) => !o)}
+              className="flow-dropdown-trigger flex flex-1 min-w-0 items-center justify-between gap-2 px-4 py-2.5 text-sm"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="truncate">{currentProject?.name ?? 'Select Project'}</span>
+              <ChevronDownIcon />
+            </motion.button>
+            {currentProject && (
               <motion.button
                 type="button"
-                onClick={handleAddProjectClick}
-                className="flow-dropdown-trigger flex flex-1 min-w-0 items-center justify-start px-4 py-2.5 text-sm"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="truncate">Add Project</span>
-              </motion.button>
-              <motion.button
-                type="button"
-                onClick={handleAddProjectClick}
+                onClick={() => openEditProject(currentProject.id)}
                 className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg neu-btn-icon text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                title="Add project"
-                aria-label="Add project"
+                title="Edit project"
+                aria-label="Edit project"
               >
-                <PlusIconSmall />
+                <PencilIcon />
               </motion.button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center gap-1 min-w-[140px] sm:min-w-[160px]">
-                <motion.button
+            )}
+          </div>
+          <AnimatePresence>
+            {dropdownOpen && (
+              <motion.div
+                className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                {/* None option to deselect */}
+                <button
                   type="button"
-                  onClick={() => setDropdownOpen((o) => !o)}
-                  className="flow-dropdown-trigger flex flex-1 min-w-0 items-center justify-between gap-2 px-4 py-2.5 text-sm"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setCurrentProjectId(null);
+                    setDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center rounded-md ${
+                    currentProjectId === null
+                      ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                      : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                  }`}
                 >
-                  <span className="truncate">{currentProject?.name ?? 'Select project'}</span>
-                  <ChevronDownIcon />
-                </motion.button>
-                {currentProject && (
-                  <motion.button
-                    type="button"
-                    onClick={() => openEditProject(currentProject.id)}
-                    className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg neu-btn-icon text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    title="Edit project"
-                    aria-label="Edit project"
+                  <span className="truncate block">None</span>
+                </button>
+                
+                {/* Project list */}
+                {projects.map((p) => (
+                  <div
+                    key={p.id}
+                    className={`flex items-center w-full rounded-md group ${
+                      currentProjectId === p.id
+                        ? 'bg-[var(--color-accent-bg)]'
+                        : 'hover:bg-[var(--color-bg-hover)]'
+                    }`}
                   >
-                    <PencilIcon />
-                  </motion.button>
-                )}
-              </div>
-              <AnimatePresence>
-                {dropdownOpen && (
-                  <motion.div
-                    className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {projects.map((p) => (
-                      <div
-                        key={p.id}
-                        className={`flex items-center w-full rounded-md group ${
-                          currentProjectId === p.id
-                            ? 'bg-[var(--color-accent-bg)]'
-                            : 'hover:bg-[var(--color-bg-hover)]'
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => handleSelectProject(p.id)}
-                          className={`flex-1 min-w-0 text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center ${
-                            currentProjectId === p.id
-                              ? 'text-[var(--color-accent)]'
-                              : 'text-[var(--color-text-primary)]'
-                          }`}
-                        >
+                    <button
+                      type="button"
+                      onClick={() => handleSelectProject(p.id)}
+                      className={`flex-1 min-w-0 text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center ${
+                        currentProjectId === p.id
+                          ? 'text-[var(--color-accent)]'
+                          : 'text-[var(--color-text-primary)]'
+                      }`}
+                    >
                           <span className="truncate block">{p.name}</span>
                         </button>
                         <button
@@ -564,8 +554,6 @@ export function ConnectionsPage() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </>
-          )}
         </div>
 
         {/* React Flow Canvas - always visible, empty when no project */}
@@ -584,6 +572,7 @@ export function ConnectionsPage() {
 
         {/* Right side action buttons - fixed position, responsive spacing */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+          {/* + button always visible */}
           <motion.button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
@@ -592,23 +581,27 @@ export function ConnectionsPage() {
           >
             {isSidebarOpen ? <CloseIcon /> : <PlusIcon />}
           </motion.button>
-          <div
-            className="relative flex items-center justify-center"
-            ref={downloadDropdownRef}
-            onMouseEnter={() => {
-              if (downloadCloseTimerRef.current) {
-                clearTimeout(downloadCloseTimerRef.current);
-                downloadCloseTimerRef.current = null;
-              }
-              setDownloadDropdownOpen(true);
-            }}
-            onMouseLeave={() => {
-              downloadCloseTimerRef.current = setTimeout(() => {
-                setDownloadDropdownOpen(false);
-                downloadCloseTimerRef.current = null;
-              }, 150);
-            }}
-          >
+
+          {/* Download and AI buttons only when project selected */}
+          {currentProject && (
+            <>
+              <div
+                className="relative flex items-center justify-center"
+                ref={downloadDropdownRef}
+                onMouseEnter={() => {
+                  if (downloadCloseTimerRef.current) {
+                    clearTimeout(downloadCloseTimerRef.current);
+                  downloadCloseTimerRef.current = null;
+                }
+                setDownloadDropdownOpen(true);
+              }}
+              onMouseLeave={() => {
+                downloadCloseTimerRef.current = setTimeout(() => {
+                  setDownloadDropdownOpen(false);
+                  downloadCloseTimerRef.current = null;
+                }, 150);
+              }}
+            >
             <AnimatePresence>
               {downloadDropdownOpen && (
                 <motion.div
@@ -663,10 +656,13 @@ export function ConnectionsPage() {
           >
             <AIIcon />
           </motion.button>
+            </>
+          )}
         </div>
 
-        {/* Bottom left canvas controls - responsive */}
-        <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
+        {/* Bottom left canvas controls - responsive (hide when no project) */}
+        {currentProject && (
+          <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
           <motion.button
             onClick={handleFitView}
             className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
@@ -691,10 +687,12 @@ export function ConnectionsPage() {
           >
             <ZoomOutIcon />
           </motion.button>
-        </div>
+          </div>
+        )}
 
-        {/* Bottom right - connection status legend */}
-        <div className="connections-legend neu-btn-icon absolute bottom-4 right-4 z-10 flex flex-col gap-1.5 px-3 py-2.5">
+        {/* Bottom right - connection status legend (hide when no project) */}
+        {currentProject && (
+          <div className="connections-legend neu-btn-icon absolute bottom-4 right-4 z-10 flex flex-col gap-1.5 px-3 py-2.5">
           <div className="connections-legend-row flex items-center gap-2">
             <span className="connections-legend-dot connections-legend-dot--inactive" />
             <span className="connections-legend-label text-xs text-[var(--color-text-secondary)]">Inactive</span>
@@ -707,7 +705,8 @@ export function ConnectionsPage() {
             <span className="connections-legend-dot connections-legend-dot--active" />
             <span className="connections-legend-label text-xs text-[var(--color-text-secondary)]">Operational</span>
           </div>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Right Sidebar with Tools - Animated width */}
