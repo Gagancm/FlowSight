@@ -110,7 +110,9 @@ export function FlowPage() {
 
   const handleFitView = () => {
     if (reactFlowInstance) {
-      reactFlowInstance.fitView({ padding: 0.2, duration: 200 });
+      // Use more padding for list view to match default zoom
+      const padding = selectedGraph === 'list' ? 0.5 : 0.2;
+      reactFlowInstance.fitView({ padding, duration: 200 });
     }
   };
 

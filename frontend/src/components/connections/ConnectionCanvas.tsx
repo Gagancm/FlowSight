@@ -18,6 +18,7 @@ import 'reactflow/dist/style.css';
 import { ToolNode } from './ToolNode';
 import { ConnectionEdge } from './ConnectionEdge';
 import { Toast } from '../shared/Toast';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export interface ConnectionProject {
   id: string;
@@ -172,6 +173,7 @@ export function ConnectionCanvas({
   onEdgesChange,
   onInit,
 }: ConnectionCanvasProps) {
+  const { theme } = useTheme();
   const [nodes, setNodes, onNodesChangeInternal] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChangeInternal] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -437,12 +439,12 @@ export function ConnectionCanvas({
         proOptions={{ hideAttribution: true }}
         className="react-flow-canvas connections-canvas"
       >
-        {/* n8n-style dot grid background */}
+        {/* Theme-aware dot grid background */}
         <Background
           variant={BackgroundVariant.Dots}
           gap={20}
           size={1.5}
-          color="rgba(139, 141, 147, 0.25)"
+          color={theme === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(139, 141, 147, 0.25)'}
           className="react-flow-background"
         />
 

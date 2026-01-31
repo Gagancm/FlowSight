@@ -18,6 +18,7 @@ import { ConnectionEdge } from '../connections/ConnectionEdge';
 import { GitGraphEdge } from './GitGraphEdge';
 import { GitGraphDotsOverlay } from './GitGraphDotsOverlay';
 import { useFlowData } from '../../hooks/useFlowData';
+import { useTheme } from '../../contexts/ThemeContext';
 import type { Branch } from '../../types/flow';
 
 interface BranchFlowCanvasProps {
@@ -255,6 +256,7 @@ function branchesToEdges(branches: Branch[], viewType?: string): Edge[] {
 
 export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: BranchFlowCanvasProps) {
   const { branches } = useFlowData();
+  const { theme } = useTheme();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   // Convert branches to nodes and edges based on view type
@@ -370,12 +372,12 @@ export function BranchFlowCanvas({ onInit, onHover, viewType = 'github' }: Branc
         proOptions={{ hideAttribution: true }}
         className="react-flow-canvas flow-canvas"
       >
-        {/* n8n-style dot grid background */}
+        {/* Theme-aware dot grid background */}
         <Background
           variant={BackgroundVariant.Dots}
           gap={20}
           size={1.5}
-          color="rgba(255, 255, 255, 0.15)"
+          color={theme === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)'}
           className="react-flow-background"
         />
 
