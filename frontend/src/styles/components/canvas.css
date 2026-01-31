@@ -151,6 +151,15 @@
   }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
 /* Connection handles (dots on nodes) */
 .react-flow__handle {
   width: 10px;

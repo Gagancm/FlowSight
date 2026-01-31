@@ -13,9 +13,12 @@ import ReactFlow, {
   ConnectionMode,
   ReactFlowInstance,
   NodeTypes,
+  EdgeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { ToolNode } from './ToolNode';
+import { ConnectionEdge } from './ConnectionEdge';
+import { Toast } from '../shared/Toast';
 
 interface ConnectionCanvasProps {
   onNodesChange?: (nodes: Node[]) => void;
@@ -43,20 +46,58 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
   const [edges, setEdges, onEdgesChangeInternal] = useEdgesState([]);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'warning' | 'success' | 'info' } | null>(null);
 
   // Register custom node types
   const nodeTypes: NodeTypes = useMemo(() => ({
     toolNode: ToolNode,
   }), []);
 
+  // Register custom edge types
+  const edgeTypes: EdgeTypes = useMemo(() => ({
+    connectionEdge: ConnectionEdge,
+  }), []);
+
+  // Validate connections before they're created (only for self-loops, duplicates checked in onConnect)
+  const isValidConnection = useCallback(
+    (connection: Connection) => {
+      // React Flow already blocks self-connections, but we keep this for explicitness
+      if (connection.source === connection.target) {
+        setToast({ message: 'Cannot connect a tool to itself', type: 'warning' });
+        return false;
+      }
+      return true;
+    },
+    []
+  );
+
   // Handle new connections between nodes
   const onConnect = useCallback(
     (params: Connection) => {
-      setEdges((eds) => addEdge({
-        ...params,
-        type: 'smoothstep', // Smooth bezier curves
-        animated: true, // Animated flow for n8n effect
-      }, eds));
+      // Validation happens inside setEdges to access latest state
+      setEdges((currentEdges) => {
+        // Check for duplicate
+        const isDuplicate = currentEdges.some(
+          (edge) =>
+            edge.source === params.source && edge.target === params.target
+        );
+
+        if (isDuplicate) {
+          setToast({ message: 'Connection already exists', type: 'warning' });
+          return currentEdges; // Return unchanged
+        }
+
+        // Add the new connection
+        setToast({ message: 'Connection created successfully', type: 'success' });
+        return addEdge({
+          ...params,
+          type: 'connectionEdge',
+          animated: true,
+          data: {
+            status: 'active',
+          },
+        }, currentEdges);
+      });
     },
     [setEdges]
   );
@@ -101,6 +142,16 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
 
       const tool = JSON.parse(toolData);
 
+      // Validation: Check if this tool type already exists on canvas
+      const toolExists = nodes.some(
+        (node) => node.data.tool === tool.id
+      );
+
+      if (toolExists) {
+        setToast({ message: `${tool.name} is already on the canvas`, type: 'warning' });
+        return;
+      }
+
       // Get the position where the tool was dropped
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
@@ -121,8 +172,9 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
       };
 
       setNodes((nds) => nds.concat(newNode));
+      setToast({ message: `${tool.name} added to canvas`, type: 'success' });
     },
-    [reactFlowInstance, setNodes]
+    [reactFlowInstance, nodes, setNodes]
   );
 
   // Allow drop
@@ -146,9 +198,11 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
         onConnect={onConnect}
         onInit={handleInit}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        isValidConnection={isValidConnection}
         connectionMode={ConnectionMode.Loose}
         fitView
-        attributionPosition="bottom-left"
+        proOptions={{ hideAttribution: true }}
         className="react-flow-canvas"
       >
         {/* n8n-style dot grid background */}
@@ -182,6 +236,15 @@ export function ConnectionCanvas({ onNodesChange, onEdgesChange, onInit }: Conne
           className="hidden"
         />
       </ReactFlow>
+
+      {/* Toast notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
