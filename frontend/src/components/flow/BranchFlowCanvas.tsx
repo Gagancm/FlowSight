@@ -87,6 +87,7 @@ interface BranchFlowCanvasProps {
   onNodeClick?: (branch: Branch, position: { x: number; y: number }) => void;
   viewType?: 'github' | 'pr' | 'timeline' | 'list';
   projectName?: string | null; // Add projectName prop to check if project is selected
+  onViewportChange?: () => void; // Callback for viewport changes
 }
 
 // Convert branches to React Flow nodes with hierarchical positioning (Github Graph - default)
@@ -312,7 +313,7 @@ function branchesToEdges(branches: Branch[], viewType?: string): Edge[] {
   return edges;
 }
 
-export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick, viewType = 'github', projectName }: BranchFlowCanvasProps) {
+export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick, viewType = 'github', projectName, onViewportChange }: BranchFlowCanvasProps) {
   const { branches } = useFlowData();
   const { theme } = useTheme();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
@@ -452,6 +453,7 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
         onNodeMouseEnter={onNodeMouseEnter}
         onNodeMouseLeave={onNodeMouseLeave}
         onNodeClick={handleNodeClick}
+        onMove={onViewportChange}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         nodesDraggable={viewType !== 'list'}

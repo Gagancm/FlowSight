@@ -153,6 +153,40 @@ export function FlowPage() {
     };
   }, []);
 
+  // Handle window resize - clear pinned position to avoid stuck hover panel
+  useEffect(() => {
+    const handleResize = () => {
+      if (pinnedBranch || hoveredItem) {
+        // Clear both pinned and hover positions on resize
+        setPinnedBranch(null);
+        setPinnedPosition(null);
+        onHover?.(null);
+        setHoverNodePosition(null);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [pinnedBranch, hoveredItem, onHover]);
+
+  // Clear hover panel when switching graph views or projects
+  useEffect(() => {
+    setPinnedBranch(null);
+    setPinnedPosition(null);
+    onHover?.(null);
+    setHoverNodePosition(null);
+  }, [selectedGraph, currentProjectName, onHover]);
+
+  // Clear hover panel when component unmounts (navigating away)
+  useEffect(() => {
+    return () => {
+      setPinnedBranch(null);
+      setPinnedPosition(null);
+      onHover?.(null);
+      setHoverNodePosition(null);
+    };
+  }, [onHover]);
+
   const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Github Graph';
 
   const handleZoomIn = () => {
@@ -315,6 +349,16 @@ export function FlowPage() {
     }
   }, [getFlowElement, currentProjectName]);
 
+  // Handle viewport changes - clear hover panel
+  const handleViewportChange = useCallback(() => {
+    if (pinnedBranch || hoveredItem) {
+      setPinnedBranch(null);
+      setPinnedPosition(null);
+      onHover?.(null);
+      setHoverNodePosition(null);
+    }
+  }, [pinnedBranch, hoveredItem, onHover]);
+
   return (
     <motion.div
       className="absolute inset-0 flex flex-col sm:flex-row"
@@ -333,6 +377,7 @@ export function FlowPage() {
               onNodeClick={handleNodeClick}
               viewType={selectedGraph}
               projectName={currentProjectName}
+              onViewportChange={handleViewportChange}
             />
           </ReactFlowProvider>
         </div>
