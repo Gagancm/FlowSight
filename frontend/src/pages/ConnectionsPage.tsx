@@ -1,8 +1,18 @@
+import { useState } from 'react';
+import { ToolsSidebar } from '../components/connections/ToolsSidebar';
+
 // SVG Icons for action buttons
 const PlusIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+const CloseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
@@ -57,16 +67,37 @@ const ZoomOutIcon = () => (
 );
 
 export function ConnectionsPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
     <div className="absolute inset-0 flex">
       {/* Main Canvas Area */}
       <div className="flex-1 relative">
-        {/* Canvas content area - empty for now */}
+        {/* Canvas content area - will be React Flow canvas */}
+        <div className="absolute inset-0 bg-[var(--color-bg-primary)]">
+          {/* Placeholder text */}
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <p className="text-[var(--color-text-muted)] text-sm">
+                Canvas will be here
+              </p>
+              <p className="text-[var(--color-text-muted)] text-xs mt-2">
+                Click the + button to add tools →
+              </p>
+            </div>
+          </div>
+        </div>
         
-        {/* Right side action buttons */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2">
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
-            <PlusIcon />
+        {/* Right side action buttons - moves left when sidebar is open */}
+        <div className={`
+          absolute top-4 flex flex-col gap-2 z-30 transition-all duration-300
+          ${isSidebarOpen ? 'right-[336px]' : 'right-4'}
+        `}>
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+          >
+            {isSidebarOpen ? <CloseIcon /> : <PlusIcon />}
           </button>
           <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
             <DownloadIcon />
@@ -77,7 +108,7 @@ export function ConnectionsPage() {
         </div>
 
         {/* Bottom left canvas controls */}
-        <div className="absolute bottom-4 left-4 flex gap-2">
+        <div className="absolute bottom-4 left-4 flex gap-2 z-10">
           <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
             <MoveIcon />
           </button>
@@ -89,6 +120,22 @@ export function ConnectionsPage() {
           </button>
         </div>
       </div>
+
+      {/* Right Sidebar with Tools - Slides in from right */}
+      <div className={`
+        fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out z-20
+        ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+      `}>
+        <ToolsSidebar />
+      </div>
+
+      {/* Overlay when sidebar is open */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-10 transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }
