@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 interface ToastProps {
   message: string;
@@ -16,19 +17,21 @@ export function Toast({ message, type = 'info', onClose, duration = 3000 }: Toas
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const getColors = () => {
+  const getAccentStyles = () => {
     switch (type) {
       case 'error':
-        return 'bg-[var(--color-critical-bg)] border-[var(--color-critical)] text-[var(--color-critical)]';
+        return { icon: 'text-[var(--color-critical)]', glow: 'shadow-[0_0_12px_var(--color-critical-glow)]' };
       case 'warning':
-        return 'bg-[var(--color-warning-bg)] border-[var(--color-warning)] text-[var(--color-warning)]';
+        return { icon: 'text-[var(--color-warning)]', glow: 'shadow-[0_0_12px_var(--color-warning-glow)]' };
       case 'success':
-        return 'bg-[var(--color-success-bg)] border-[var(--color-success)] text-[var(--color-success)]';
+        return { icon: 'text-[var(--color-success)]', glow: 'shadow-[0_0_12px_var(--color-success-glow)]' };
       case 'info':
       default:
-        return 'bg-[var(--color-bg-secondary)] border-[var(--color-accent)] text-[var(--color-text-primary)]';
+        return { icon: 'text-[var(--color-brand-orange)]', glow: 'shadow-[0_0_12px_var(--color-brand-orange-glow)]' };
     }
   };
+
+  const accent = getAccentStyles();
 
   const getIcon = () => {
     switch (type) {
@@ -68,22 +71,28 @@ export function Toast({ message, type = 'info', onClose, duration = 3000 }: Toas
   };
 
   return (
-    <div 
+    <motion.div
       className={`
-        fixed bottom-6 left-1/2 -translate-x-1/2 z-50
-        flex items-center gap-3 px-4 py-3 rounded-lg border
-        shadow-lg animate-in slide-in-from-bottom-5
-        ${getColors()}
+        fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50
+        flex items-center gap-3 px-4 py-3 rounded-2xl max-w-[calc(100vw-2rem)]
+        bg-[#222222] outline outline-1 outline-[#2A2C30]
+        shadow-[4px_4px_12px_rgba(16,17,19,0.6),-2px_-2px_8px_rgba(36,37,41,0.15),-1px_-1px_2px_rgba(52,52,52,0.4)_inset,1px_1px_2px_rgba(16,17,19,0.25)_inset]
       `}
+      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 12, scale: 0.96 }}
+      transition={{ type: 'tween', duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
     >
-      <span>{getIcon()}</span>
-      <span className="text-sm font-medium">{message}</span>
-      <button
+      <span className={`flex-shrink-0 ${accent.icon}`}>{getIcon()}</span>
+      <span className="text-sm font-medium text-[var(--color-text-primary)] truncate">{message}</span>
+      <motion.button
         onClick={onClose}
-        className="ml-2 text-current opacity-60 hover:opacity-100 transition-opacity text-lg leading-none"
+        className="ml-2 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors text-lg leading-none flex-shrink-0"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         ×
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ReactFlowProvider } from 'reactflow';
 import { BranchFlowCanvas } from '../components/flow/BranchFlowCanvas';
 import { BranchHoverPanel } from '../components/flow/BranchHoverPanel';
@@ -114,99 +115,121 @@ export function FlowPage() {
   };
 
   return (
-    <div className="absolute inset-0 flex" style={{ fontFamily: 'var(--font-sans)' }}>
-      {/* Main content area - same structure as Connections */}
-      <div className="flex-1 relative overflow-hidden min-h-0">
-        {/* Graph content - always render canvas */}
+    <motion.div
+      className="absolute inset-0 flex flex-col sm:flex-row"
+      style={{ fontFamily: 'var(--font-sans)' }}
+      initial={false}
+      animate={{ opacity: 1 }}
+    >
+      <div className="flex-1 relative overflow-hidden min-h-0 min-w-0">
+        {/* Graph content - React Flow canvas */}
         <div className="absolute inset-0">
           <ReactFlowProvider>
-            <BranchFlowCanvas 
-              onInit={setReactFlowInstance} 
+            <BranchFlowCanvas
+              onInit={setReactFlowInstance}
               onHover={onHover}
               viewType={selectedGraph}
             />
           </ReactFlowProvider>
         </div>
 
-        {/* Top-left: graph type dropdown */}
-        <div className="absolute top-4 left-4 z-10" ref={dropdownRef}>
-          <button
+        {/* Top-left: graph type dropdown - responsive padding for mobile hamburger */}
+        <div className="absolute top-4 left-4 z-10 pl-14 lg:pl-0" ref={dropdownRef}>
+          <motion.button
             type="button"
             onClick={() => setDropdownOpen((o) => !o)}
-            className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[160px]"
+            className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <span>{currentLabel}</span>
             <ChevronDownIcon />
-          </button>
-          {dropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]">
-              {GRAPH_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => {
-                    setSelectedGraph(opt.value);
-                    setDropdownOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors rounded-md ${
-                    selectedGraph === opt.value
-                      ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
-                      : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          )}
+          </motion.button>
+          <AnimatePresence>
+            {dropdownOpen && (
+              <motion.div
+                className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                {GRAPH_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedGraph(opt.value);
+                      setDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors rounded-md ${
+                      selectedGraph === opt.value
+                        ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                        : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Top-right: action buttons - same position and style as Connections */}
+        {/* Top-right: action buttons */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-          <button type="button" className="neu-btn-icon w-11 h-11 flex items-center justify-center" title="Download">
+          <motion.button type="button" className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center" title="Download" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <DownloadIcon />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
             title="AI Insights"
             onClick={() => { window.location.hash = 'ai-insights'; }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <AIIcon />
-          </button>
+          </motion.button>
         </div>
 
-        {/* Bottom-left: canvas controls - always show */}
-        <div className="absolute bottom-4 left-4 flex gap-2 z-10">
-          <button 
-            type="button" 
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center" 
-            title="Fit view"
+        {/* Bottom-left: canvas controls - responsive padding for mobile hamburger */}
+        <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
+          <motion.button
+            type="button"
             onClick={handleFitView}
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+            title="Fit view"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <MoveIcon />
-          </button>
-          <button 
-            type="button" 
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center" 
-            title="Zoom in"
+          </motion.button>
+          <motion.button
+            type="button"
             onClick={handleZoomIn}
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+            title="Zoom in"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ZoomInIcon />
-          </button>
-          <button 
-            type="button" 
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center" 
-            title="Zoom out"
+          </motion.button>
+          <motion.button
+            type="button"
             onClick={handleZoomOut}
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+            title="Zoom out"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ZoomOutIcon />
-          </button>
+          </motion.button>
         </div>
       </div>
 
-      {/* Hover Panel - always show */}
+      {/* Hover Panel - branch details on hover */}
       <BranchHoverPanel branch={hoveredDetail} />
-    </div>
+    </motion.div>
   );
 }

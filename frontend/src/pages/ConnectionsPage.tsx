@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ReactFlowProvider } from 'reactflow';
+import type { ReactFlowInstance, Node } from 'reactflow';
 import { ToolsSidebar } from '../components/connections/ToolsSidebar';
-import { ConnectionCanvas } from '../components/connections/ConnectionCanvas';
+import { ConnectionCanvas, type ConnectionProject } from '../components/connections/ConnectionCanvas';
 import '../styles/components/connections.css';
+import '../styles/components/flow.css';
 
 // SVG Icons for action buttons
 const PlusIcon = () => (
@@ -69,9 +72,144 @@ const ZoomOutIcon = () => (
   </svg>
 );
 
+const ChevronDownIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const CONNECTIONS_PROJECTS_KEY = 'flowsight-connections-projects';
+const CONNECTIONS_LAST_PROJECT_KEY = 'flowsight-connections-last-project';
+
+function generateProjectId() {
+  return `project-${Date.now()}`;
+}
+
+function loadProjects(): ConnectionProject[] {
+  try {
+    const raw = localStorage.getItem(CONNECTIONS_PROJECTS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }
+  } catch {}
+  return [];
+}
+
+function saveProjects(projects: ConnectionProject[]) {
+  try {
+    localStorage.setItem(CONNECTIONS_PROJECTS_KEY, JSON.stringify(projects));
+  } catch {}
+}
+
+function loadLastProjectId(projects: ConnectionProject[]): string | null {
+  try {
+    const id = localStorage.getItem(CONNECTIONS_LAST_PROJECT_KEY);
+    if (id && projects.some((p) => p.id === id)) return id;
+  } catch {}
+  return projects[0]?.id ?? null;
+}
+
 export function ConnectionsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const [projects, setProjects] = useState<ConnectionProject[]>(() => loadProjects());
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(() =>
+    loadLastProjectId(loadProjects())
+  );
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    saveProjects(projects);
+  }, [projects]);
+
+  useEffect(() => {
+    if (currentProjectId) {
+      try {
+        localStorage.setItem(CONNECTIONS_LAST_PROJECT_KEY, currentProjectId);
+      } catch {}
+    }
+  }, [currentProjectId]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as HTMLElement | null;
+      if (dropdownRef.current && target && !dropdownRef.current.contains(target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const currentProject = projects.find((p) => p.id === currentProjectId);
+  const [showAddProjectModal, setShowAddProjectModal] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+
+  const handleAddProjectClick = () => {
+    setNewProjectName('');
+    setShowAddProjectModal(true);
+    setDropdownOpen(false);
+  };
+
+  const handleAddProjectConfirm = () => {
+    const name = newProjectName.trim() || 'Untitled';
+    const newProject: ConnectionProject = {
+      id: generateProjectId(),
+      name,
+      nodes: [],
+      edges: [],
+    };
+    setProjects((prev) => [...prev, newProject]);
+    setCurrentProjectId(newProject.id);
+    setShowAddProjectModal(false);
+    setNewProjectName('');
+  };
+
+  const handleDropRequestProject = (payload: { tool: { id: string; name: string; icon: string }; position: { x: number; y: number } }) => {
+    const newNode: Node = {
+      id: `${payload.tool.id}-${Date.now()}`,
+      type: 'toolNode',
+      position: payload.position,
+      data: {
+        tool: payload.tool.id,
+        name: payload.tool.name,
+        icon: payload.tool.icon,
+        status: 'inactive',
+      },
+    };
+    const newProject: ConnectionProject = {
+      id: generateProjectId(),
+      name: 'Untitled',
+      nodes: [newNode],
+      edges: [],
+    };
+    setProjects((prev) => [...prev, newProject]);
+    setCurrentProjectId(newProject.id);
+  };
+
+  const handleSelectProject = (id: string) => {
+    if (id === '__add__') {
+      handleAddProjectClick();
+      return;
+    }
+    if (id === currentProjectId) {
+      setDropdownOpen(false);
+      return;
+    }
+    if (currentProjectId && reactFlowInstance) {
+      const nodes = reactFlowInstance.getNodes();
+      const edges = reactFlowInstance.getEdges();
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === currentProjectId ? { ...p, nodes, edges } : p
+        )
+      );
+    }
+    setCurrentProjectId(id);
+    setDropdownOpen(false);
+  };
 
   const handleZoomIn = () => {
     if (reactFlowInstance) {
@@ -92,72 +230,209 @@ export function ConnectionsPage() {
   };
 
   return (
-    <div className="absolute inset-0 flex" style={{ fontFamily: 'var(--font-sans)' }}>
+    <motion.div
+      className="absolute inset-0 flex flex-col sm:flex-row"
+      style={{ fontFamily: 'var(--font-sans)' }}
+      initial={false}
+      animate={{ opacity: 1 }}
+    >
       {/* Main Canvas Area - shrinks when sidebar opens */}
-      <div className="flex-1 relative overflow-hidden min-h-0">
-        {/* React Flow Canvas */}
+      <div className="flex-1 relative overflow-hidden min-h-0 min-w-0">
+        {/* Top-left: Add Project button / Project dropdown - responsive padding for mobile hamburger */}
+        <div className="absolute top-4 left-4 sm:left-4 md:left-4 z-10 pl-14 lg:pl-0" ref={dropdownRef}>
+          {projects.length === 0 ? (
+            <motion.button
+              type="button"
+              onClick={handleAddProjectClick}
+              className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span>Add Project</span>
+            </motion.button>
+          ) : (
+            <>
+              <motion.button
+                type="button"
+                onClick={() => setDropdownOpen((o) => !o)}
+                className="flow-dropdown-trigger flex items-center justify-between gap-2 min-w-[140px] sm:min-w-[160px] px-4 py-2.5 text-sm"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <span className="truncate">{currentProject?.name ?? 'Select project'}</span>
+                <ChevronDownIcon />
+              </motion.button>
+              <AnimatePresence>
+                {dropdownOpen && (
+                  <motion.div
+                    className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {projects.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => handleSelectProject(p.id)}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors rounded-md ${
+                          currentProjectId === p.id
+                            ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                            : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                        }`}
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectProject('__add__')}
+                      className="w-full text-left px-4 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors rounded-md border-t border-[var(--color-border)] mt-1 pt-2"
+                    >
+                      + Add Project
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </>
+          )}
+        </div>
+
+        {/* React Flow Canvas - always visible, empty when no project */}
         <div className="absolute inset-0">
           <ReactFlowProvider>
-            <ConnectionCanvas 
+            <ConnectionCanvas
+              key={currentProject?.id ?? 'no-project'}
+              initialNodes={currentProject?.nodes ?? []}
+              initialEdges={currentProject?.edges ?? []}
+              noProjectMode={!currentProject}
+              onDropRequestProject={handleDropRequestProject}
               onInit={setReactFlowInstance}
             />
           </ReactFlowProvider>
         </div>
-        
-        {/* Right side action buttons - fixed position */}
+
+        {/* Right side action buttons - fixed position, responsive spacing */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-          <button 
+          <motion.button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             {isSidebarOpen ? <CloseIcon /> : <PlusIcon />}
-          </button>
-          <button className="neu-btn-icon w-11 h-11 flex items-center justify-center">
+          </motion.button>
+          <motion.button className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <DownloadIcon />
-          </button>
-          <button 
-            onClick={() => window.location.hash = 'ai-insights'}
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
+          </motion.button>
+          <motion.button
+            onClick={() => (window.location.hash = 'ai-insights')}
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <AIIcon />
-          </button>
+          </motion.button>
         </div>
 
-        {/* Bottom left canvas controls */}
-        <div className="absolute bottom-4 left-4 flex gap-2 z-10">
-          <button 
+        {/* Bottom left canvas controls - responsive */}
+        <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
+          <motion.button
             onClick={handleFitView}
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <MoveIcon />
-          </button>
-          <button 
+          </motion.button>
+          <motion.button
             onClick={handleZoomIn}
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ZoomInIcon />
-          </button>
-          <button 
+          </motion.button>
+          <motion.button
             onClick={handleZoomOut}
-            className="neu-btn-icon w-11 h-11 flex items-center justify-center"
+            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ZoomOutIcon />
-          </button>
+          </motion.button>
         </div>
       </div>
 
-      {/* Right Sidebar with Tools - Takes physical space */}
-      <div className={`
-        h-full transition-all duration-300 ease-in-out overflow-hidden
-        ${isSidebarOpen ? 'w-80' : 'w-0'}
-      `}
-      >
-        <div className="w-80 h-full connections-tools-panel">
-          <ToolsSidebar onClose={() => setIsSidebarOpen(false)} />
-        </div>
-      </div>
+      {/* Right Sidebar with Tools - Animated width */}
+      <AnimatePresence initial={false}>
+        {isSidebarOpen && (
+          <motion.div
+            className="h-full overflow-hidden flex-shrink-0 connections-tools-panel"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 320, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ type: 'tween', duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className="w-80 min-w-[280px] sm:w-80 h-full">
+              <ToolsSidebar onClose={() => setIsSidebarOpen(false)} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Remove overlay - no longer needed */}
-    </div>
+      {/* Add Project modal */}
+      <AnimatePresence>
+        {showAddProjectModal && (
+          <motion.div
+            className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 bg-black/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowAddProjectModal(false)}
+          >
+            <motion.div
+              className="flow-dropdown-panel rounded-2xl p-6 w-full max-w-[320px] min-w-0 shadow-xl"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'tween', duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+            <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">
+              New Project
+            </h3>
+            <input
+              type="text"
+              value={newProjectName}
+              onChange={(e) => setNewProjectName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddProjectConfirm()}
+              placeholder="Project name"
+              className="w-full px-4 py-2.5 rounded-xl bg-[#1a1a1a] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => setShowAddProjectModal(false)}
+                className="px-4 py-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddProjectConfirm}
+                className="px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-colors"
+              >
+                Create
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

@@ -1,4 +1,5 @@
 import { Fragment, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { BranchGraphBox } from './BranchGraphBox';
 import { BranchHoverPanel } from './BranchHoverPanel';
 import { useFlowData } from '../../hooks/useFlowData';
@@ -7,7 +8,6 @@ import type { Branch, BranchDetail } from '../../types/flow';
 
 /** Build ordered list of (branch, depth) for tree display: main → NWL → features, with indentation. */
 function buildBranchOrder(branches: Branch[]): { branch: Branch; depth: number }[] {
-  const byId = new Map(branches.map((b) => [b.id, b]));
   const byParent = new Map<string, Branch[]>();
   for (const b of branches) {
     const parent = b.parent ?? '__root__';
@@ -38,13 +38,23 @@ export function BranchGraph() {
     : null;
 
   return (
-    <div className="flex h-full gap-6" style={{ fontFamily: 'var(--font-sans)' }}>
+    <motion.div
+      className="flex flex-col lg:flex-row h-full gap-4 lg:gap-6"
+      style={{ fontFamily: 'var(--font-sans)' }}
+      initial={false}
+      animate={{ opacity: 1 }}
+    >
       <div className="flex flex-1 flex-col min-w-0">
         <div className="flex flex-col gap-2">
           {orderedBranches.length === 0 ? (
-            <p className="py-6 text-center text-sm text-[var(--color-text-muted)]">
+            <motion.p
+              className="py-6 text-center text-sm text-[var(--color-text-muted)]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
               No branches to display
-            </p>
+            </motion.p>
           ) : (
             orderedBranches.map(({ branch, depth }, index) => (
               <Fragment key={branch.id}>
@@ -59,6 +69,7 @@ export function BranchGraph() {
                   branch={branch}
                   depth={depth}
                   onHover={onHover}
+                  index={index}
                 />
               </Fragment>
             ))
@@ -66,6 +77,6 @@ export function BranchGraph() {
         </div>
       </div>
       <BranchHoverPanel branch={hoveredDetail} />
-    </div>
+    </motion.div>
   );
 }

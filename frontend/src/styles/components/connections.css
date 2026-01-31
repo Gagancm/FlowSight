@@ -81,3 +81,70 @@
     inset 2px 2px 6px rgba(16, 17, 19, 0.5),
     inset -1px -1px 3px rgba(50, 50, 50, 0.1);
 }
+
+/* Empty canvas: video demo overlay - uses flow-dropdown-panel (same as New Project modal) */
+.connections-empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  pointer-events: none;
+  z-index: 5;
+  font-family: var(--font-sans);
+}
+
+.connections-empty-state-card {
+  pointer-events: auto;
+}
+
+.connections-empty-state-video-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 1.25rem;
+}
+
+.connections-empty-state-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.connections-empty-state-video-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.connections-empty-state-code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.2em 0.4em;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--button-border-radius);
+  color: var(--color-text-secondary);
+}
+
+.connections-empty-state-step-num {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
+}

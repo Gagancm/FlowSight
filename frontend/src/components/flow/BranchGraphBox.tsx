@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { StatusIndicator } from '../shared/StatusIndicator';
 import type { Branch } from '../../types/flow';
 import { cn } from '../../utils/helpers';
@@ -22,17 +23,21 @@ export interface BranchGraphBoxProps {
   branch: Branch;
   depth: number;
   onHover?: (branch: Branch | null) => void;
+  index?: number;
 }
 
-export function BranchGraphBox({ branch, depth, onHover }: BranchGraphBoxProps) {
+export function BranchGraphBox({ branch, depth, onHover, index = 0 }: BranchGraphBoxProps) {
   const indent = depth * INDENT_PER_LEVEL;
 
   return (
-    <div
+    <motion.div
       style={{ paddingLeft: indent }}
       className="w-full min-w-0"
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.25, delay: index * 0.03 }}
     >
-      <div
+      <motion.div
         role="button"
         tabIndex={0}
         onMouseEnter={() => onHover?.(branch)}
@@ -40,9 +45,12 @@ export function BranchGraphBox({ branch, depth, onHover }: BranchGraphBoxProps) 
         onFocus={() => onHover?.(branch)}
         onBlur={() => onHover?.(null)}
         className={cn(
-          'flow-branch-card flex items-center gap-3 px-4 py-3 cursor-pointer',
+          'flow-branch-card flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-primary)]'
         )}
+        whileHover={{ x: 4 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ duration: 0.15 }}
       >
         <StatusIndicator status={branch.status} pulse={branch.status === 'critical'} />
         <span className="text-sm font-medium text-[var(--color-text-primary)] truncate">
@@ -77,7 +85,7 @@ export function BranchGraphBox({ branch, depth, onHover }: BranchGraphBoxProps) 
             </button>
           )}
         </span>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
