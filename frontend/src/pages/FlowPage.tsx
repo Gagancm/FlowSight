@@ -15,6 +15,13 @@ const ChevronDownIcon = () => (
   </svg>
 );
 
+const PlusIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
 const DownloadIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -75,19 +82,34 @@ const GRAPH_OPTIONS = [
 export function FlowPage() {
   const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('list');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+  const [showAddProjectModal, setShowAddProjectModal] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [currentProjectName, setCurrentProjectName] = useState('Untitled');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const projectDropdownRef = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [hoverNodePosition, setHoverNodePosition] = useState<{ x: number; y: number } | null>(null);
+  const [pinnedBranch, setPinnedBranch] = useState<Branch | null>(null);
+  const [pinnedPosition, setPinnedPosition] = useState<{ x: number; y: number } | null>(null);
   const { getBranchDetail } = useFlowData();
   const { hoveredItem, onHover } = useHoverPanel<Branch>();
 
-  const hoveredDetail: BranchDetail | null = hoveredItem
-    ? (getBranchDetail(hoveredItem.id) ?? ({ ...hoveredItem } as BranchDetail))
+  // Show pinned if exists, otherwise show hovered
+  const displayBranch = pinnedBranch || hoveredItem;
+  const displayPosition = pinnedBranch ? pinnedPosition : hoverNodePosition;
+
+  const hoveredDetail: BranchDetail | null = displayBranch
+    ? (getBranchDetail(displayBranch.id) ?? ({ ...displayBranch } as BranchDetail))
     : null;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
+      }
+      if (projectDropdownRef.current && !projectDropdownRef.current.contains(e.target as Node)) {
+        setProjectDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -110,8 +132,36 @@ export function FlowPage() {
 
   const handleFitView = () => {
     if (reactFlowInstance) {
-      reactFlowInstance.fitView({ padding: 0.2, duration: 200 });
+      // Use more padding for list view to match default zoom
+      const padding = selectedGraph === 'list' ? 0.5 : 0.2;
+      reactFlowInstance.fitView({ padding, duration: 200 });
     }
+  };
+
+  // Handle card click to pin the hover panel
+  const handleNodeClick = (branch: Branch, position: { x: number; y: number }) => {
+    setPinnedBranch(branch);
+    setPinnedPosition(position);
+  };
+
+  // Clear pinned panel
+  const handleClearPinned = () => {
+    setPinnedBranch(null);
+    setPinnedPosition(null);
+  };
+
+  // Add Project handlers
+  const handleAddProjectClick = () => {
+    setNewProjectName('');
+    setShowAddProjectModal(true);
+    setProjectDropdownOpen(false);
+  };
+
+  const handleAddProjectConfirm = () => {
+    const name = newProjectName.trim() || 'Untitled';
+    setCurrentProjectName(name);
+    setShowAddProjectModal(false);
+    setNewProjectName('');
   };
 
   return (
@@ -128,52 +178,96 @@ export function FlowPage() {
             <BranchFlowCanvas
               onInit={setReactFlowInstance}
               onHover={onHover}
+              onHoverPosition={setHoverNodePosition}
+              onNodeClick={handleNodeClick}
               viewType={selectedGraph}
             />
           </ReactFlowProvider>
         </div>
 
-        {/* Top-left: graph type dropdown - responsive padding for mobile hamburger */}
-        <div className="absolute top-4 left-4 z-10 pl-14 lg:pl-0" ref={dropdownRef}>
-          <motion.button
-            type="button"
-            onClick={() => setDropdownOpen((o) => !o)}
-            className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <span>{currentLabel}</span>
-            <ChevronDownIcon />
-          </motion.button>
-          <AnimatePresence>
-            {dropdownOpen && (
-              <motion.div
-                className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-              >
-                {GRAPH_OPTIONS.map((opt) => (
+        {/* Top-left: Graph type dropdown and Project dropdown - responsive padding for mobile hamburger */}
+        <div className="absolute top-4 left-4 z-10 pl-14 lg:pl-0 flex items-center gap-2">
+          {/* Graph type dropdown */}
+          <div ref={dropdownRef} className="relative">
+            <motion.button
+              type="button"
+              onClick={() => setDropdownOpen((o) => !o)}
+              className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span>{currentLabel}</span>
+              <ChevronDownIcon />
+            </motion.button>
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {GRAPH_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        setSelectedGraph(opt.value);
+                        setDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm transition-colors rounded-md ${
+                        selectedGraph === opt.value
+                          ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                          : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Project Dropdown */}
+          <div ref={projectDropdownRef} className="relative">
+            <motion.button
+              type="button"
+              onClick={() => setProjectDropdownOpen((o) => !o)}
+              className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span>{currentProjectName}</span>
+              <ChevronDownIcon />
+            </motion.button>
+            <AnimatePresence>
+              {projectDropdownOpen && (
+                <motion.div
+                  className="absolute top-full left-0 mt-2 min-w-[160px] py-1 flow-dropdown-panel z-[var(--z-dropdown)]"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <button
-                    key={opt.value}
                     type="button"
-                    onClick={() => {
-                      setSelectedGraph(opt.value);
-                      setDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors rounded-md ${
-                      selectedGraph === opt.value
-                        ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
-                        : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
-                    }`}
+                    className="w-full text-left px-4 py-2 text-sm bg-[var(--color-accent-bg)] text-[var(--color-accent)] rounded-md"
                   >
-                    {opt.label}
+                    {currentProjectName}
                   </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <button
+                    type="button"
+                    onClick={handleAddProjectClick}
+                    className="w-full text-left px-4 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors rounded-md border-t border-[var(--color-border)] mt-1 pt-2"
+                  >
+                    + Add Project
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Top-right: action buttons */}
@@ -228,8 +322,67 @@ export function FlowPage() {
         </div>
       </div>
 
-      {/* Hover Panel - branch details on hover */}
-      <BranchHoverPanel branch={hoveredDetail} />
+      {/* Hover Panel - show on hover or when pinned */}
+      {displayBranch && (
+        <BranchHoverPanel 
+          branch={hoveredDetail} 
+          position={displayPosition}
+          onClose={handleClearPinned}
+          isPinned={!!pinnedBranch}
+        />
+      )}
+
+      {/* Add Project modal */}
+      <AnimatePresence>
+        {showAddProjectModal && (
+          <motion.div
+            className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 bg-black/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowAddProjectModal(false)}
+          >
+            <motion.div
+              className="flow-dropdown-panel rounded-2xl p-6 w-full max-w-[320px] min-w-0 shadow-xl"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'tween', duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">
+                New Project
+              </h3>
+              <input
+                type="text"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddProjectConfirm()}
+                placeholder="Project name"
+                className="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]"
+                autoFocus
+              />
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAddProjectModal(false)}
+                  className="px-4 py-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddProjectConfirm}
+                  className="px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-colors"
+                >
+                  Create
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
