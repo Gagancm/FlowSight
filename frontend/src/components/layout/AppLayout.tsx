@@ -35,11 +35,22 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-bg-primary)]">
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Navbar />
-        <main className="relative flex-1 overflow-hidden bg-[var(--color-bg-primary)]">
+    <div
+      className="relative flex min-h-screen overflow-visible"
+      style={{ background: 'linear-gradient(180deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%)' }}
+    >
+      <div
+        className="sidebar-wrapper absolute flex shrink-0 flex-col"
+        style={{ left: 19, top: 15, width: 'var(--sidebar-width)', height: 'calc(100vh - 30px)' }}
+      >
+        <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      </div>
+      <div
+        className="flex min-w-0 flex-1 flex-col overflow-hidden"
+        style={{ marginLeft: 'calc(19px + var(--sidebar-width) + 20px)' }}
+      >
+        {activeTab !== 'ai-insights' && <Navbar />}
+        <main className="relative flex-1 overflow-hidden" style={{ background: 'transparent' }}>
           {children(activeTab)}
         </main>
       </div>

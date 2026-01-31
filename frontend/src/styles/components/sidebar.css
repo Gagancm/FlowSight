@@ -1,1 +1,50 @@
 /* Sidebar component styles */
+.sidebar-wrapper {
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
+  box-shadow:
+    5px 5px 13px rgba(16, 17, 19, 0.90) inset,
+    -5px -5px 10px rgba(36, 37, 41, 0.90) inset,
+    5px -5px 10px rgba(16, 17, 19, 0.20) inset,
+    -5px 5px 10px rgba(16, 17, 19, 0.20) inset,
+    -1px -1px 2px rgba(16, 17, 19, 0.50),
+    1px 1px 2px rgba(36, 37, 41, 0.30);
+  border-radius: 23px;
+  outline: 1px solid #2A2C30;
+}
+
+.sidebar-tab {
+  width: 208px;
+  height: 56px;
+  border-radius: 10px;
+  transition: background, box-shadow var(--transition-fast);
+}
+
+.sidebar-tab--selected {
+  background: #222222;
+  box-shadow:
+    4px 4px 12px rgba(16, 17, 19, 0.6),
+    -2px -2px 8px rgba(36, 37, 41, 0.15),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset;
+}
+
+.sidebar-tab:not(.sidebar-tab--selected) {
+  background: transparent;
+}
+
+.sidebar-tab:not(.sidebar-tab--selected):hover {
+  background: rgba(40, 40, 40, 0.7);
+  box-shadow:
+    3px 3px 12px rgba(16, 17, 19, 0.4),
+    -1px -1px 8px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+}

@@ -1,0 +1,278 @@
+/**
+ * AI Insights Page - Neumorphic Dark Mode
+ * Matching sidebar style with bold projection + soft shadows
+ */
+
+/* === Chat Panel (main card) - raised with bold projection === */
+.neu-chat-panel {
+  background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
+  border-radius: 23px;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    5px 5px 13px rgba(16, 17, 19, 0.90) inset,
+    -5px -5px 10px rgba(36, 37, 41, 0.90) inset,
+    5px -5px 10px rgba(16, 17, 19, 0.20) inset,
+    -5px 5px 10px rgba(16, 17, 19, 0.20) inset,
+    -1px -1px 2px rgba(16, 17, 19, 0.50),
+    1px 1px 2px rgba(36, 37, 41, 0.30);
+}
+
+/* === Textarea - recessed/debossed === */
+.neu-textarea {
+  background: #1a1a1a;
+  border-radius: 12px;
+  border: none;
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.5),
+    inset -2px -2px 6px rgba(50, 50, 50, 0.15);
+  color: #e8e8e8;
+  resize: none;
+  transition: box-shadow 0.15s ease;
+}
+
+.neu-textarea::placeholder {
+  color: #6b6b6b;
+}
+
+.neu-textarea:focus {
+  outline: none;
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.5),
+    inset -2px -2px 6px rgba(50, 50, 50, 0.15),
+    0 0 0 1px rgba(42, 44, 48, 0.8);
+}
+
+/* === Send button - neutral, matches sidebar style === */
+.neu-btn-send {
+  background: #2A2A2A;
+  border-radius: 50%;
+  border: none;
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.4),
+    -2px -2px 8px rgba(36, 37, 41, 0.2),
+    -1px -1px 2px rgba(52.72, 52.72, 52.72, 0.50) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.30) inset;
+  color: #B5BAC1;
+  transition: box-shadow 0.2s ease, transform 0.1s ease, background 0.15s ease;
+}
+
+.neu-btn-send:hover:not(:disabled) {
+  background: #333333;
+  box-shadow:
+    5px 5px 14px rgba(0, 0, 0, 0.45),
+    -3px -3px 10px rgba(36, 37, 41, 0.25),
+    -1px -1px 2px rgba(52.72, 52.72, 52.72, 0.50) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.30) inset;
+}
+
+.neu-btn-send:active:not(:disabled) {
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.4),
+    inset -1px -1px 3px rgba(50, 50, 50, 0.1);
+  transform: scale(0.97);
+}
+
+.neu-btn-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === Quick action cards - match sidebar tab + AI bubble colors === */
+.neu-quick-action {
+  background: #222222;
+  border-radius: 10px;
+  border: none;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    4px 4px 12px rgba(16, 17, 19, 0.6),
+    -2px -2px 8px rgba(36, 37, 41, 0.15),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset;
+  color: var(--color-text-primary);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+/* Hover: same as sidebar-tab (unselected):hover - lifted, lighter */
+.neu-quick-action:hover {
+  background: rgba(40, 40, 40, 0.7);
+  box-shadow:
+    3px 3px 12px rgba(16, 17, 19, 0.4),
+    -1px -1px 8px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+}
+
+.neu-quick-action:active {
+  box-shadow:
+    inset 2px 2px 6px rgba(16, 17, 19, 0.5),
+    inset -1px -1px 3px rgba(50, 50, 50, 0.1);
+}
+
+/* Highlighted quick action - same default, same hover as others */
+.neu-quick-action--highlighted {
+  box-shadow:
+    4px 4px 12px rgba(16, 17, 19, 0.6),
+    -2px -2px 8px rgba(36, 37, 41, 0.15),
+    -1px -1px 2px rgba(52, 52, 52, 0.40) inset,
+    1px 1px 2px rgba(16, 17, 19, 0.25) inset;
+}
+
+.neu-quick-action--highlighted:hover {
+  box-shadow:
+    3px 3px 12px rgba(16, 17, 19, 0.4),
+    -1px -1px 8px rgba(36, 37, 41, 0.1),
+    -1px -1px 1px rgba(60, 60, 60, 0.25) inset,
+    1px 1px 1px rgba(16, 17, 19, 0.15) inset;
+}
+
+/* === Avatar circle - matches design (neutral, neumorphic) === */
+.neu-avatar-circle {
+  background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
+  border-radius: 50%;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    5px 5px 13px rgba(16, 17, 19, 0.90) inset,
+    -5px -5px 10px rgba(36, 37, 41, 0.90) inset,
+    5px -5px 10px rgba(16, 17, 19, 0.20) inset,
+    -5px 5px 10px rgba(16, 17, 19, 0.20) inset,
+    -1px -1px 2px rgba(16, 17, 19, 0.50),
+    1px 1px 2px rgba(36, 37, 41, 0.30);
+}
+
+/* === Soft diamond shape - orange border, breathing animation === */
+@keyframes neu-diamond-breathe {
+  0%, 100% {
+    border-color: rgba(200, 140, 90, 0.5);
+    box-shadow:
+      inset 4px 4px 12px rgba(0, 0, 0, 0.5),
+      inset -2px -2px 8px rgba(30, 30, 30, 0.2),
+      0 0 12px rgba(200, 140, 90, 0.1);
+  }
+  50% {
+    border-color: rgba(200, 140, 90, 0.9);
+    box-shadow:
+      inset 4px 4px 12px rgba(0, 0, 0, 0.5),
+      inset -2px -2px 8px rgba(30, 30, 30, 0.2),
+      0 0 28px rgba(200, 140, 90, 0.35);
+  }
+}
+
+.neu-diamond {
+  width: 80px;
+  height: 80px;
+  background: #1a1a1a;
+  border-radius: 20px;
+  transform: rotate(45deg);
+  border: 1.5px solid rgba(200, 140, 90, 0.7);
+  box-shadow:
+    inset 4px 4px 12px rgba(0, 0, 0, 0.5),
+    inset -2px -2px 8px rgba(30, 30, 30, 0.2),
+    0 0 20px rgba(200, 140, 90, 0.15);
+  animation: neu-diamond-breathe 4s ease-in-out infinite;
+}
+
+/* === Messages panel - raised === */
+.neu-messages-panel {
+  background: linear-gradient(136deg, #252525 0%, #1a1a1a 50%, #222222 100%);
+  border-radius: 20px;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    5px 5px 13px rgba(16, 17, 19, 0.90) inset,
+    -5px -5px 10px rgba(36, 37, 41, 0.90) inset,
+    5px -5px 10px rgba(16, 17, 19, 0.20) inset,
+    -5px 5px 10px rgba(16, 17, 19, 0.20) inset;
+}
+
+/* === Attach file link - neutral === */
+.neu-attach-link {
+  color: #8B8D93;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.neu-attach-link:hover {
+  color: #B5BAC1;
+}
+
+/* === Chat panel when in chatting stage - matches sidebar exactly === */
+.neu-chat-panel--sidebar-style {
+  /* Same as .sidebar - soft inset, integrated look (no floating drop shadow) */
+  background: linear-gradient(136deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
+  border-radius: 23px;
+  outline: 1px solid #2A2C30;
+  box-shadow:
+    5px 5px 13px rgba(16, 17, 19, 0.90) inset,
+    -5px -5px 10px rgba(36, 37, 41, 0.90) inset,
+    5px -5px 10px rgba(16, 17, 19, 0.20) inset,
+    -5px 5px 10px rgba(16, 17, 19, 0.20) inset,
+    -1px -1px 2px rgba(16, 17, 19, 0.50),
+    1px 1px 2px rgba(36, 37, 41, 0.30);
+}
+
+/* === Claude-like chat layout (when conversation started) === */
+.chat-messages-container {
+  overscroll-behavior: contain;
+}
+
+/* === Custom scrollbar - dark theme, matches neumorphic design === */
+.chat-messages-container {
+  scrollbar-width: thin;
+  scrollbar-color: #454545 #1a1a1a;
+}
+
+.chat-messages-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-messages-container::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #454545 0%, #353535 50%, #2a2a2a 100%);
+  border-radius: 4px;
+  box-shadow:
+    1px 1px 2px rgba(0, 0, 0, 0.4),
+    inset -1px -1px 1px rgba(255, 255, 255, 0.04);
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #505050 0%, #404040 50%, #353535 100%);
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb:active {
+  background: #2a2a2a;
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.chat-input-wrapper {
+  /* Blend with page background - no gradient band to avoid visual clash */
+  background: transparent;
+  border-top: 1px solid rgba(42, 44, 48, 0.4);
+}
+
+/* === Chat bubbles - same pop design as sidebar tabs === */
+.neu-chat-bubble {
+  border-radius: 12px;
+  border: none;
+  box-shadow:
+    6px 6px 28px rgba(0, 0, 0, 0.35),
+    -2px -2px 24px rgba(0, 0, 0, 0.06),
+    -1px -1px 2px rgba(52.72, 52.72, 52.72, 0.50) inset,
+    1px 1px 2px rgba(0, 0, 0, 0.30) inset;
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+
+/* User bubble - matches the input box (recessed textarea style, before attach file) */
+.neu-chat-bubble--user {
+  background: #1a1a1a;
+  color: #E5E5E5;
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.5),
+    inset -2px -2px 6px rgba(50, 50, 50, 0.15);
+}
+
+.neu-chat-bubble--ai {
+  background: #222222;
+  color: #E5E5E5;
+}

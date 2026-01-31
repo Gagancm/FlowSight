@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { useAIQuery } from '../../hooks/useAIQuery';
 import { cn } from '../../utils/helpers';
+import '../../styles/components/ai-insights.css';
 
 const QUICK_ACTIONS = [
   { id: 'blocked', label: 'Why is Feature 1 blocked?', icon: 'branch', highlighted: false },
@@ -9,21 +10,11 @@ const QUICK_ACTIONS = [
   { id: 'reviews', label: 'Summarize open reviews for me', icon: 'chart', highlighted: true },
 ];
 
-function formatLastMessageLine(timestamp: string): string {
-  const d = new Date();
-  const dateStr = d.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
-  return `Last message sent on ${dateStr} at ${timestamp}`;
-}
-
 export function ChatInterface() {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, loading, sendQuery } = useAIQuery();
 
-  const lastUserMessage = messages.filter((m) => m.role === 'user').pop();
-  const lastMessageLabel = lastUserMessage
-    ? formatLastMessageLine(lastUserMessage.timestamp)
-    : null;
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   useEffect(() => {
@@ -46,19 +37,91 @@ export function ChatInterface() {
 
   const hasMessages = messages.length > 0 || loading;
 
+  /* Claude-like layout: full-height chat with input pinned to bottom */
+  if (hasMessages) {
+    return (
+      <div
+        className="flex flex-col h-full min-h-0"
+        style={{ fontFamily: 'var(--font-sans)' }}
+      >
+        {/* Messages area - scrollable, fills space */}
+        <div className="flex-1 min-h-0 overflow-y-auto chat-messages-container">
+          <div className="w-full max-w-3xl mx-auto px-6 py-8">
+            {messages.map((msg) => (
+              <ChatMessage key={msg.id} message={msg} />
+            ))}
+            {loading && (
+              <div className="flex justify-start py-3">
+                <div className="neu-chat-bubble neu-chat-bubble--ai max-w-[85%] text-left px-4 py-2.5">
+                  <span className="inline-flex gap-1">
+                    <span className="w-2 h-2 rounded-full bg-[#6b6b6b] animate-pulse" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-[#6b6b6b] animate-pulse" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-[#6b6b6b] animate-pulse" style={{ animationDelay: '300ms' }} />
+                  </span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+
+        {/* Input area - fixed at bottom, sidebar-style panel */}
+        <div className="flex-shrink-0 px-6 pb-8 pt-4 chat-input-wrapper">
+          <div className="neu-chat-panel neu-chat-panel--sidebar-style w-full max-w-3xl mx-auto">
+            <div className="px-5 pt-5 pb-4">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask me anything..."
+                disabled={loading}
+                rows={3}
+                className="neu-textarea w-full px-4 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ fontSize: '0.875rem' }}
+                aria-label="Message"
+              />
+
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  type="button"
+                  className="neu-attach-link flex items-center gap-2"
+                  style={{ fontSize: '0.875rem' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                  </svg>
+                  <span>Attach file</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={loading || !input.trim()}
+                  className="neu-btn-send w-10 h-10 flex items-center justify-center flex-shrink-0"
+                  aria-label="Send"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5" />
+                    <polyline points="5 12 12 5 19 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* Initial state: centered greeting and quick actions */
   return (
     <div
-      className="flex h-full min-h-0 bg-[var(--color-bg-primary)] overflow-y-auto justify-center items-center"
+      className="flex h-full min-h-0 overflow-y-auto justify-center items-center"
       style={{ fontFamily: 'var(--font-sans)' }}
     >
       <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto px-6 py-8">
-        {/* Gradient circle */}
+        {/* Soft diamond shape with orange border */}
         <div
-          className="w-20 h-20 rounded-full flex-shrink-0 mb-6"
-          style={{
-            background: 'var(--gradient-accent)',
-            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.25)',
-          }}
+          className="neu-diamond flex-shrink-0 mb-6"
           aria-hidden
         />
 
@@ -70,82 +133,26 @@ export function ChatInterface() {
           Hi, let&apos;s explore your workflow
         </h2>
 
-        {/* Message thread (when there are messages) */}
-        {hasMessages && (
-          <div className="w-full mb-6 max-h-[280px] overflow-y-auto rounded-[var(--card-border-radius)] border border-[var(--color-border)] bg-[var(--color-bg-secondary)] shadow-[var(--shadow-md)]">
-            <div className="p-4 space-y-0">
-              {messages.map((msg) => (
-                <ChatMessage key={msg.id} message={msg} />
-              ))}
-              {loading && (
-                <div className="flex gap-3 py-3 px-1">
-                  <div className="flex-shrink-0 mt-0.5 w-6 h-6 rounded-full bg-[var(--color-accent-bg)] flex items-center justify-center text-[var(--color-accent)] text-xs font-medium">
-                    AI
-                  </div>
-                  <div className="rounded-[var(--card-border-radius-sm)] px-4 py-2.5 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]">
-                    <span className="inline-flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-[var(--color-text-muted)] animate-pulse" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-[var(--color-text-muted)] animate-pulse" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-[var(--color-text-muted)] animate-pulse" style={{ animationDelay: '300ms' }} />
-                    </span>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-          </div>
-        )}
-
-        {/* Main chat card */}
-        <div
-          className={cn(
-            'w-full rounded-[var(--card-border-radius)] border bg-[var(--color-bg-secondary)] shadow-[var(--shadow-lg)]',
-            'border-[var(--color-border)]'
-          )}
-        >
-          {/* Last message indicator */}
-          {lastMessageLabel && (
-            <div className="flex items-center gap-2 px-5 pt-4 pb-2 text-[var(--color-text-muted)]" style={{ fontSize: 'var(--text-sm)' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              <span>{lastMessageLabel}</span>
-            </div>
-          )}
-          {!lastMessageLabel && (
-            <div className="flex items-center gap-2 px-5 pt-4 pb-2 text-[var(--color-text-muted)]" style={{ fontSize: 'var(--text-sm)' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              <span>Start a conversation</span>
-            </div>
-          )}
-
-          {/* Textarea */}
-          <div className="px-4 pb-3">
+        {/* Main chat card - starts conversation */}
+        <div className="neu-chat-panel w-full">
+          <div className="px-5 pt-5 pb-4">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Continue conversation..."
+              placeholder="Ask me anything..."
               disabled={loading}
               rows={3}
-              className={cn(
-                'w-full rounded-[var(--input-border-radius)] border border-[var(--color-border)] bg-[var(--color-bg-tertiary)] px-4 py-3 resize-none',
-                'text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]',
-                'focus:border-[var(--color-accent)] focus:outline-none',
-                'disabled:opacity-60 disabled:cursor-not-allowed'
-              )}
-              style={{ fontSize: 'var(--text-sm)' }}
+              className="neu-textarea w-full px-4 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ fontSize: '0.875rem' }}
               aria-label="Message"
             />
 
-            {/* Bottom row: Attach + Send */}
-            <div className="flex items-center justify-between mt-3">
+            <div className="flex items-center justify-between mt-4">
               <button
                 type="button"
-                className="flex items-center gap-2 text-[var(--color-link)] hover:text-[var(--color-link-hover)] transition-colors"
-                style={{ fontSize: 'var(--text-sm)' }}
+                className="neu-attach-link flex items-center gap-2"
+                style={{ fontSize: '0.875rem' }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
@@ -156,11 +163,10 @@ export function ChatInterface() {
                 type="button"
                 onClick={handleSend}
                 disabled={loading || !input.trim()}
-                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-                style={{ background: 'var(--gradient-accent)', boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)' }}
+                className="neu-btn-send w-10 h-10 flex items-center justify-center flex-shrink-0"
                 aria-label="Send"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="19" x2="12" y2="5" />
                   <polyline points="5 12 12 5 19 12" />
                 </svg>
@@ -170,12 +176,12 @@ export function ChatInterface() {
         </div>
 
         {/* Quick action cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mt-8">
           {QUICK_ACTIONS.map((action) => {
             const Icon =
               action.icon === 'branch'
                 ? () => (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-[var(--color-text-muted)]" aria-hidden>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-[#8b8d93]" aria-hidden>
                       <line x1="6" y1="3" x2="6" y2="15" />
                       <circle cx="6" cy="18" r="3" />
                       <path d="M6 9a9 9 0 0 1 9 9" />
@@ -183,7 +189,7 @@ export function ChatInterface() {
                   )
                 : action.icon === 'doc'
                   ? () => (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-[var(--color-text-muted)]" aria-hidden>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-[#8b8d93]" aria-hidden>
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <polyline points="14 2 14 8 20 8" />
                         <line x1="16" y1="13" x2="8" y2="13" />
@@ -191,7 +197,7 @@ export function ChatInterface() {
                       </svg>
                     )
                   : () => (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-[var(--color-text-muted)]" aria-hidden>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="flex-shrink-0 text-[#8b8d93]" aria-hidden>
                         <line x1="18" y1="20" x2="18" y2="10" />
                         <line x1="12" y1="20" x2="12" y2="4" />
                         <line x1="6" y1="20" x2="6" y2="14" />
@@ -203,12 +209,10 @@ export function ChatInterface() {
                 type="button"
                 onClick={() => sendQuery(action.label)}
                 className={cn(
-                  'flex items-center gap-3 rounded-[var(--card-border-radius-sm)] border bg-[var(--color-bg-secondary)] px-4 py-3.5 text-left transition-colors',
-                  'border-[var(--color-border)] hover:bg-[var(--color-bg-hover)]',
-                  'text-[var(--color-text-primary)]',
-                  action.highlighted && 'border-[var(--color-accent)] ring-1 ring-[var(--color-accent)]'
+                  'neu-quick-action flex items-center gap-3 px-4 py-4 text-left',
+                  action.highlighted && 'neu-quick-action--highlighted'
                 )}
-                style={{ fontSize: 'var(--text-sm)' }}
+                style={{ fontSize: '0.875rem' }}
               >
                 <Icon />
                 <span className="min-w-0">{action.label}</span>
