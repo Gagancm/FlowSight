@@ -410,7 +410,7 @@ export function ConnectionsPage() {
               onChange={(e) => setNewProjectName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddProjectConfirm()}
               placeholder="Project name"
-              className="w-full px-4 py-2.5 rounded-xl bg-[#1a1a1a] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]"
+              className="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]"
               autoFocus
             />
             <div className="flex justify-end gap-2 mt-4">

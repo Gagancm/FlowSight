@@ -136,6 +136,39 @@
   --line-parent: 2px solid var(--color-border);
   --line-blocking: 3px dashed var(--color-critical);
   --line-conflict: 2px dashed var(--color-warning);
+
+  /* Layout background (AppLayout root gradient) */
+  --layout-bg: linear-gradient(180deg, #2A2A2A 0%, #1A1A1A 49%, #252525 100%);
+}
+
+/* Light theme – black/grey become white/light grey; accents unchanged */
+[data-theme="light"] {
+  /* Background */
+  --color-bg-primary: #F8F9FA;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-tertiary: #F1F3F5;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-hover: #E9ECEF;
+
+  /* Text */
+  --color-text-primary: #1A1B1E;
+  --color-text-secondary: #495057;
+  --color-text-muted: #868E96;
+  --color-text-inverse: #F8F9FA;
+
+  /* Borders & Dividers */
+  --color-border: #DEE2E6;
+  --color-border-light: #CED4DA;
+  --color-divider: #E9ECEF;
+
+  /* Shadows – softer for light bg */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.12);
+
+  /* Layout background */
+  --layout-bg: linear-gradient(180deg, #F1F3F5 0%, #E9ECEF 49%, #F5F5F5 100%);
 }
 
 /* Responsive: center AI chat in viewport on mobile (no sidebar offset) */
