@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, useReactFlow } from 'reactflow';
 
 interface ToolNodeData {
   tool: string;
@@ -11,6 +11,7 @@ interface ToolNodeData {
 interface ToolNodeProps {
   data: ToolNodeData;
   selected?: boolean;
+  id?: string;
 }
 
 // SVG Icons for tools
@@ -65,11 +66,35 @@ const getStatusColor = (status?: string) => {
   }
 };
 
-function ToolNodeComponent({ data, selected }: ToolNodeProps) {
+function ToolNodeComponent({ data, selected, id }: ToolNodeProps) {
   const { name, icon, status = 'inactive' } = data;
+  const { deleteElements } = useReactFlow();
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (id) {
+      deleteElements({ nodes: [{ id }] });
+    }
+  };
 
   return (
-    <div className="tool-node">
+    <>
+      {/* Delete button - positioned outside the node */}
+      {selected && id && (
+        <button
+          className="absolute w-5 h-5 flex items-center justify-center rounded-full bg-[var(--color-critical)] text-white hover:scale-110 transition-all shadow-md"
+          style={{ top: '-1.5rem', right: '-1.5rem', zIndex: 1000 }}
+          onClick={handleDelete}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      )}
+
+      <div className="tool-node">
+
       {/* Connection handle - left side */}
       <Handle
         type="target"
@@ -103,6 +128,7 @@ function ToolNodeComponent({ data, selected }: ToolNodeProps) {
         className="tool-node-handle"
       />
     </div>
+    </>
   );
 }
 

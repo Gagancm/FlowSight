@@ -92,8 +92,8 @@ export function ConnectionsPage() {
 
   return (
     <div className="absolute inset-0 flex">
-      {/* Main Canvas Area */}
-      <div className="flex-1 relative">
+      {/* Main Canvas Area - shrinks when sidebar opens */}
+      <div className="flex-1 relative overflow-hidden">
         {/* React Flow Canvas */}
         <div className="absolute inset-0">
           <ReactFlowProvider>
@@ -103,11 +103,8 @@ export function ConnectionsPage() {
           </ReactFlowProvider>
         </div>
         
-        {/* Right side action buttons - moves left when sidebar is open */}
-        <div className={`
-          absolute top-4 flex flex-col gap-2 z-30 transition-all duration-300
-          ${isSidebarOpen ? 'right-[336px]' : 'right-4'}
-        `}>
+        {/* Right side action buttons - fixed position */}
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
@@ -117,7 +114,10 @@ export function ConnectionsPage() {
           <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
             <DownloadIcon />
           </button>
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button 
+            onClick={() => window.location.hash = 'ai-insights'}
+            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+          >
             <AIIcon />
           </button>
         </div>
@@ -145,23 +145,19 @@ export function ConnectionsPage() {
         </div>
       </div>
 
-      {/* Right Sidebar with Tools - Slides in from right */}
+      {/* Right Sidebar with Tools - Takes physical space */}
       <div className={`
-        fixed top-0 right-0 h-full transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+        h-full transition-all duration-300 ease-in-out border-l border-[var(--color-border)] bg-[var(--color-bg-secondary)]
+        ${isSidebarOpen ? 'w-80' : 'w-0'}
       `}
-      style={{ zIndex: 25 }}
+      style={{ overflow: 'hidden' }}
       >
-        <ToolsSidebar onClose={() => setIsSidebarOpen(false)} />
+        <div className="w-80 h-full">
+          <ToolsSidebar onClose={() => setIsSidebarOpen(false)} />
+        </div>
       </div>
 
-      {/* Overlay when sidebar is open - but allow pointer events to pass through to canvas */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 transition-opacity duration-300 pointer-events-none"
-          style={{ zIndex: 15 }}
-        />
-      )}
+      {/* Remove overlay - no longer needed */}
     </div>
   );
 }
