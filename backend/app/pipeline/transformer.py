@@ -1,9 +1,96 @@
-"""Transform extracted GitHub data into RawEvent format for FlowSight ingestion."""
+"""Transform extracted data into RawEvent format for FlowSight ingestion."""
 
 from datetime import datetime
 from typing import Any
 
 from app.models.events import RawEvent
+
+
+def transform_slack_to_raw_events(slack_data: dict[str, Any]) -> list[RawEvent]:
+    """Transform Slack data into RawEvent format."""
+    events: list[RawEvent] = []
+
+    for message in slack_data.get("messages", []):
+        events.append(
+            RawEvent(
+                source="slack",
+                type="message",
+                id=message["ts"],
+                timestamp=datetime.fromisoformat(message["timestamp"].replace("Z", "+00:00")),
+                author=message.get("username"),
+                branch=None,
+                status=None,
+                key=None,
+                assignee=None,
+                conclusion=None,
+            )
+        )
+
+    return events
+
+
+def transform_jira_to_raw_events(jira_data: dict[str, Any]) -> list[RawEvent]:
+    """Transform Jira data into RawEvent format."""
+    events: list[RawEvent] = []
+
+    for issue in jira_data.get("issues", []):
+        events.append(
+            RawEvent(
+                source="jira",
+                type="issue",
+                id=issue["key"],
+                timestamp=datetime.fromisoformat(issue["created"].replace("Z", "+00:00")),
+                author=issue.get("reporter"),
+                branch=None,
+                status=issue.get("status"),
+                key=issue["key"],
+                assignee=issue.get("assignee"),
+                conclusion=None,
+            )
+        )
+
+    return events
+
+
+def transform_teams_to_raw_events(teams_data: dict[str, Any]) -> list[RawEvent]:
+    """Transform Microsoft Teams data into RawEvent format."""
+    events: list[RawEvent] = []
+
+    # Transform messages
+    for message in teams_data.get("messages", []):
+        events.append(
+            RawEvent(
+                source="teams",
+                type="message",
+                id=message["id"],
+                timestamp=datetime.fromisoformat(message["created_datetime"].replace("Z", "+00:00")),
+                author=message.get("from"),
+                branch=None,
+                status=None,
+                key=None,
+                assignee=None,
+                conclusion=None,
+            )
+        )
+
+    # Transform meetings
+    for meeting in teams_data.get("meetings", []):
+        events.append(
+            RawEvent(
+                source="teams",
+                type="meeting",
+                id=meeting["id"],
+                timestamp=datetime.fromisoformat(meeting["start_time"].replace("Z", "+00:00")),
+                author=meeting.get("organizer"),
+                branch=None,
+                status=None,
+                key=None,
+                assignee=None,
+                conclusion=None,
+            )
+        )
+
+    return events
 
 
 def transform_github_to_raw_events(github_data: dict[str, Any]) -> list[RawEvent]:
