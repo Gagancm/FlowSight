@@ -6,7 +6,7 @@ import os
 import sys
 from pathlib import Path
 
-from app.pipeline.github_extractor import GitHubExtractor
+from app.pipeline.extractors.github_extractor import GitHubExtractor
 
 
 def main():
@@ -80,7 +80,7 @@ def main():
             print("=" * 60)
 
             try:
-                from app.pipeline.embedding_strategy import HybridEmbeddingStrategy
+                from app.pipeline.core.embedding_strategy import HybridEmbeddingStrategy
 
                 embedding_strategy = HybridEmbeddingStrategy()
                 data = embedding_strategy.embed_github_data(data)
@@ -107,7 +107,7 @@ def main():
             print("=" * 60)
 
             try:
-                from app.pipeline.astra_uploader import AstraDBUploader
+                from app.pipeline.core.astra_uploader import AstraDBUploader
 
                 uploader = AstraDBUploader(
                     token=args.astra_token or os.getenv("ASTRA_DB_TOKEN"),

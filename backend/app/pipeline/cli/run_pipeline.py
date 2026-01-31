@@ -13,7 +13,7 @@ from pathlib import Path
 backend_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(backend_root))
 
-from app.pipeline.cli import main
+from app.pipeline.cli.cli import main
 
 if __name__ == "__main__":
     main()

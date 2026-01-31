@@ -10,9 +10,9 @@ from pathlib import Path
 backend_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(backend_root))
 
-from app.pipeline.slack_extractor import SlackExtractor
-from app.pipeline.slack_cleaner import SlackCleaner
-from app.pipeline.transformer import transform_slack_to_raw_events
+from app.pipeline.extractors.slack_extractor import SlackExtractor
+from app.pipeline.cleaners.slack_cleaner import SlackCleaner
+from app.pipeline.core.transformer import transform_slack_to_raw_events
 
 
 def main():

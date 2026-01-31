@@ -10,9 +10,9 @@ from pathlib import Path
 backend_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(backend_root))
 
-from app.pipeline.teams_extractor import TeamsExtractor
-from app.pipeline.teams_cleaner import TeamsCleaner
-from app.pipeline.transformer import transform_teams_to_raw_events
+from app.pipeline.extractors.teams_extractor import TeamsExtractor
+from app.pipeline.cleaners.teams_cleaner import TeamsCleaner
+from app.pipeline.core.transformer import transform_teams_to_raw_events
 
 
 def main():

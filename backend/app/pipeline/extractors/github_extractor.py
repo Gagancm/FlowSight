@@ -333,7 +333,7 @@ class GitHubExtractor:
 
         # Add raw_events format if requested
         if include_raw_events:
-            from app.pipeline.transformer import transform_github_to_raw_events
+            from app.pipeline.core.transformer import transform_github_to_raw_events
 
             raw_events = transform_github_to_raw_events(dataset)
             dataset["raw_events"] = [event.model_dump(mode="json") for event in raw_events]

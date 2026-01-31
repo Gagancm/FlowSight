@@ -10,9 +10,9 @@ from pathlib import Path
 backend_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(backend_root))
 
-from app.pipeline.jira_extractor import JiraExtractor
-from app.pipeline.jira_cleaner import JiraCleaner
-from app.pipeline.transformer import transform_jira_to_raw_events
+from app.pipeline.extractors.jira_extractor import JiraExtractor
+from app.pipeline.cleaners.jira_cleaner import JiraCleaner
+from app.pipeline.core.transformer import transform_jira_to_raw_events
 
 
 def main():
