@@ -593,25 +593,27 @@ export function FlowPage() {
           </motion.button>
         </div>
 
-        {/* Bottom right - branch status legend */}
-        <div className="flow-legend neu-btn-icon absolute bottom-4 right-4 z-10 flex flex-col gap-1.5 px-3 py-2.5">
-          <div className="flex items-center gap-2">
-            <span className="flow-legend-dot flow-legend-dot--critical" />
-            <span className="text-xs text-[var(--color-text-secondary)]">Critical / Blocked</span>
+        {/* Bottom right - branch status legend (only show when project is selected) */}
+        {currentProjectName && (
+          <div className="flow-legend neu-btn-icon absolute bottom-4 right-4 z-10 flex flex-col gap-1.5 px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <span className="flow-legend-dot flow-legend-dot--critical" />
+              <span className="text-xs text-[var(--color-text-secondary)]">Critical / Blocked</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flow-legend-dot flow-legend-dot--warning" />
+              <span className="text-xs text-[var(--color-text-secondary)]">Warning / In Progress</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flow-legend-dot flow-legend-dot--success" />
+              <span className="text-xs text-[var(--color-text-secondary)]">Success / Ready</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flow-legend-dot flow-legend-dot--neutral" />
+              <span className="text-xs text-[var(--color-text-secondary)]">Neutral / Pending</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="flow-legend-dot flow-legend-dot--warning" />
-            <span className="text-xs text-[var(--color-text-secondary)]">Warning / In Progress</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="flow-legend-dot flow-legend-dot--success" />
-            <span className="text-xs text-[var(--color-text-secondary)]">Success / Ready</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="flow-legend-dot flow-legend-dot--neutral" />
-            <span className="text-xs text-[var(--color-text-secondary)]">Neutral / Pending</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Hover Panel - show on hover or when pinned */}
