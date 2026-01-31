@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ToolsSidebar } from '../components/connections/ToolsSidebar';
+import { ConnectionCanvas } from '../components/connections/ConnectionCanvas';
 
 // SVG Icons for action buttons
 const PlusIcon = () => (
@@ -68,24 +69,37 @@ const ZoomOutIcon = () => (
 
 export function ConnectionsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+
+  const handleZoomIn = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.zoomIn();
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.zoomOut();
+    }
+  };
+
+  const handleFitView = () => {
+    if (reactFlowInstance) {
+      reactFlowInstance.fitView({ padding: 0.2, duration: 200 });
+    } else {
+      console.log('React Flow instance not ready');
+    }
+  };
 
   return (
     <div className="absolute inset-0 flex">
       {/* Main Canvas Area */}
       <div className="flex-1 relative">
-        {/* Canvas content area - will be React Flow canvas */}
-        <div className="absolute inset-0 bg-[var(--color-bg-primary)]">
-          {/* Placeholder text */}
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-[var(--color-text-muted)] text-sm">
-                Canvas will be here
-              </p>
-              <p className="text-[var(--color-text-muted)] text-xs mt-2">
-                Click the + button to add tools →
-              </p>
-            </div>
-          </div>
+        {/* React Flow Canvas */}
+        <div className="absolute inset-0">
+          <ConnectionCanvas 
+            onInit={setReactFlowInstance}
+          />
         </div>
         
         {/* Right side action buttons - moves left when sidebar is open */}
@@ -109,13 +123,22 @@ export function ConnectionsPage() {
 
         {/* Bottom left canvas controls */}
         <div className="absolute bottom-4 left-4 flex gap-2 z-10">
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button 
+            onClick={handleFitView}
+            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+          >
             <MoveIcon />
           </button>
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button 
+            onClick={handleZoomIn}
+            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+          >
             <ZoomInIcon />
           </button>
-          <button className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+          <button 
+            onClick={handleZoomOut}
+            className="w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+          >
             <ZoomOutIcon />
           </button>
         </div>

@@ -3,6 +3,7 @@
  */
 
 @import './variables.css';
+@import './components/canvas.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
