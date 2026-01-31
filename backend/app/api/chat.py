@@ -202,11 +202,15 @@ async def chat(request: ChatRequest) -> ChatResponse:
         )
 
     except WatsonxClientError as e:
+        print(f"[ERROR] WatsonxClientError: {e.message}")
         raise HTTPException(
             status_code=e.status_code or 500,
             detail=f"watsonx Orchestrate error: {e.message}"
         )
     except Exception as e:
+        import traceback
+        print(f"[ERROR] Exception in chat endpoint:")
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
             detail=f"Internal error: {str(e)}"
