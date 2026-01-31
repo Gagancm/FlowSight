@@ -87,6 +87,8 @@
 
   /* === LAYOUT === */
   --sidebar-width: 240px;
+  /* Offset to center AI chat in full viewport (half of sidebar + margins) */
+  --ai-chat-center-offset: calc(-1 * (19px + var(--sidebar-width) + 20px) / 2);
   --sidebar-collapsed-width: 64px;
   --navbar-height: 64px;
   --bottom-panel-height: 180px;
