@@ -97,12 +97,32 @@ const GRAPH_OPTIONS = [
   { value: 'timeline', label: 'Timeline' },
 ] as const;
 
+const CONNECTIONS_PROJECTS_KEY = 'flowsight-connections-projects';
+
+interface StoredProject {
+  id: string;
+  name: string;
+  nodes: any[];
+  edges: any[];
+}
+
+function loadProjects(): StoredProject[] {
+  try {
+    const raw = localStorage.getItem(CONNECTIONS_PROJECTS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }
+  } catch {}
+  return [];
+}
+
 export function FlowPage() {
   const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('none');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
   const [currentProjectName, setCurrentProjectName] = useState<string | null>(null); // Changed to null for no selection
-  const [availableProjects] = useState<string[]>(['None', 'Untitled', 'Project Alpha', 'Project Beta']); // Added 'None' option
+  const [projects] = useState<StoredProject[]>(() => loadProjects()); // Load from localStorage
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -430,21 +450,38 @@ export function FlowPage() {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {availableProjects.map((project) => (
+                  {/* None option to deselect */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentProjectName(null);
+                      setProjectDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center rounded-md ${
+                      currentProjectName === null
+                        ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                        : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                    }`}
+                  >
+                    <span className="truncate block">None</span>
+                  </button>
+
+                  {/* Real projects from localStorage */}
+                  {projects.map((project) => (
                     <button
-                      key={project}
+                      key={project.id}
                       type="button"
                       onClick={() => {
-                        setCurrentProjectName(project === 'None' ? null : project);
+                        setCurrentProjectName(project.name);
                         setProjectDropdownOpen(false);
                       }}
                       className={`w-full text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center rounded-md ${
-                        (project === 'None' && !currentProjectName) || currentProjectName === project
+                        currentProjectName === project.name
                           ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
                           : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
                       }`}
                     >
-                      <span className="truncate block">{project}</span>
+                      <span className="truncate block">{project.name}</span>
                     </button>
                   ))}
                 </motion.div>
