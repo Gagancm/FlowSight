@@ -39,6 +39,8 @@ interface ConnectionCanvasProps {
   onDropRequestProject?: (payload: DropRequestPayload) => void;
   onNodesChange?: (nodes: Node[]) => void;
   onEdgesChange?: (edges: Edge[]) => void;
+  /** Called whenever nodes or edges change (e.g. for persisting to project). Receives latest nodes and edges. */
+  onCanvasChange?: (nodes: Node[], edges: Edge[]) => void;
   onInit?: (instance: ReactFlowInstance) => void;
 }
 
@@ -130,6 +132,7 @@ function EmptyStateDemo() {
               loop
               muted
               playsInline
+              autoPlay
               preload="metadata"
               onError={() => setVideoError(true)}
             >
@@ -175,6 +178,7 @@ export function ConnectionCanvas({
   onDropRequestProject,
   onNodesChange,
   onEdgesChange,
+  onCanvasChange,
   onInit,
 }: ConnectionCanvasProps) {
   const { theme } = useTheme();
@@ -357,13 +361,21 @@ export function ConnectionCanvas({
     [edges, onEdgesChange, onEdgesChangeInternal]
   );
 
-  // Expose React Flow instance to parent
+  // Persist latest nodes/edges to parent whenever they change (so project is saved before tab switch)
+  useEffect(() => {
+    onCanvasChange?.(nodes, edges);
+  }, [nodes, edges, onCanvasChange]);
+
+  // Expose React Flow instance to parent; fit view once on init when we have nodes (user can use Fit button later)
   const handleInit = useCallback(
     (instance: ReactFlowInstance) => {
       setReactFlowInstance(instance);
       onInit?.(instance);
+      if (initialNodes.length > 0) {
+        setTimeout(() => instance.fitView({ padding: 0.2, duration: 0 }), 100);
+      }
     },
-    [onInit]
+    [onInit, initialNodes.length]
   );
 
   // Handle drop from sidebar
@@ -440,7 +452,7 @@ export function ConnectionCanvas({
         isValidConnection={isValidConnection}
         connectionMode={ConnectionMode.Loose}
         deleteKeyCode="Delete"
-        fitView
+        fitView={false}
         proOptions={{ hideAttribution: true }}
         className="react-flow-canvas connections-canvas"
       >

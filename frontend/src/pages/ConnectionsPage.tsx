@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactFlowProvider } from 'reactflow';
-import type { ReactFlowInstance, Node } from 'reactflow';
+import type { ReactFlowInstance, Node, Edge } from 'reactflow';
 import { toPng, toSvg } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { ToolsSidebar } from '../components/connections/ToolsSidebar';
@@ -122,23 +122,11 @@ function loadProjects(): ConnectionProject[] {
     }
   } catch {}
   
-  // First time load - create default Project Alpha with GitHub node
+  // First time load - create default Project Alpha with empty canvas
   const defaultProject: ConnectionProject = {
     id: generateProjectId(),
     name: 'Project Alpha',
-    nodes: [
-      {
-        id: `github-${Date.now()}`,
-        type: 'toolNode',
-        position: { x: 250, y: 200 },
-        data: {
-          tool: 'github',
-          name: 'GitHub',
-          icon: 'github',
-          status: 'inactive',
-        },
-      } as Node,
-    ],
+    nodes: [],
     edges: [],
   };
   
@@ -285,23 +273,11 @@ export function ConnectionsPage() {
   const handleAddProjectConfirm = () => {
     const name = newProjectName.trim() || 'Project Alpha';
     
-    // Create default GitHub node for new projects
-    const githubNode: Node = {
-      id: `github-${Date.now()}`,
-      type: 'toolNode',
-      position: { x: 250, y: 200 },
-      data: {
-        tool: 'github',
-        name: 'GitHub',
-        icon: 'github',
-        status: 'inactive',
-      },
-    };
-    
+    // Create new project with empty canvas - user will drag and drop tools
     const newProject: ConnectionProject = {
       id: generateProjectId(),
       name,
-      nodes: [githubNode],
+      nodes: [],
       edges: [],
     };
     setProjects((prev) => [...prev, newProject]);
@@ -407,6 +383,19 @@ export function ConnectionsPage() {
     setCurrentProjectId(id);
     setDropdownOpen(false);
   };
+
+  // Persist current project's nodes/edges whenever canvas changes (so switching tabs keeps data)
+  const handleCanvasChange = useCallback(
+    (nodes: Node[], edges: Edge[]) => {
+      if (!currentProjectId) return;
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === currentProjectId ? { ...p, nodes, edges } : p
+        )
+      );
+    },
+    [currentProjectId]
+  );
 
   const handleZoomIn = () => {
     if (reactFlowInstance) {
@@ -659,6 +648,7 @@ export function ConnectionsPage() {
               initialEdges={currentProject?.edges ?? []}
               noProjectMode={!currentProject}
               onDropRequestProject={handleDropRequestProject}
+              onCanvasChange={handleCanvasChange}
               onInit={setReactFlowInstance}
             />
           </ReactFlowProvider>

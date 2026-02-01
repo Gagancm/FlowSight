@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { Components } from 'react-markdown';
 import type { AIMessage as AIMessageType } from '../../types/ai';
 import { cn } from '../../utils/helpers';
 import '../../styles/components/ai-insights.css';
@@ -14,6 +15,67 @@ interface ChatMessageProps {
   className?: string;
   index?: number;
 }
+
+/* Claude-style: structured sections, headline (via CSS first p), tables, blocking chain, actions */
+const aiMessageComponents: Components = {
+  h3: ({ node, children, ...props }) => (
+    <h3 {...props} className="ai-section-title">
+      {children}
+    </h3>
+  ),
+  table: ({ node, children, ...props }) => (
+    <div className="ai-table-wrap">
+      <table {...props} className="ai-table">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ node, children, ...props }) => (
+    <thead {...props} className="ai-table-head">
+      {children}
+    </thead>
+  ),
+  tbody: ({ node, children, ...props }) => (
+    <tbody {...props} className="ai-table-body">
+      {children}
+    </tbody>
+  ),
+  tr: ({ node, children, ...props }) => (
+    <tr {...props} className="ai-table-row">
+      {children}
+    </tr>
+  ),
+  th: ({ node, children, ...props }) => (
+    <th {...props} className="ai-table-th">
+      {children}
+    </th>
+  ),
+  td: ({ node, children, ...props }) => (
+    <td {...props} className="ai-table-td">
+      {children}
+    </td>
+  ),
+  pre: ({ node, children, ...props }) => (
+    <pre {...props} className="ai-blocking-chain">
+      {children}
+    </pre>
+  ),
+  ul: ({ node, children, ...props }) => (
+    <ul {...props} className="ai-actions-list">
+      {children}
+    </ul>
+  ),
+  ol: ({ node, children, ...props }) => (
+    <ol {...props} className="ai-actions-list ai-actions-list--ordered">
+      {children}
+    </ol>
+  ),
+  li: ({ node, children, ...props }) => (
+    <li {...props} className="ai-action-item">
+      {children}
+    </li>
+  ),
+};
 
 export function ChatMessage({ message, className, index = 0 }: ChatMessageProps) {
   const isUser = message.role === 'user';
@@ -45,7 +107,7 @@ export function ChatMessage({ message, className, index = 0 }: ChatMessageProps)
       <motion.div
         className={cn(
           'neu-chat-bubble max-w-[85%] sm:max-w-[85%] px-4 py-2.5 text-[var(--text-sm)] leading-[var(--line-height-relaxed)]',
-          isUser ? 'neu-chat-bubble--user text-right' : 'neu-chat-bubble--ai text-left'
+          isUser ? 'neu-chat-bubble--user text-right' : 'neu-chat-bubble--ai text-left ai-message-structured'
         )}
         initial={!isUser ? { opacity: 0 } : undefined}
         animate={{ opacity: 1 }}
@@ -56,14 +118,12 @@ export function ChatMessage({ message, className, index = 0 }: ChatMessageProps)
           <p className="whitespace-pre-wrap break-words">{message.content}</p>
         ) : (
           <div className="chat-message-markdown">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={aiMessageComponents}>
               {message.content}
             </ReactMarkdown>
           </div>
         )}
-        <span
-          className="block mt-1.5 text-[var(--text-xs)] text-[var(--color-text-muted)]"
-        >
+        <span className="ai-message-timestamp">
           {message.timestamp}
         </span>
       </motion.div>
