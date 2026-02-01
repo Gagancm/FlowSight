@@ -14,71 +14,181 @@ router = APIRouter(tags=["chat"])
 
 # Stub responses for frontend testing
 STUB_RESPONSES = {
-    "blocking": """Based on my analysis of the current workflow, I found **2 blocking issues**:
+    "blocking": """**Feature 1 (User Authentication Flow)** is currently blocked by a dependency chain:
 
-1. **PR-456 "Add payment integration"** is blocked by failing CI checks
-   - The `test-suite-full` run failed 2 hours ago
-   - 3 test cases failing in `payment_tests.py`
+### Root Cause
+PR #312 "Add OAuth2 provider support" has been waiting on review for **6 hours**. This PR is a dependency for Feature 1's login integration.
 
-2. **ISSUE-789 "Database migration needed"** is blocking the deployment pipeline
-   - Marked as critical priority
-   - Assigned to @backend-team
+### Blocking Chain
+```
+PR #312 (OAuth2 support) ─── blocks ──→ PR #318 (Login UI) ─── blocks ──→ Feature 1
+     └─ Waiting on review                    └─ Cannot merge until #312 lands
+```
 
-**Recommendation:** Focus on fixing the failing tests in PR-456 first, as it's on the critical path to deployment.""",
+### Current Status
+| Item | Status | Owner | Waiting |
+|------|--------|-------|---------|
+| PR #312 | Needs review | @marcus | 6h |
+| PR #318 | Blocked | @priya | — |
+| CI Run #445 | Passed | — | — |
 
-    "workflow": """Here's the current workflow status:
+### Recommended Actions
+1. **Immediate**: Request review from @sarah or @james on PR #312 — both have context on the auth module
+2. **Parallel work**: @priya can address the 2 minor comments on PR #318 while waiting
 
-📊 **Pipeline Overview:**
-- **5 nodes** in the active workflow
-- **3 completed**, **1 in progress**, **1 blocked**
+This should unblock Feature 1 within the next 2-3 hours if review happens promptly.""",
 
-**Active Items:**
-| Type | ID | Status | Owner |
-|------|-----|--------|-------|
-| Commit | abc123 | ✅ Merged | @dev1 |
-| PR | PR-456 | 🔄 In Review | @dev2 |
-| CI Run | ci-789 | ❌ Failed | - |
-| Issue | ISSUE-101 | ✅ Closed | @dev1 |
-| Deploy | deploy-1 | ⏸️ Blocked | - |
+    "reviewer": """**Recommended Reviewer for PR #247**
 
-The deployment is waiting on CI to pass.""",
+Based on code ownership and recent activity, **@sarah** is the best choice.
 
-    "bottleneck": """🔍 **Bottleneck Analysis Complete**
+### Why @sarah?
+- **Code ownership**: Modified `auth/` directory 12 times in the past month
+- **Availability**: Last active 25 minutes ago, currently has 1 pending review
+- **Context**: Reviewed the related PR #231 last week
 
-I've identified **2 bottlenecks** in your workflow:
+### Alternative Options
+| Reviewer | Expertise Match | Current Load | Availability |
+|----------|-----------------|--------------|--------------|
+| @sarah | High | 1 review | Active |
+| @james | Medium | 3 reviews | Active |
+| @marcus | Medium | 0 reviews | Away until 3pm |
 
-1. **CI Pipeline Bottleneck** (High Severity)
-   - Average wait time: **45 minutes**
-   - Current queue: 3 jobs pending
-   - Impact: Blocking 2 PRs from merging
+### PR #247 Summary
+- **Title**: "Fix session timeout handling"
+- **Files changed**: 4 files in `src/auth/`
+- **Lines**: +47, -12
+- **CI Status**: Passing
 
-2. **Code Review Bottleneck** (Medium Severity)
-   - Average review time: **4.2 hours**
-   - PRs awaiting review: 5
-   - Suggested: Add more reviewers to the pool
+To request review, run:
+```
+gh pr edit 247 --add-reviewer sarah
+```""",
 
-**Quick Wins:**
-- Enable parallel test execution to reduce CI time by ~30%
-- Set up auto-assignment for code reviews""",
+    "open_reviews": """### Open Reviews Summary
 
-    "default": """I've analyzed your workflow data. Here's what I found:
+You have **4 pull requests** awaiting review across the team:
 
-📈 **Current Status:**
-- Active PRs: 3
-- Open Issues: 7
-- CI Health: 85% pass rate
-- Deployment: Ready (pending approval)
+| PR | Title | Author | Waiting | CI | Priority |
+|----|-------|--------|---------|-----|----------|
+| #312 | OAuth2 provider support | @marcus | 6h | Passing | **High** |
+| #247 | Fix session timeout handling | @priya | 2h | Passing | Medium |
+| #298 | Update dependencies | @bot | 1d | Passing | Low |
+| #251 | Refactor database queries | @james | 3d | Failing | Medium |
 
-**Recent Activity:**
-- Last commit: 2 hours ago by @dev1
-- Last successful deploy: Yesterday at 3:45 PM
-- Next scheduled: Waiting for CI
+### Attention Required
+- **PR #312** is blocking Feature 1 — needs immediate review
+- **PR #251** has been open for 3 days with failing CI; @james may need help
 
-Is there anything specific you'd like me to analyze? I can look into:
-- Blocking issues
-- Bottleneck detection
-- Workflow optimization
-- Deployment readiness"""
+### Review Load by Team Member
+| Reviewer | Assigned | Completed (7d) |
+|----------|----------|----------------|
+| @sarah | 1 | 8 |
+| @james | 2 | 5 |
+| @marcus | 0 | 3 |
+
+Consider redistributing reviews — @sarah has capacity and @james is overloaded.""",
+
+    "bottleneck": """### Bottleneck Analysis
+
+I've analyzed your workflow and identified **2 significant bottlenecks**:
+
+---
+
+**1. Code Review Delay** — High Impact
+
+Reviews are taking an average of **4.2 hours**, with 3 PRs currently waiting. This is causing a cascade effect on dependent work.
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| Avg review time | 4.2h | < 2h |
+| PRs waiting | 3 | 0-1 |
+| Blocked features | 1 | 0 |
+
+**Root cause**: Review load is unevenly distributed. @sarah has completed 8 reviews this week while @marcus has completed 3.
+
+---
+
+**2. CI Pipeline Queue** — Medium Impact
+
+The CI pipeline has a **38-minute average wait time** due to resource constraints during peak hours (10am-2pm).
+
+| Time Window | Avg Wait | Jobs/Hour |
+|-------------|----------|-----------|
+| 10am - 2pm | 38 min | 24 |
+| Other hours | 8 min | 9 |
+
+---
+
+### Recommended Actions
+
+1. **Enable review auto-assignment** to balance load across the team
+2. **Add a second CI runner** or enable parallel test execution
+3. **Set up Slack alerts** for PRs waiting > 2 hours
+
+Implementing these changes could reduce cycle time by approximately 40%.""",
+
+    "workflow": """### Workflow Status Overview
+
+**Current Sprint**: Authentication & Security (ends in 4 days)
+
+| Stage | Items | Status |
+|-------|-------|--------|
+| Backlog | 3 issues | Ready |
+| In Progress | 2 PRs, 1 issue | Active |
+| In Review | 4 PRs | Waiting |
+| Ready to Merge | 1 PR | CI passing |
+| Deployed | 6 items | Complete |
+
+### Active Work Items
+
+**Pull Requests**
+- PR #312: OAuth2 provider support — *waiting on review* (6h)
+- PR #318: Login UI components — *blocked by #312*
+- PR #247: Fix session timeout — *in review*
+- PR #298: Update dependencies — *approved, ready to merge*
+
+**Issues**
+- ISSUE-445: Session persistence bug — *in progress* (@priya)
+- ISSUE-421: Rate limiting — *in progress* (@marcus)
+
+### Pipeline Health
+- **CI Success Rate**: 94% (last 7 days)
+- **Avg Time to Merge**: 1.4 days
+- **Deployment Frequency**: 2.3/day
+
+### Next Actions
+1. Merge PR #298 (approved, no conflicts)
+2. Review PR #312 to unblock Feature 1
+3. Investigate CI failure on PR #251""",
+
+    "default": """### Workflow Analysis
+
+I've reviewed your current development workflow. Here's a summary:
+
+**Active Items**
+- 4 open pull requests (1 blocked, 3 in review)
+- 2 issues in progress
+- 1 PR ready to merge
+
+**Key Observations**
+
+The team is making steady progress, but there's a review bottleneck affecting Feature 1. PR #312 has been waiting for review for 6 hours and is blocking downstream work.
+
+**Metrics** (last 7 days)
+| Metric | Value | Trend |
+|--------|-------|-------|
+| PRs merged | 12 | +20% |
+| Avg cycle time | 1.4 days | -0.3d |
+| CI success rate | 94% | stable |
+| Review turnaround | 4.2h | +1.2h |
+
+**Suggested Focus Areas**
+- Review PR #312 to unblock Feature 1
+- Address the 3-day-old PR #251 with failing CI
+- Consider enabling review auto-assignment to balance workload
+
+What would you like me to look into? I can analyze specific blockers, recommend reviewers, or identify optimization opportunities."""
 }
 
 
@@ -91,6 +201,11 @@ class ConnectionsContext(BaseModel):
     edges: list[dict] = Field(
         default_factory=list,
         description="List of {sourceLabel, targetLabel} for connections between tools",
+    )
+    workflow_graph: dict | None = Field(
+        default=None,
+        alias="workflowGraph",
+        description="Pre-loaded workflow graph so agent can skip ingestion step",
     )
 
     model_config = {"populate_by_name": True}
@@ -118,64 +233,38 @@ def format_connections_context(context: ConnectionsContext | None) -> str:
     return "\n".join(parts)
 
 
+def _select_stub_response(message_lower: str) -> str:
+    """Select the appropriate stub response based on message keywords."""
+    # Check for specific query types in order of specificity
+    if any(word in message_lower for word in ["who should review", "reviewer", "assign review"]):
+        return STUB_RESPONSES["reviewer"]
+    elif any(phrase in message_lower for phrase in ["open review", "summarize review", "pending review", "review summary"]):
+        return STUB_RESPONSES["open_reviews"]
+    elif any(word in message_lower for word in ["block", "blocking", "stuck", "waiting", "why is"]):
+        return STUB_RESPONSES["blocking"]
+    elif any(word in message_lower for word in ["bottleneck", "slow", "delay", "optimize", "speed up"]):
+        return STUB_RESPONSES["bottleneck"]
+    elif any(word in message_lower for word in ["workflow", "status", "pipeline", "overview", "sprint"]):
+        return STUB_RESPONSES["workflow"]
+    else:
+        return STUB_RESPONSES["default"]
+
+
 def get_stub_response(message: str, context: ConnectionsContext | None = None) -> str:
     """Get appropriate stub response based on message content and optional connections context."""
     message_lower = message.lower()
-    
-    # If context exists and has tools, customize response based on the actual tools
+
+    # If context exists and has tools, add a brief context acknowledgment
     if context and context.tools:
         tool_names = [t.get("name", "") for t in context.tools if isinstance(t, dict) and t.get("name")]
         n_tools = len(tool_names)
-        n_edges = len(context.edges)
-        
-        # Create a context-aware response
-        if tool_names:
-            tools_list = ", ".join(tool_names[:5])  # Show first 5 tools
-            if n_tools > 5:
-                tools_list += f", and {n_tools - 5} more"
-            
-            context_intro = (
-                f"Based on your **{context.project_name or 'Untitled'}** project "
-                f"with {n_tools} tool{'s' if n_tools != 1 else ''} ({tools_list})"
-            )
-            
-            if n_edges > 0:
-                # Show sample connections
-                sample_conns = []
-                for e in context.edges[:3]:  # Show first 3 connections
-                    if isinstance(e, dict):
-                        s = e.get("sourceLabel", "")
-                        t = e.get("targetLabel", "")
-                        if s and t:
-                            sample_conns.append(f"{s} → {t}")
-                if sample_conns:
-                    context_intro += f" and {n_edges} connection{'s' if n_edges != 1 else ''} ({'; '.join(sample_conns)})"
-                    if n_edges > 3:
-                        context_intro += f", +{n_edges - 3} more"
-            
-            context_intro += ":\n\n"
-            
-            # Select base response
-            if any(word in message_lower for word in ["block", "blocking", "stuck", "waiting"]):
-                base = STUB_RESPONSES["blocking"]
-            elif any(word in message_lower for word in ["workflow", "status", "pipeline", "overview"]):
-                base = STUB_RESPONSES["workflow"]
-            elif any(word in message_lower for word in ["bottleneck", "slow", "delay", "optimize"]):
-                base = STUB_RESPONSES["bottleneck"]
-            else:
-                base = STUB_RESPONSES["default"]
-            
-            return context_intro + base
-    
-    # No context or empty context - return base response
-    if any(word in message_lower for word in ["block", "blocking", "stuck", "waiting"]):
-        return STUB_RESPONSES["blocking"]
-    elif any(word in message_lower for word in ["workflow", "status", "pipeline", "overview"]):
-        return STUB_RESPONSES["workflow"]
-    elif any(word in message_lower for word in ["bottleneck", "slow", "delay", "optimize"]):
-        return STUB_RESPONSES["bottleneck"]
-    else:
-        return STUB_RESPONSES["default"]
+
+        if tool_names and n_tools > 0:
+            project_name = context.project_name or "Untitled"
+            context_note = f"*Analyzed **{project_name}** project ({n_tools} connected tools)*\n\n"
+            return context_note + _select_stub_response(message_lower)
+
+    return _select_stub_response(message_lower)
 
 
 class ChatRequest(BaseModel):
@@ -252,6 +341,9 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
     # Stub mode - return mock responses for frontend testing
     if settings.stub_mode:
+        import random
+        # Add realistic delay (1.5-3 seconds) so it doesn't look instant
+        await asyncio.sleep(random.uniform(1.5, 3.0))
         stub_content = get_stub_response(request.message, request.context)
         return ChatResponse(
             message=ChatMessage(role="assistant", content=stub_content),
@@ -259,10 +351,25 @@ async def chat(request: ChatRequest) -> ChatResponse:
         )
 
     try:
+        # Auto-load workflow graph if not provided in context
+        workflow_graph = None
+        if request.context and request.context.workflow_graph:
+            workflow_graph = request.context.workflow_graph
+        else:
+            # Fetch from mock endpoint to provide context to the agent
+            from app.api.mock import get_mock_workflow
+            try:
+                graph_response = await get_mock_workflow()
+                workflow_graph = graph_response.workflow_graph.model_dump() if graph_response.workflow_graph else None
+                print(f"[DEBUG] Auto-loaded workflow graph with {len(workflow_graph.get('nodes', []))} nodes")
+            except Exception as e:
+                print(f"[DEBUG] Could not auto-load workflow graph: {e}")
+
         response = await watsonx_client.chat(
             message=request.message,
             conversation_id=request.conversation_id,
             agent_id=request.agent_id,
+            context={"workflow_graph": workflow_graph} if workflow_graph else None,
         )
 
         # Parse the response - structure may vary based on watsonx API version

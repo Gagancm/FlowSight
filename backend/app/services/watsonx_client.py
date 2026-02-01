@@ -80,6 +80,7 @@ class WatsonxClient:
         message: str,
         conversation_id: str | None = None,
         agent_id: str | None = None,
+        context: dict | None = None,
     ) -> dict:
         """
         Send a message to watsonx Orchestrate and get a response.
@@ -88,6 +89,7 @@ class WatsonxClient:
             message: The user's message
             conversation_id: Optional conversation ID for context
             agent_id: Optional agent ID override
+            context: Optional context dict (workflow_graph, etc.) to include
 
         Returns:
             The agent's response as a dict
@@ -105,12 +107,32 @@ class WatsonxClient:
         if conversation_id:
             headers["X-IBM-THREAD-ID"] = conversation_id
 
+        # Build messages array
+        messages = []
+
+        # If context has workflow_graph, include it as context for the agent
+        if context and context.get("workflow_graph"):
+            import json
+            from datetime import datetime
+
+            def json_serial(obj):
+                """JSON serializer for objects not serializable by default."""
+                if isinstance(obj, datetime):
+                    return obj.isoformat()
+                raise TypeError(f"Type {type(obj)} not serializable")
+
+            context_content = json.dumps({"workflow_graph": context["workflow_graph"]}, default=json_serial)
+            messages.append({
+                "role": "user",
+                "content": f"Here is the current workflow graph context:\n{context_content}\n\nUser question: {message}"
+            })
+        else:
+            messages.append({"role": "user", "content": message})
+
         # Chat completions payload format (per IBM docs)
         payload = {
             "stream": False,
-            "messages": [
-                {"role": "user", "content": message}
-            ],
+            "messages": messages,
         }
 
         print(f"[DEBUG] Request payload: {payload}")
