@@ -326,10 +326,7 @@ export function ConnectionsPage() {
   const handleFitView = () => {
     if (reactFlowInstance) {
       reactFlowInstance.fitView({
-        padding: 0.5,
         duration: 200,
-        maxZoom: 1,
-        minZoom: 0.1,
       });
     }
   };
