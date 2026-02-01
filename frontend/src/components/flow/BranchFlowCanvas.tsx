@@ -21,7 +21,7 @@ import { useFlowData } from '../../hooks/useFlowData';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { Branch } from '../../types/flow';
 
-const DEMO_VIDEO_SRC = '/demo-flow.mp4'; // Placeholder for flow demo video
+const DEMO_VIDEO_SRC = '/demo-add-connections.mp4'; // Same video as Connections page
 
 // Empty state component for when no project is selected
 function EmptyStateDemo() {
@@ -54,7 +54,7 @@ function EmptyStateDemo() {
           ) : (
             <div className="connections-empty-state-video-placeholder">
               <p className="text-sm text-[var(--color-text-muted)]">
-                Add your demo video as <code className="connections-empty-state-code">public/demo-flow.mp4</code>
+                Add your demo video as <code className="connections-empty-state-code">public/demo-add-connections.mp4</code>
               </p>
               <p className="text-xs text-[var(--color-text-muted)]">or use the steps below</p>
             </div>
@@ -318,12 +318,12 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
   const { theme } = useTheme();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
-  // Show empty nodes/edges if no project is selected
-  const shouldShowEmpty = !projectName;
+  // Show empty nodes/edges if no project is selected OR no view is selected
+  const shouldShowEmpty = !projectName || viewType === 'none';
 
   // Convert branches to nodes and edges based on view type
   const initialNodes = useMemo(() => {
-    if (shouldShowEmpty) return []; // Return empty array if no project
+    if (shouldShowEmpty) return []; // Return empty array if no project or no view selected
     switch (viewType) {
       case 'pr':
         return branchesToNodesPR(branches);
