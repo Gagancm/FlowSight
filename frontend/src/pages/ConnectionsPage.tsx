@@ -107,6 +107,7 @@ const TrashIcon = () => (
 
 const CONNECTIONS_PROJECTS_KEY = 'flowsight-connections-projects';
 const CONNECTIONS_LAST_PROJECT_KEY = 'flowsight-connections-last-project';
+const CURRENT_PROJECT_KEY = 'flowsight-current-project'; // Shared across all pages
 
 function generateProjectId() {
   return `project-${Date.now()}`;
@@ -120,7 +121,33 @@ function loadProjects(): ConnectionProject[] {
       return Array.isArray(parsed) ? parsed : [];
     }
   } catch {}
-  return [];
+  
+  // First time load - create default Project Alpha with GitHub node
+  const defaultProject: ConnectionProject = {
+    id: generateProjectId(),
+    name: 'Project Alpha',
+    nodes: [
+      {
+        id: `github-${Date.now()}`,
+        type: 'toolNode',
+        position: { x: 250, y: 200 },
+        data: {
+          tool: 'github',
+          name: 'GitHub',
+          icon: 'github',
+          status: 'inactive',
+        },
+      } as Node,
+    ],
+    edges: [],
+  };
+  
+  // Save the default project to localStorage
+  try {
+    localStorage.setItem(CONNECTIONS_PROJECTS_KEY, JSON.stringify([defaultProject]));
+  } catch {}
+  
+  return [defaultProject];
 }
 
 function saveProjects(projects: ConnectionProject[]) {
@@ -141,7 +168,37 @@ export function ConnectionsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [projects, setProjects] = useState<ConnectionProject[]>(() => loadProjects());
-  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null); // Changed to null - no project selected initially
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(() => {
+    // Load shared current project from localStorage
+    try {
+      const savedProjectName = localStorage.getItem(CURRENT_PROJECT_KEY);
+      
+      // If key exists and is 'None', user explicitly deselected - keep it None
+      if (savedProjectName === 'None') {
+        return null;
+      }
+      
+      // If key exists with a project name, load that project
+      if (savedProjectName) {
+        const loadedProjects = loadProjects();
+        const project = loadedProjects.find(p => p.name === savedProjectName);
+        return project?.id ?? null;
+      }
+      
+      // If key doesn't exist at all, this is first time load - select first project
+      const loadedProjects = loadProjects();
+      if (loadedProjects.length > 0) {
+        const firstProject = loadedProjects[0];
+        // Also set it in localStorage
+        try {
+          localStorage.setItem(CURRENT_PROJECT_KEY, firstProject.name);
+        } catch {}
+        return firstProject.id;
+      }
+    } catch {}
+    
+    return null;
+  });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
@@ -152,13 +209,39 @@ export function ConnectionsPage() {
     saveProjects(projects);
   }, [projects]);
 
+  // Sync current project name to shared localStorage
   useEffect(() => {
-    if (currentProjectId) {
-      try {
+    const currentProject = projects.find(p => p.id === currentProjectId);
+    try {
+      if (currentProject) {
+        localStorage.setItem(CURRENT_PROJECT_KEY, currentProject.name);
         localStorage.setItem(CONNECTIONS_LAST_PROJECT_KEY, currentProjectId);
-      } catch {}
-    }
-  }, [currentProjectId]);
+      } else {
+        localStorage.setItem(CURRENT_PROJECT_KEY, 'None');
+        localStorage.removeItem(CONNECTIONS_LAST_PROJECT_KEY);
+      }
+    } catch {}
+  }, [currentProjectId, projects]);
+
+  // Listen for storage changes from other tabs/pages
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === CURRENT_PROJECT_KEY && e.newValue) {
+        const newProjectName = e.newValue === 'None' ? null : e.newValue;
+        if (newProjectName) {
+          const project = projects.find(p => p.name === newProjectName);
+          if (project && project.id !== currentProjectId) {
+            setCurrentProjectId(project.id);
+          }
+        } else if (currentProjectId !== null) {
+          setCurrentProjectId(null);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [currentProjectId, projects]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -200,11 +283,25 @@ export function ConnectionsPage() {
   };
 
   const handleAddProjectConfirm = () => {
-    const name = newProjectName.trim() || 'Untitled';
+    const name = newProjectName.trim() || 'Project Alpha';
+    
+    // Create default GitHub node for new projects
+    const githubNode: Node = {
+      id: `github-${Date.now()}`,
+      type: 'toolNode',
+      position: { x: 250, y: 200 },
+      data: {
+        tool: 'github',
+        name: 'GitHub',
+        icon: 'github',
+        status: 'inactive',
+      },
+    };
+    
     const newProject: ConnectionProject = {
       id: generateProjectId(),
       name,
-      nodes: [],
+      nodes: [githubNode],
       edges: [],
     };
     setProjects((prev) => [...prev, newProject]);
@@ -227,7 +324,7 @@ export function ConnectionsPage() {
     };
     const newProject: ConnectionProject = {
       id: generateProjectId(),
-      name: 'Untitled',
+      name: 'Project Alpha',
       nodes: [newNode],
       edges: [],
     };
@@ -250,7 +347,7 @@ export function ConnectionsPage() {
 
   const handleEditProjectSave = () => {
     if (!editProjectId) return;
-    const name = editProjectName.trim() || 'Untitled';
+    const name = editProjectName.trim() || 'Project Alpha';
     setProjects((prev) =>
       prev.map((p) => (p.id === editProjectId ? { ...p, name } : p))
     );
@@ -417,7 +514,7 @@ export function ConnectionsPage() {
   const handleAIClick = useCallback(() => {
     const nodes = reactFlowInstance ? reactFlowInstance.getNodes() : currentProject?.nodes ?? [];
     const edges = reactFlowInstance ? reactFlowInstance.getEdges() : currentProject?.edges ?? [];
-    const projectName = currentProject?.name ?? 'Untitled';
+    const projectName = currentProject?.name ?? 'Project Alpha';
     const projectId = currentProject?.id ?? '';
 
     const idToName = new Map<string, string>();

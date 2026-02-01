@@ -98,6 +98,7 @@ const GRAPH_OPTIONS = [
 ] as const;
 
 const CONNECTIONS_PROJECTS_KEY = 'flowsight-connections-projects';
+const CURRENT_PROJECT_KEY = 'flowsight-current-project'; // Shared across all pages
 
 interface StoredProject {
   id: string;
@@ -121,7 +122,16 @@ export function FlowPage() {
   const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('none');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
-  const [currentProjectName, setCurrentProjectName] = useState<string | null>(null); // Changed to null for no selection
+  const [currentProjectName, setCurrentProjectName] = useState<string | null>(() => {
+    // Load shared current project from localStorage
+    try {
+      const savedProjectName = localStorage.getItem(CURRENT_PROJECT_KEY);
+      if (savedProjectName && savedProjectName !== 'None') {
+        return savedProjectName;
+      }
+    } catch {}
+    return null;
+  });
   const [projects] = useState<StoredProject[]>(() => loadProjects()); // Load from localStorage
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState('');
@@ -173,6 +183,32 @@ export function FlowPage() {
       }
     };
   }, []);
+
+  // Sync current project name to shared localStorage
+  useEffect(() => {
+    try {
+      if (currentProjectName) {
+        localStorage.setItem(CURRENT_PROJECT_KEY, currentProjectName);
+      } else {
+        localStorage.setItem(CURRENT_PROJECT_KEY, 'None');
+      }
+    } catch {}
+  }, [currentProjectName]);
+
+  // Listen for storage changes from other tabs/pages
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === CURRENT_PROJECT_KEY && e.newValue) {
+        const newProjectName = e.newValue === 'None' ? null : e.newValue;
+        if (newProjectName !== currentProjectName) {
+          setCurrentProjectName(newProjectName);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [currentProjectName]);
 
   // Handle window resize - clear pinned position to avoid stuck hover panel
   useEffect(() => {
@@ -262,7 +298,7 @@ export function FlowPage() {
   };
 
   const handleEditProjectSave = () => {
-    const name = editProjectName.trim() || 'Untitled';
+    const name = editProjectName.trim() || 'Project Alpha';
     setCurrentProjectName(name);
     setEditProjectId(null);
     setEditProjectName('');

@@ -18,6 +18,8 @@ const QUICK_ACTIONS = [
   { id: 'reviews', label: 'Summarize open reviews for me', icon: 'chart', highlighted: true },
 ];
 
+const CURRENT_PROJECT_KEY = 'flowsight-current-project';
+
 export function ChatInterface() {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,22 @@ export function ChatInterface() {
 
   const handleOpenContextModal = () => {
     setContextStep('project');
+    
+    // Auto-select current project from localStorage
+    try {
+      const currentProjectName = localStorage.getItem(CURRENT_PROJECT_KEY);
+      if (currentProjectName && currentProjectName !== 'None') {
+        const project = projects.find((p: any) => p.name === currentProjectName);
+        if (project) {
+          setSelectedProject(project.id);
+          setContextStep('type');
+          setShowContextModal(true);
+          return;
+        }
+      }
+    } catch {}
+    
+    // If no current project, show project selection
     setSelectedProject(null);
     setShowContextModal(true);
   };
@@ -83,7 +101,7 @@ export function ChatInterface() {
       
       const context = {
         projectId: project.id,
-        projectName: project.name || 'Untitled',
+        projectName: project.name || 'Project Alpha',
         tools,
         edges,
       };
@@ -106,6 +124,52 @@ export function ChatInterface() {
     setContextStep('project');
     setSelectedProject(null);
   };
+
+  // Listen for storage changes from other pages (Connections page project selection)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'flowsight-current-project' && e.newValue && e.newValue !== 'None') {
+        const projectName = e.newValue;
+        const project = projects.find((p: any) => p.name === projectName);
+        
+        if (project) {
+          // Auto-load connections context when project is selected in another page
+          const idToName = new Map<string, string>();
+          const tools: { id: string; name: string }[] = [];
+          
+          if (project.nodes) {
+            for (const node of project.nodes) {
+              const name = (node.data?.name as string) || (node.data?.tool as string) || node.id;
+              idToName.set(node.id, name);
+              tools.push({ id: node.id, name });
+            }
+          }
+          
+          const edges = (project.edges || []).map((e: any) => ({
+            sourceLabel: idToName.get(e.source) ?? e.source,
+            targetLabel: idToName.get(e.target) ?? e.target,
+          }));
+          
+          const context = {
+            projectId: project.id,
+            projectName: project.name || 'Project Alpha',
+            tools,
+            edges,
+          };
+          
+          // Save to sessionStorage and update state
+          try {
+            sessionStorage.setItem('flowsight-ai-connections-context', JSON.stringify(context));
+          } catch {}
+          
+          setConnectionsContext(context);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [projects, setConnectionsContext]);
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   useEffect(() => {
@@ -299,7 +363,7 @@ export function ChatInterface() {
                           <line x1="12" y1="22.08" x2="12" y2="12" />
                         </svg>
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-[var(--color-text-primary)]">{project.name || 'Untitled'}</div>
+                          <div className="font-medium text-[var(--color-text-primary)]">{project.name || 'Project Alpha'}</div>
                           <div className="text-xs text-[var(--color-text-muted)]">
                             {project.nodes?.length || 0} tools, {project.edges?.length || 0} connections
                           </div>
