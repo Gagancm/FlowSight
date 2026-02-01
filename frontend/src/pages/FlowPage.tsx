@@ -90,18 +90,39 @@ const ZoomOutIcon = () => (
 );
 
 const GRAPH_OPTIONS = [
+  { value: 'none', label: 'Select View' },
   { value: 'list', label: 'Github Graph' },
   { value: 'github', label: 'Branch Timeline' },
   { value: 'pr', label: 'PR Graph' },
   { value: 'timeline', label: 'Timeline' },
 ] as const;
 
+const CONNECTIONS_PROJECTS_KEY = 'flowsight-connections-projects';
+
+interface StoredProject {
+  id: string;
+  name: string;
+  nodes: any[];
+  edges: any[];
+}
+
+function loadProjects(): StoredProject[] {
+  try {
+    const raw = localStorage.getItem(CONNECTIONS_PROJECTS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }
+  } catch {}
+  return [];
+}
+
 export function FlowPage() {
-  const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('list');
+  const [selectedGraph, setSelectedGraph] = useState<(typeof GRAPH_OPTIONS)[number]['value']>('none');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
   const [currentProjectName, setCurrentProjectName] = useState<string | null>(null); // Changed to null for no selection
-  const [availableProjects] = useState<string[]>(['None', 'Untitled', 'Project Alpha', 'Project Beta']); // Added 'None' option
+  const [projects] = useState<StoredProject[]>(() => loadProjects()); // Load from localStorage
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -177,6 +198,17 @@ export function FlowPage() {
     setHoverNodePosition(null);
   }, [selectedGraph, currentProjectName, onHover]);
 
+  // Auto-switch view when project changes
+  useEffect(() => {
+    if (currentProjectName && currentProjectName !== 'None') {
+      // Project selected - auto switch to Github Graph
+      setSelectedGraph('list');
+    } else {
+      // No project selected - reset to Select View
+      setSelectedGraph('none');
+    }
+  }, [currentProjectName]);
+
   // Clear hover panel when component unmounts (navigating away)
   useEffect(() => {
     return () => {
@@ -187,7 +219,7 @@ export function FlowPage() {
     };
   }, [onHover]);
 
-  const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Github Graph';
+  const currentLabel = GRAPH_OPTIONS.find((o) => o.value === selectedGraph)?.label ?? 'Select View';
 
   const handleZoomIn = () => {
     if (reactFlowInstance) {
@@ -418,21 +450,38 @@ export function FlowPage() {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {availableProjects.map((project) => (
+                  {/* None option to deselect */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentProjectName(null);
+                      setProjectDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center rounded-md ${
+                      currentProjectName === null
+                        ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
+                        : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
+                    }`}
+                  >
+                    <span className="truncate block">None</span>
+                  </button>
+
+                  {/* Real projects from localStorage */}
+                  {projects.map((project) => (
                     <button
-                      key={project}
+                      key={project.id}
                       type="button"
                       onClick={() => {
-                        setCurrentProjectName(project === 'None' ? null : project);
+                        setCurrentProjectName(project.name);
                         setProjectDropdownOpen(false);
                       }}
                       className={`w-full text-left px-4 py-2.5 text-sm transition-colors h-9 flex items-center rounded-md ${
-                        (project === 'None' && !currentProjectName) || currentProjectName === project
+                        currentProjectName === project.name
                           ? 'bg-[var(--color-accent-bg)] text-[var(--color-accent)]'
                           : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
                       }`}
                     >
-                      <span className="truncate block">{project}</span>
+                      <span className="truncate block">{project.name}</span>
                     </button>
                   ))}
                 </motion.div>
@@ -445,7 +494,7 @@ export function FlowPage() {
             <motion.button
               type="button"
               onClick={() => setDropdownOpen((o) => !o)}
-              className="flow-dropdown-trigger flex items-center gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
+              className="flow-dropdown-trigger flex items-center justify-between gap-2 px-4 py-2.5 text-sm min-w-[140px] sm:min-w-[160px]"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -484,25 +533,26 @@ export function FlowPage() {
           </div>
         </div>
 
-        {/* Top-right: action buttons */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-          <div
-            ref={downloadDropdownRef}
-            className="relative"
-            onMouseEnter={() => {
-              if (downloadCloseTimerRef.current) {
-                clearTimeout(downloadCloseTimerRef.current);
-                downloadCloseTimerRef.current = null;
-              }
-              setDownloadDropdownOpen(true);
-            }}
-            onMouseLeave={() => {
-              downloadCloseTimerRef.current = setTimeout(() => {
-                setDownloadDropdownOpen(false);
-                downloadCloseTimerRef.current = null;
-              }, 150);
-            }}
-          >
+        {/* Top-right: action buttons (only show when project is selected) */}
+        {currentProjectName && (
+          <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+            <div
+              ref={downloadDropdownRef}
+              className="relative"
+              onMouseEnter={() => {
+                if (downloadCloseTimerRef.current) {
+                  clearTimeout(downloadCloseTimerRef.current);
+                  downloadCloseTimerRef.current = null;
+                }
+                setDownloadDropdownOpen(true);
+              }}
+              onMouseLeave={() => {
+                downloadCloseTimerRef.current = setTimeout(() => {
+                  setDownloadDropdownOpen(false);
+                  downloadCloseTimerRef.current = null;
+                }, 150);
+              }}
+            >
             <AnimatePresence>
               {downloadDropdownOpen && (
                 <motion.div
@@ -557,61 +607,66 @@ export function FlowPage() {
           >
             <AIIcon />
           </motion.button>
-        </div>
+          </div>
+        )}
 
-        {/* Bottom-left: canvas controls - responsive padding for mobile hamburger */}
-        <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
-          <motion.button
-            type="button"
-            onClick={handleFitView}
-            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
-            title="Fit view"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <MoveIcon />
-          </motion.button>
-          <motion.button
-            type="button"
-            onClick={handleZoomIn}
-            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
-            title="Zoom in"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ZoomInIcon />
-          </motion.button>
-          <motion.button
-            type="button"
-            onClick={handleZoomOut}
-            className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
-            title="Zoom out"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ZoomOutIcon />
-          </motion.button>
-        </div>
+        {/* Bottom-left: canvas controls (only show when project is selected) - responsive padding for mobile hamburger */}
+        {currentProjectName && (
+          <div className="absolute bottom-4 left-4 pl-14 lg:pl-0 flex gap-2 z-10">
+            <motion.button
+              type="button"
+              onClick={handleFitView}
+              className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+              title="Fit view"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <MoveIcon />
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={handleZoomIn}
+              className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+              title="Zoom in"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ZoomInIcon />
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={handleZoomOut}
+              className="neu-btn-icon w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center"
+              title="Zoom out"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ZoomOutIcon />
+            </motion.button>
+          </div>
+        )}
 
-        {/* Bottom right - branch status legend */}
-        <div className="flow-legend neu-btn-icon absolute bottom-4 right-4 z-10 flex flex-col gap-1.5 px-3 py-2.5">
-          <div className="flex items-center gap-2">
-            <span className="flow-legend-dot flow-legend-dot--critical" />
-            <span className="text-xs text-[var(--color-text-secondary)]">Critical / Blocked</span>
+        {/* Bottom right - branch status legend (only show when project is selected) */}
+        {currentProjectName && (
+          <div className="flow-legend neu-btn-icon absolute bottom-4 right-4 z-10 flex flex-col gap-1.5 px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <span className="flow-legend-dot flow-legend-dot--critical" />
+              <span className="text-xs text-[var(--color-text-secondary)]">Critical / Blocked</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flow-legend-dot flow-legend-dot--warning" />
+              <span className="text-xs text-[var(--color-text-secondary)]">Warning / In Progress</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flow-legend-dot flow-legend-dot--success" />
+              <span className="text-xs text-[var(--color-text-secondary)]">Success / Ready</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flow-legend-dot flow-legend-dot--neutral" />
+              <span className="text-xs text-[var(--color-text-secondary)]">Neutral / Pending</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="flow-legend-dot flow-legend-dot--warning" />
-            <span className="text-xs text-[var(--color-text-secondary)]">Warning / In Progress</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="flow-legend-dot flow-legend-dot--success" />
-            <span className="text-xs text-[var(--color-text-secondary)]">Success / Ready</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="flow-legend-dot flow-legend-dot--neutral" />
-            <span className="text-xs text-[var(--color-text-secondary)]">Neutral / Pending</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Hover Panel - show on hover or when pinned */}

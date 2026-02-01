@@ -2,7 +2,7 @@ import { Avatar } from '../shared/Avatar';
 import { Button } from '../shared/Button';
 import { StatusIndicator } from '../shared/StatusIndicator';
 import type { BranchDetail } from '../../types/flow';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface BranchHoverPanelProps {
   branch: BranchDetail | null;
@@ -13,6 +13,8 @@ interface BranchHoverPanelProps {
 
 export function BranchHoverPanel({ branch, position, onClose, isPinned }: BranchHoverPanelProps) {
   const [animate, setAnimate] = useState(false);
+  const [adjustedPosition, setAdjustedPosition] = useState<{ left: string; top: string; right?: string } | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // Trigger animation when panel appears (branch changes)
   useEffect(() => {
@@ -24,18 +26,82 @@ export function BranchHoverPanel({ branch, position, onClose, isPinned }: Branch
     }
   }, [branch?.id]); // Re-trigger when branch changes
 
+  // Calculate bounds-aware position relative to parent container
+  useEffect(() => {
+    if (!position) {
+      setAdjustedPosition(null);
+      return;
+    }
+
+    const PANEL_WIDTH = 360;
+    const MARGIN = 16;
+    const GAP_FROM_NODE = 50;
+    const NODE_WIDTH = 600; // Approximate node card width
+    const NODE_HEIGHT = 90; // Approximate node card height
+
+    // Get viewport dimensions
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    // Get actual panel height from DOM if available
+    const actualPanelHeight = panelRef.current?.offsetHeight || 600;
+
+    // Position is already in screen coordinates from React Flow viewport transformation
+    const nodeScreenX = position.x;
+    const nodeScreenY = position.y;
+
+    // Calculate horizontal position
+    let left = nodeScreenX + NODE_WIDTH + GAP_FROM_NODE; // Default: right of node
+    let useRight = false;
+
+    // Check if panel goes off right edge
+    if (left + PANEL_WIDTH + MARGIN > screenWidth) {
+      // Try positioning to the left of the node
+      const leftPosition = nodeScreenX - PANEL_WIDTH - GAP_FROM_NODE;
+      if (leftPosition >= MARGIN) {
+        left = leftPosition;
+      } else {
+        // Can't fit on either side - use right edge
+        useRight = true;
+      }
+    }
+
+    // Ensure left edge stays on screen
+    if (left < MARGIN && !useRight) {
+      left = MARGIN;
+    }
+
+    // Calculate vertical position - try to center on node card
+    let top = nodeScreenY + (NODE_HEIGHT / 2) - (actualPanelHeight / 2);
+
+    // Check bottom boundary
+    if (top + actualPanelHeight > screenHeight - MARGIN) {
+      // Would overflow bottom - align to bottom
+      top = screenHeight - actualPanelHeight - MARGIN;
+    }
+
+    // Check top boundary
+    if (top < MARGIN) {
+      top = MARGIN;
+    }
+
+    setAdjustedPosition(
+      useRight
+        ? { left: 'auto', top: `${top}px`, right: `${MARGIN}px` }
+        : { left: `${left}px`, top: `${top}px` }
+    );
+  }, [position, branch]); // Re-calculate when position or branch changes (height might change)
+
   if (!branch) return null;
 
   const { bottleneck, recommendation } = branch;
   const ownerDisplay = branch.owner ?? branch.author ?? '—';
 
-  // Calculate position - if position provided, place next to node, otherwise fixed right
-  const positionStyle = position
+  // Use adjusted position or fixed fallback
+  const positionStyle = adjustedPosition
     ? {
-        position: 'absolute' as const,
-        left: `${position.x + 650}px`, // 650px to the right of the node (node width ~600px + gap)
-        top: `${position.y}px`,
-        transform: 'translateY(-20%)', // Slight vertical adjustment
+        position: 'fixed' as const, // Changed to fixed for proper screen positioning
+        ...adjustedPosition,
       }
     : {
         position: 'fixed' as const,
@@ -46,11 +112,13 @@ export function BranchHoverPanel({ branch, position, onClose, isPinned }: Branch
 
   return (
     <div
-      className="flow-hover-panel w-[360px] p-5 transition-all duration-300"
+      ref={panelRef}
+      className="flow-hover-panel w-[360px] p-5 transition-all duration-300 overflow-y-auto"
       style={{ 
         fontFamily: 'var(--font-sans)', 
         zIndex: 2000,
         pointerEvents: 'auto',
+        maxHeight: 'calc(100vh - 32px)', // Max height with margins
         ...positionStyle,
       }}
     >
