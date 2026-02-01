@@ -20,14 +20,22 @@ class Settings(BaseSettings):
     stub_mode: bool = True
 
     # watsonx Orchestrate settings
+    # Create an IBM Cloud API key from: https://cloud.ibm.com/iam/apikeys
     watsonx_api_key: str = ""
-    watsonx_url: str = "https://api.us-south.assistant.watson.cloud.ibm.com"
+    # Base URL - get from watsonx Orchestrate > Channels > Embedded agent > hostURL
+    # Example: https://jp-tok.watson-orchestrate.cloud.ibm.com
+    watsonx_url: str = ""
+    # Instance ID from your watsonx Orchestrate service
+    watsonx_instance_id: str = ""
+    # Agent ID (from Manage agents > select agent > copy ID)
     watsonx_agent_id: str = ""
-    watsonx_agent_env_id: str = ""  # Optional: agent environment ID
+    # Agent environment ID: "draft" for testing, or deployment ID for live
+    watsonx_agent_env_id: str = "draft"
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"  # Allow extra env vars (ETL pipeline settings, etc.)
 
 
 settings = Settings()
