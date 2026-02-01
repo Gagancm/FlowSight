@@ -438,7 +438,7 @@
   color: #E5E5E5;
 }
 
-/* === AI message markdown (Claude-style: clean, no raw * or `) === */
+/* === AI message markdown (Claude-style: structured sections, headline, tables, actions) === */
 .chat-message-markdown {
   color: inherit;
   word-wrap: break-word;
@@ -459,6 +459,122 @@
 
 .chat-message-markdown p + p {
   margin-top: 0.6em;
+}
+
+/* Headline: first paragraph stands out like Claude’s summary */
+.ai-message-structured .chat-message-markdown > p:first-of-type {
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5em;
+}
+
+/* Section titles (### Root Cause, Blocking Chain, etc.) */
+.ai-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted, #8b8d93);
+  margin: 1.25em 0 0.5em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  line-height: 1.3;
+}
+
+.ai-message-structured .chat-message-markdown > .ai-section-title:first-child {
+  margin-top: 0;
+}
+
+/* Table wrapper: scroll on small screens */
+.ai-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 0.5em 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.ai-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.ai-table-head .ai-table-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-table-th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-muted, #8b8d93);
+  padding: 0.6em 0.75em;
+  white-space: nowrap;
+}
+
+.ai-table-td {
+  padding: 0.5em 0.75em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: inherit;
+}
+
+.ai-table-body .ai-table-row:last-child .ai-table-td {
+  border-bottom: none;
+}
+
+.ai-table-body .ai-table-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Blocking chain / code block: horizontal flow, monospace */
+.ai-blocking-chain {
+  margin: 0.5em 0;
+  padding: 0.75em 1em;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  color: var(--color-text-secondary, #b5bac1);
+}
+
+.ai-blocking-chain code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Recommended actions list: clear hierarchy */
+.ai-actions-list {
+  margin: 0.5em 0;
+  padding-left: 1.25em;
+}
+
+.ai-actions-list--ordered {
+  list-style: decimal;
+}
+
+.ai-action-item {
+  margin: 0.4em 0;
+  line-height: 1.55;
+}
+
+.ai-action-item strong {
+  color: var(--color-text-primary);
+}
+
+/* Timestamp: subtle footer */
+.ai-message-timestamp {
+  display: block;
+  margin-top: 1em;
+  font-size: 0.6875rem;
+  color: var(--color-text-muted, #6b6b6b);
 }
 
 .chat-message-markdown strong {
@@ -546,6 +662,31 @@
 /* === Light theme overrides === */
 [data-theme="light"] .chat-message-markdown hr {
   border-top: 1px solid var(--color-border);
+}
+
+/* Light theme: Claude-style sections */
+[data-theme="light"] .ai-section-title {
+  color: var(--color-text-muted);
+  border-bottom-color: var(--color-border);
+}
+
+[data-theme="light"] .ai-table-wrap {
+  border-color: var(--color-border);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .ai-table-th {
+  color: var(--color-text-muted);
+}
+
+[data-theme="light"] .ai-table-body .ai-table-row:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .ai-blocking-chain {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 [data-theme="light"] .neu-chat-panel,

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -46,6 +46,7 @@ function EmptyStateDemo() {
               loop
               muted
               playsInline
+              autoPlay
               preload="metadata"
               onError={() => setVideoError(true)}
             >
@@ -317,6 +318,7 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
   const { branches } = useFlowData();
   const { theme } = useTheme();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const prevLayoutRef = useRef({ viewType, shouldShowEmpty: !projectName || viewType === 'none' });
 
   // Show empty nodes/edges if no project is selected OR no view is selected
   const shouldShowEmpty = !projectName || viewType === 'none';
@@ -342,12 +344,13 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Update nodes and edges when viewType or projectName changes
+  // Update nodes and edges when viewType, projectName, or branches change
   useEffect(() => {
     if (shouldShowEmpty) {
       // Clear nodes and edges if no project selected
       setNodes([]);
       setEdges([]);
+      prevLayoutRef.current = { viewType, shouldShowEmpty };
       return;
     }
 
@@ -367,14 +370,21 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
     
     setNodes(newNodes);
     setEdges(branchesToEdges(branches, viewType));
-    
-    // Fit view after layout change with appropriate padding based on view type
-    setTimeout(() => {
-      if (reactFlowInstance) {
-        const padding = viewType === 'list' ? 0.5 : 0.2; // More padding for list view
-        reactFlowInstance.fitView({ padding, duration: 300 });
-      }
-    }, 100);
+
+    // Only fit view when layout/project changed (view type or project), not on every branches update
+    const layoutChanged =
+      prevLayoutRef.current.viewType !== viewType ||
+      prevLayoutRef.current.shouldShowEmpty !== shouldShowEmpty;
+    prevLayoutRef.current = { viewType, shouldShowEmpty };
+
+    if (layoutChanged) {
+      setTimeout(() => {
+        if (reactFlowInstance) {
+          const padding = viewType === 'list' ? 0.5 : 0.2;
+          reactFlowInstance.fitView({ padding, duration: 300 });
+        }
+      }, 100);
+    }
   }, [viewType, branches, reactFlowInstance, setNodes, setEdges, shouldShowEmpty]);
 
   // Register custom node types
@@ -460,7 +470,7 @@ export function BranchFlowCanvas({ onInit, onHover, onHoverPosition, onNodeClick
         nodesConnectable={viewType !== 'list'}
         elementsSelectable={viewType !== 'list'}
         deleteKeyCode="Delete"
-        fitView
+        fitView={false}
         fitViewOptions={{ padding: 0.6, minZoom: 0.3, maxZoom: 2 }}
         proOptions={{ hideAttribution: true }}
         className="react-flow-canvas flow-canvas"
