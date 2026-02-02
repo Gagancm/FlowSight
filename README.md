@@ -33,7 +33,12 @@
 
 ## 🎥 Demo Video
 
-[![FlowSight Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://youtu.be/JeGgNyeuoYQ)
+<div align="center">
+  <a href="https://youtu.be/JeGgNyeuoYQ">
+    <img src="https://img.youtube.com/vi/JeGgNyeuoYQ/maxresdefault.jpg" alt="FlowSight Demo Video" style="width:80%;">
+  </a>
+  <p><em>Click above to watch the full system demo</em></p>
+</div>
 
 ---
 
@@ -247,7 +252,12 @@ A **production-ready data pipeline** that ingests, cleans, transforms, and store
 
 ## 🎥 Frontend Demo Video
 
-[![FlowSight Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://youtu.be/jxkV0O7ejfI)
+<div align="center">
+  <a href="https://youtu.be/jxkV0O7ejfI">
+    <img src="https://img.youtube.com/vi/jxkV0O7ejfI/maxresdefault.jpg" alt="FlowSight Frontend Demo" style="width:80%;">
+  </a>
+  <p><em>Click above to watch the UI walkthrough</em></p>
+</div>
 
 ---
 
