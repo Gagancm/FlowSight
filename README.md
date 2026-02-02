@@ -31,6 +31,12 @@
 
 ---
 
+## 🎥 Demo Video
+
+[![FlowSight Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://youtu.be/JeGgNyeuoYQ)
+
+---
+
 ## The Problem
 
 Engineering teams lose **4-8 hours per week** to invisible delays:
@@ -236,6 +242,12 @@ A **production-ready data pipeline** that ingests, cleans, transforms, and store
 - **Hybrid scoring**: Combined ranking with metadata boosting
 - **Recency boosting**: Recent events ranked higher
 - **Importance boosting**: Critical issues, production deployments, failures prioritized
+
+---
+
+## 🎥 Frontend Demo Video
+
+[![FlowSight Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://youtu.be/jxkV0O7ejfI)
 
 ---
 
